@@ -1,0 +1,68 @@
+/* Enhanced Network Map Link Styles */
+
+/* Hover effects for links */
+.leaflet-overlay-pane svg g path:hover {
+  filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.6));
+  cursor: pointer;
+}
+
+/* Enhanced popup styling for comprehensive information */
+.custom-popup .leaflet-popup-content-wrapper {
+  max-width: 320px !important;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.custom-popup .leaflet-popup-content {
+  max-height: 400px;
+  overflow-y: auto;
+  font-size: 12px;
+  line-height: 1.4;
+  margin: 12px 16px;
+}
+
+.custom-popup .leaflet-popup-tip {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Custom scrollbar for popup content */
+.custom-popup .leaflet-popup-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-popup .leaflet-popup-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 2px;
+}
+
+.custom-popup .leaflet-popup-content::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 2px;
+}
+
+.custom-popup .leaflet-popup-content::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+/* Enhanced node icon styling */
+.custom-node-icon {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  transition: all 0.2s ease;
+}
+
+.custom-node-icon:hover {
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+  transform: scale(1.1);
+}
+
+/* Position accuracy circle styling */
+.leaflet-interactive[stroke-dasharray] {
+  stroke-dasharray: 5, 5;
+  animation: dasharray 20s linear infinite;
+}
+
+@keyframes dasharray {
+  to {
+    stroke-dashoffset: -35;
+  }
+}

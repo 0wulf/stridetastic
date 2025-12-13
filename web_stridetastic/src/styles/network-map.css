@@ -1,0 +1,226 @@
+/* Custom styles for Network Map */
+
+/* Leaflet marker clusters and custom icons */
+.custom-node-icon {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Custom arrow icons for links */
+.custom-arrow-icon {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  pointer-events: auto;
+  z-index: 400 !important;
+}
+
+.custom-arrow-icon svg {
+  pointer-events: auto;
+  display: block;
+}
+
+/* Map controls styling */
+.leaflet-control-container {
+  font-family: inherit;
+}
+
+.leaflet-control-zoom a {
+  color: #374151 !important;
+  background-color: white !important;
+  border: 1px solid #d1d5db !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background-color: #f3f4f6 !important;
+}
+
+/* Custom popup styling */
+.leaflet-popup-content-wrapper {
+  border-radius: 8px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  max-width: 320px !important;
+}
+
+.leaflet-popup-content {
+  margin: 12px;
+  font-family: inherit;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* Custom popup for enhanced node info */
+.custom-popup .leaflet-popup-content-wrapper {
+  background: white;
+  border: 1px solid #e5e7eb;
+}
+
+.custom-popup .leaflet-popup-content {
+  margin: 16px;
+  line-height: 1.4;
+}
+
+.leaflet-popup-tip-container {
+  margin-top: -1px;
+}
+
+/* Node connection lines styling */
+.network-link {
+  pointer-events: stroke;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.network-link:hover {
+  stroke-width: 5px !important;
+  opacity: 0.8 !important;
+}
+
+/* Signal strength indicator */
+.signal-strength-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 4px;
+}
+
+.signal-strong {
+  background-color: #22c55e;
+}
+
+.signal-good {
+  background-color: #eab308;
+}
+
+.signal-moderate {
+  background-color: #f97316;
+}
+
+.signal-weak {
+  background-color: #ef4444;
+}
+
+/* Loading overlay */
+.map-loading-overlay {
+  backdrop-filter: blur(2px);
+}
+
+/* Node info panel */
+.node-info-panel {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* Custom tooltip styling */
+.leaflet-tooltip {
+  background-color: #111827 !important;
+  color: white !important;
+  font-size: 0.75rem !important;
+  border-radius: 4px !important;
+  padding: 4px 8px !important;
+  border: none !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+}
+
+.leaflet-tooltip:before {
+  border-top-color: #111827 !important;
+}
+
+/* Draggable node styling */
+.leaflet-marker-draggable {
+  cursor: move !important;
+}
+
+.leaflet-marker-draggable:hover {
+  cursor: grabbing !important;
+}
+
+/* Pin status indicators */
+.node-pinned {
+  filter: drop-shadow(0 0 3px rgba(239, 68, 68, 0.5));
+}
+
+.node-unpinned {
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.2));
+}
+
+/* Animation for node updates */
+@keyframes nodeUpdate {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.node-updated {
+  animation: nodeUpdate 0.5s ease-in-out;
+}
+
+/* MQTT broker special styling */
+.mqtt-broker-node {
+  filter: drop-shadow(0 0 4px rgba(139, 92, 246, 0.6));
+}
+
+/* Link hover effects */
+.leaflet-interactive {
+  cursor: pointer;
+}
+
+.leaflet-interactive:hover {
+  stroke-opacity: 0.8 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .node-info-panel {
+    max-width: none !important;
+    left: 0.75rem !important;
+    right: 0.75rem !important;
+    max-height: 50vh;
+    font-size: 14px;
+  }
+  
+  /* Larger touch targets for mobile */
+  .leaflet-control-zoom a {
+    width: 44px !important;
+    height: 44px !important;
+    line-height: 42px !important;
+    font-size: 18px !important;
+  }
+  
+  /* Custom popup mobile adjustments */
+  .leaflet-popup-content-wrapper {
+    max-width: calc(100vw - 2rem) !important;
+    font-size: 14px;
+  }
+  
+  .leaflet-popup-content {
+    margin: 8px 12px !important;
+    max-height: 300px !important;
+  }
+  
+  /* Map container mobile optimizations */
+  .leaflet-container {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .node-info-panel {
+    left: 0.5rem !important;
+    right: 0.5rem !important;
+    max-height: 45vh;
+    font-size: 13px;
+  }
+  
+  .leaflet-popup-content-wrapper {
+    max-width: calc(100vw - 1rem) !important;
+    font-size: 13px;
+  }
+  
+  .leaflet-popup-content {
+    margin: 6px 10px !important;
+    max-height: 250px !important;
+  }
+}

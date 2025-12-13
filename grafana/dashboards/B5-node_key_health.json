@@ -1,0 +1,100 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "timescaledb"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "footer": {
+              "reducers": []
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 15,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "format": "table",
+          "rawSql": "WITH keyed AS (\n    SELECT public_key,\n           COUNT(*) AS duplicate_count,\n           ARRAY_AGG(node_id ORDER BY node_id) AS duplicate_nodes\n    FROM stridetastic_api_node\n    WHERE public_key IS NOT NULL\n      AND public_key <> ''\n    GROUP BY public_key\n)\nSELECT\n    n.node_id,\n    n.short_name,\n    n.long_name,\n    n.mac_address,\n    n.public_key,\n    n.is_virtual,\n    n.is_low_entropy_public_key,\n    COALESCE(k.duplicate_count, 0) AS duplicate_count,\n    CASE\n        WHEN COALESCE(k.duplicate_count, 0) > 1 THEN ARRAY_REMOVE(k.duplicate_nodes, n.node_id)\n        ELSE ARRAY[]::text[]\n    END AS duplicate_peers,\n    n.first_seen,\n    n.last_seen\nFROM stridetastic_api_node n\nLEFT JOIN keyed k ON k.public_key = n.public_key\nWHERE n.is_low_entropy_public_key = TRUE OR COALESCE(k.duplicate_count, 0) > 1\nORDER BY\n    COALESCE(n.public_key, '') ASC,\n    n.node_id ASC\nLIMIT 200;",
+          "refId": "A"
+        }
+      ],
+      "title": "Node Key Health",
+      "type": "table"
+    }
+  ],
+  "refresh": "5m",
+  "schemaVersion": 42,
+  "style": "dark",
+  "tags": [
+    "nodes",
+    "security",
+    "keys"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-7d",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "B5 - Node Key Health",
+  "uid": "node-key-health",
+  "version": 1
+}

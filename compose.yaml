@@ -1,0 +1,155 @@
+services:
+  timescale_stridetastic:
+    image: timescale/timescaledb:latest-pg17
+    restart: always
+    container_name: timescale_stridetastic
+    hostname: timescale_stridetastic
+    networks:
+      default:
+        aliases:
+          - timescale_stridetastic.local
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - ./timescale_stridetastic:/var/lib/postgresql/data
+
+
+  web_stridetastic:
+    build:
+      context: .
+      dockerfile: ./web_stridetastic/Dockerfile
+    ports:
+      - '3000:3000'
+    container_name: web_stridetastic
+    hostname: web_stridetastic
+    restart: always
+    networks:
+      default:
+        aliases:
+          - web_stridetastic.local
+    environment:
+      - API_HOST_IP=${API_HOST_IP:-localhost}
+    env_file:
+      - .env
+    volumes:
+      - ./web_stridetastic:/app
+      - /app/node_modules  # Preserve container's node_modules
+      - /app/.next         # Preserve Next.js build cache
+
+
+  api_stridetastic:
+    build:
+      context: .
+      dockerfile: ./api_stridetastic/Dockerfile
+    restart: always
+    ports:
+      - "8000:8000"
+    container_name: api_stridetastic
+    hostname: api_stridetastic
+    networks:
+      default:
+        aliases:
+          - api_stridetastic.local
+    volumes:
+      - ./api_stridetastic:/app
+    env_file:
+      - .env
+    depends_on:
+      - timescale_stridetastic
+    devices:
+      - "${SERIAL_PORT:-/dev/null}:${SERIAL_PORT:-/dev/null}"
+
+
+  redis_stridetastic:
+    image: redis:latest
+    restart: always
+    container_name: redis_stridetastic
+    hostname: redis_stridetastic
+    networks:
+      default:
+        aliases:
+          - redis_stridetastic.local
+    ports:
+      - "6379:6379"
+
+
+  celery_stridetastic:
+    build:
+      context: .
+      dockerfile: ./api_stridetastic/Dockerfile
+    command: celery -A stridetastic_api worker -l info
+    restart: always
+    container_name: celery_stridetastic
+    hostname: celery_stridetastic
+    networks:
+      default:
+        aliases:
+          - celery_stridetastic.local
+    volumes:
+      - ./api_stridetastic:/app
+    env_file:
+      - .env
+    depends_on:
+      - timescale_stridetastic
+      - api_stridetastic
+      - redis_stridetastic
+
+  celery_beat_stridetastic:
+    build:
+      context: .
+      dockerfile: ./api_stridetastic/Dockerfile
+    command: celery -A stridetastic_api beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    restart: always
+    container_name: celery_beat_stridetastic
+    hostname: celery_beat_stridetastic
+    networks:
+      default:
+        aliases:
+          - celery_beat_stridetastic.local
+    volumes:
+      - ./api_stridetastic:/app
+    env_file:
+      - .env
+    depends_on:
+      - timescale_stridetastic
+      - api_stridetastic
+      - redis_stridetastic
+      
+
+  grafana_stridetastic:
+    image: grafana/grafana:latest
+    container_name: grafana_stridetastic
+    hostname: grafana_stridetastic
+    restart: always
+    ports:
+      - "3001:3000"
+    networks:
+      default:
+        aliases:
+          - grafana_stridetastic.local
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    env_file:
+      - .env
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - timescale_stridetastic
+      - api_stridetastic
+
+
+networks:
+  default:
+
+volumes:
+  api_stridetastic:
+  timescale_stridetastic:
+  grafana_data:

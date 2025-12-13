@@ -1,0 +1,13 @@
+timescale_stridetastic/
+__pycache__/
+*/__pycache__/
+**/__pycache__/
+.venv/
+.env
+.pytest_cache/
+*/.pytest_cache/
+**/.pytest_cache/
+.vscode/
+
+api_stridetastic/captures/
+api_stridetastic/captures/
