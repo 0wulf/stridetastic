@@ -87,6 +87,20 @@ CLAUDE.md               Full-stack architecture digest for AI copilots
 .env.template           Example .env file
 ```
 
+## Docker Images
+
+Pre-built Docker images are available on GitHub Container Registry:
+
+```bash
+# Pull the API image
+docker pull ghcr.io/0wulf/stridetastic-api:latest
+
+# Pull the Web dashboard image
+docker pull ghcr.io/0wulf/stridetastic-web:latest
+```
+
+Images are automatically built and published on every push to `main` and for version tags (`v*`).
+
 ## Quick Start (Docker Compose)
 
 1. Create your environment file:
