@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import Cookies from 'js-cookie';
-import { LoginCredentials, TokenResponse, Node, NodeKeyHealthEntry, Edge, ChannelStatistics, ChannelDetail, MessageResponse, PublishTextMessagePayload, PublishNodeInfoPayload, PublishPositionPayload, PublishTraceroutePayload, PublishReachabilityPayload, CaptureSession, PublisherReactiveStatus, PublisherReactiveConfigUpdatePayload, PublisherPeriodicJob, PublisherPeriodicJobCreatePayload, PublisherPeriodicJobUpdatePayload, NodePositionHistoryEntry, NodeTelemetryHistoryEntry, NodeLatencyHistoryEntry, PortActivityEntry, NodePortActivityEntry, NodePortPacketEntry, PortNodeActivityEntry, OverviewMetricsResponse, VirtualNodePayload, VirtualNodeSecretResponse, VirtualNodeUpdatePayload, VirtualNodeOptionsResponse, VirtualNodePrefillResponse, NodeLink, NodeLinkPacket } from '@/types';
+import { LoginCredentials, TokenResponse, Node, NodeKeyHealthEntry, Edge, ChannelStatistics, ChannelDetail, MessageResponse, PublishTextMessagePayload, PublishNodeInfoPayload, PublishPositionPayload, PublishTraceroutePayload, PublishReachabilityPayload, PublishTelemetryPayload, CaptureSession, PublisherReactiveStatus, PublisherReactiveConfigUpdatePayload, PublisherPeriodicJob, PublisherPeriodicJobCreatePayload, PublisherPeriodicJobUpdatePayload, NodePositionHistoryEntry, NodeTelemetryHistoryEntry, NodeLatencyHistoryEntry, PortActivityEntry, NodePortActivityEntry, NodePortPacketEntry, PortNodeActivityEntry, OverviewMetricsResponse, VirtualNodePayload, VirtualNodeSecretResponse, VirtualNodeUpdatePayload, VirtualNodeOptionsResponse, VirtualNodePrefillResponse, NodeLink, NodeLinkPacket } from '@/types';
 import type { ActivityTimeRange } from '@/lib/activityFilters';
 import type { Interface } from '@/types/interface';
 
@@ -31,9 +31,17 @@ class ApiClient {
 
     // Request interceptor to add auth token
     this.client.interceptors.request.use(
-      (config) => {
+      (config: any) => {
+        // Allow callers to opt-out of adding the Authorization header by
+        // setting a private `_skipAuth` flag on the request config. This
+        // flag is not sent over the wire and is useful for metadata endpoints
+        // that should be reachable without triggering a CORS preflight.
+        if (config && config._skipAuth) {
+          return config;
+        }
         const token = Cookies.get('access_token');
         if (token) {
+          config.headers = config.headers || {};
           config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
@@ -230,11 +238,16 @@ class ApiClient {
   }
 
   async getVirtualNodeOptions(): Promise<AxiosResponse<VirtualNodeOptionsResponse>> {
-    return this.client.get('/nodes/virtual/options');
+    // Request virtual node options without attaching the Authorization
+    // header to avoid triggering a CORS preflight in the browser. These
+    // options are non-sensitive metadata and can be fetched anonymously.
+    return this.client.get('/nodes/virtual/options', { _skipAuth: true } as any);
   }
 
   async getVirtualNodePrefill(): Promise<AxiosResponse<VirtualNodePrefillResponse>> {
-    return this.client.get('/nodes/virtual/prefill');
+    // Prefill also returns non-sensitive suggestions; fetch without auth
+    // to avoid preflight issues when possible.
+    return this.client.get('/nodes/virtual/prefill', { _skipAuth: true } as any);
   }
 
   async createVirtualNode(payload: VirtualNodePayload): Promise<AxiosResponse<VirtualNodeSecretResponse>> {
@@ -292,6 +305,12 @@ class ApiClient {
 
   async publishPosition(payload: PublishPositionPayload): Promise<AxiosResponse<MessageResponse>> {
     return this.client.post('/publisher/publish/position', payload);
+  }
+
+  // Request data/telemetry from a node — frontend-side payload used to ask
+  // the device to reply (backend support required to act on this request).
+  async publishTelemetry(payload: PublishTelemetryPayload): Promise<AxiosResponse<MessageResponse>> {
+    return this.client.post('/publisher/publish/telemetry', payload);
   }
 
   async publishTraceroute(payload: PublishTraceroutePayload): Promise<AxiosResponse<MessageResponse>> {

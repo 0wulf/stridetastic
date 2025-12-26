@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 11,
+  "id": 3,
   "links": [],
   "panels": [
     {
@@ -82,7 +82,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "format": "table",
@@ -141,7 +141,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "format": "table",
@@ -200,7 +200,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "format": "table",
@@ -259,7 +259,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "format": "table",
@@ -318,7 +318,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "format": "table",
@@ -385,7 +385,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "format": "table",
@@ -704,7 +704,7 @@
             "h": 4,
             "w": 4,
             "x": 20,
-            "y": 34
+            "y": 138
           },
           "id": 9,
           "options": {
@@ -763,7 +763,7 @@
             "h": 4,
             "w": 4,
             "x": 20,
-            "y": 38
+            "y": 142
           },
           "id": 10,
           "options": {
@@ -890,7 +890,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "12.2.1",
+          "pluginVersion": "12.3.0",
           "targets": [
             {
               "format": "time_series",
@@ -981,7 +981,7 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "12.2.1",
+          "pluginVersion": "12.3.0",
           "targets": [
             {
               "format": "time_series",
@@ -1034,7 +1034,7 @@
             "h": 4,
             "w": 6,
             "x": 0,
-            "y": 27
+            "y": 15
           },
           "id": 11,
           "options": {
@@ -1052,7 +1052,7 @@
             "showThresholdMarkers": true,
             "sizing": "auto"
           },
-          "pluginVersion": "12.2.1",
+          "pluginVersion": "12.3.0",
           "targets": [
             {
               "format": "table",
@@ -1091,7 +1091,7 @@
             "h": 4,
             "w": 6,
             "x": 6,
-            "y": 27
+            "y": 15
           },
           "id": 12,
           "options": {
@@ -1111,7 +1111,7 @@
             "textMode": "auto",
             "wideLayout": true
           },
-          "pluginVersion": "12.2.1",
+          "pluginVersion": "12.3.0",
           "targets": [
             {
               "format": "table",
@@ -1158,7 +1158,7 @@
             "h": 4,
             "w": 6,
             "x": 12,
-            "y": 27
+            "y": 15
           },
           "id": 5,
           "options": {
@@ -1178,7 +1178,7 @@
             "textMode": "auto",
             "wideLayout": true
           },
-          "pluginVersion": "12.2.1",
+          "pluginVersion": "12.3.0",
           "targets": [
             {
               "format": "table",
@@ -1251,7 +1251,7 @@
             "h": 4,
             "w": 6,
             "x": 0,
-            "y": 8
+            "y": 72
           },
           "id": 17,
           "options": {
@@ -1271,7 +1271,7 @@
             "textMode": "auto",
             "wideLayout": true
           },
-          "pluginVersion": "12.2.1",
+          "pluginVersion": "12.3.0",
           "targets": [
             {
               "format": "table",
@@ -1312,7 +1312,7 @@
             "h": 4,
             "w": 6,
             "x": 6,
-            "y": 8
+            "y": 72
           },
           "id": 18,
           "options": {
@@ -1332,7 +1332,7 @@
             "textMode": "auto",
             "wideLayout": true
           },
-          "pluginVersion": "12.2.1",
+          "pluginVersion": "12.3.0",
           "targets": [
             {
               "format": "table",
@@ -1371,7 +1371,7 @@
             "h": 4,
             "w": 6,
             "x": 12,
-            "y": 8
+            "y": 72
           },
           "id": 19,
           "options": {
@@ -1391,7 +1391,7 @@
             "textMode": "auto",
             "wideLayout": true
           },
-          "pluginVersion": "12.2.1",
+          "pluginVersion": "12.3.0",
           "targets": [
             {
               "format": "table",
@@ -1430,7 +1430,7 @@
             "h": 4,
             "w": 6,
             "x": 18,
-            "y": 8
+            "y": 72
           },
           "id": 20,
           "options": {
@@ -1450,7 +1450,7 @@
             "textMode": "auto",
             "wideLayout": true
           },
-          "pluginVersion": "12.2.1",
+          "pluginVersion": "12.3.0",
           "targets": [
             {
               "format": "table",
@@ -1523,7 +1523,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 12
+            "y": 76
           },
           "id": 21,
           "options": {
@@ -1541,12 +1541,31 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "12.2.1",
+          "pluginVersion": "12.3.0",
           "targets": [
             {
+              "editorMode": "code",
               "format": "time_series",
-              "rawSql": "SELECT $__timeGroup(tp.time, '5m') AS \"time\", avg(tp.temperature) AS value FROM stridetastic_api_telemetrypayload tp WHERE tp.packet_data_id IN (SELECT id FROM stridetastic_api_packetdata WHERE packet_id IN (SELECT id FROM stridetastic_api_packet WHERE from_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}'))) AND $__timeFilter(tp.time) AND tp.temperature IS NOT NULL GROUP BY $__timeGroup(tp.time, '5m') ORDER BY \"time\";",
-              "refId": "A"
+              "rawQuery": true,
+              "rawSql": "SELECT $__timeGroup(tp.time, '1m') AS \"time\", avg(tp.temperature) AS value FROM stridetastic_api_telemetrypayload tp WHERE tp.packet_data_id IN (SELECT id FROM stridetastic_api_packetdata WHERE packet_id IN (SELECT id FROM stridetastic_api_packet WHERE from_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}'))) AND $__timeFilter(tp.time) AND tp.temperature IS NOT NULL GROUP BY $__timeGroup(tp.time, '1m') ORDER BY \"time\";",
+              "refId": "A",
+              "sql": {
+                "columns": [
+                  {
+                    "parameters": [],
+                    "type": "function"
+                  }
+                ],
+                "groupBy": [
+                  {
+                    "property": {
+                      "type": "string"
+                    },
+                    "type": "groupBy"
+                  }
+                ],
+                "limit": 50
+              }
             }
           ],
           "title": "Temperature Trend",
@@ -1616,7 +1635,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 12
+            "y": 76
           },
           "id": 22,
           "options": {
@@ -1634,12 +1653,31 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "12.2.1",
+          "pluginVersion": "12.3.0",
           "targets": [
             {
+              "editorMode": "code",
               "format": "time_series",
-              "rawSql": "SELECT $__timeGroup(tp.time, '5m') AS \"time\", avg(tp.relative_humidity) AS value FROM stridetastic_api_telemetrypayload tp WHERE tp.packet_data_id IN (SELECT id FROM stridetastic_api_packetdata WHERE packet_id IN (SELECT id FROM stridetastic_api_packet WHERE from_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}'))) AND $__timeFilter(tp.time) AND tp.relative_humidity IS NOT NULL GROUP BY $__timeGroup(tp.time, '5m') ORDER BY \"time\";",
-              "refId": "A"
+              "rawQuery": true,
+              "rawSql": "SELECT $__timeGroup(tp.time, '1m') AS \"time\", avg(tp.relative_humidity) AS value FROM stridetastic_api_telemetrypayload tp WHERE tp.packet_data_id IN (SELECT id FROM stridetastic_api_packetdata WHERE packet_id IN (SELECT id FROM stridetastic_api_packet WHERE from_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}'))) AND $__timeFilter(tp.time) AND tp.relative_humidity IS NOT NULL GROUP BY $__timeGroup(tp.time, '1m') ORDER BY \"time\";",
+              "refId": "A",
+              "sql": {
+                "columns": [
+                  {
+                    "parameters": [],
+                    "type": "function"
+                  }
+                ],
+                "groupBy": [
+                  {
+                    "property": {
+                      "type": "string"
+                    },
+                    "type": "groupBy"
+                  }
+                ],
+                "limit": 50
+              }
             }
           ],
           "title": "Humidity Trend",
@@ -1650,7 +1688,7 @@
       "type": "row"
     },
     {
-      "collapsed": true,
+      "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -1658,727 +1696,53 @@
         "y": 8
       },
       "id": 38,
-      "panels": [
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "timescaledb"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "thresholds"
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": 0
-                  },
-                  {
-                    "color": "yellow",
-                    "value": 500
-                  },
-                  {
-                    "color": "orange",
-                    "value": 1000
-                  },
-                  {
-                    "color": "red",
-                    "value": 2000
-                  }
-                ]
-              },
-              "unit": "ms"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 4,
-            "x": 0,
-            "y": 9
-          },
-          "id": 23,
-          "options": {
-            "colorMode": "value",
-            "graphMode": "none",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "percentChangeColorMode": "standard",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "showPercentChange": false,
-            "textMode": "auto",
-            "wideLayout": true
-          },
-          "pluginVersion": "12.2.1",
-          "targets": [
-            {
-              "format": "table",
-              "rawSql": "SELECT COALESCE(round(avg(latency_ms)::numeric, 2), 0) AS value FROM stridetastic_api_nodelatencyhistory WHERE node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}') AND time >= now() - interval '24 hours';",
-              "refId": "A"
-            }
-          ],
-          "title": "Average Latency",
-          "type": "stat"
-        },
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "timescaledb"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "thresholds"
-              },
-              "mappings": [],
-              "max": 100,
-              "min": 0,
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "red",
-                    "value": 0
-                  },
-                  {
-                    "color": "orange",
-                    "value": 50
-                  },
-                  {
-                    "color": "yellow",
-                    "value": 80
-                  },
-                  {
-                    "color": "green",
-                    "value": 90
-                  }
-                ]
-              },
-              "unit": "percent"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 4,
-            "x": 4,
-            "y": 9
-          },
-          "id": 24,
-          "options": {
-            "colorMode": "value",
-            "graphMode": "none",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "percentChangeColorMode": "standard",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "showPercentChange": false,
-            "textMode": "auto",
-            "wideLayout": true
-          },
-          "pluginVersion": "12.2.1",
-          "targets": [
-            {
-              "format": "table",
-              "rawSql": "SELECT COALESCE(round(100.0 * count(CASE WHEN reachable THEN 1 END) / NULLIF(count(*), 0), 2), 0) AS value FROM stridetastic_api_nodelatencyhistory WHERE node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}') AND time >= now() - interval '24 hours';",
-              "refId": "A"
-            }
-          ],
-          "title": "Reachability",
-          "type": "stat"
-        },
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "timescaledb"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "thresholds"
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "red",
-                    "value": 0
-                  },
-                  {
-                    "color": "orange",
-                    "value": -90
-                  },
-                  {
-                    "color": "yellow",
-                    "value": -80
-                  },
-                  {
-                    "color": "green",
-                    "value": -70
-                  }
-                ]
-              },
-              "unit": "dBm"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 4,
-            "x": 8,
-            "y": 9
-          },
-          "id": 25,
-          "options": {
-            "colorMode": "value",
-            "graphMode": "none",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "percentChangeColorMode": "standard",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "showPercentChange": false,
-            "textMode": "auto",
-            "wideLayout": true
-          },
-          "pluginVersion": "12.2.1",
-          "targets": [
-            {
-              "format": "table",
-              "rawSql": "SELECT COALESCE(round(avg(rx_rssi)::numeric, 2), 0) AS value FROM stridetastic_api_packet WHERE from_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}') AND time >= now() - interval '24 hours';",
-              "refId": "A"
-            }
-          ],
-          "title": "Average RSSI",
-          "type": "stat"
-        },
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "timescaledb"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "thresholds"
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "red",
-                    "value": 0
-                  },
-                  {
-                    "color": "dark-orange",
-                    "value": -10
-                  },
-                  {
-                    "color": "orange",
-                    "value": -5
-                  },
-                  {
-                    "color": "yellow",
-                    "value": 0
-                  },
-                  {
-                    "color": "green",
-                    "value": 5
-                  }
-                ]
-              },
-              "unit": "dB"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 4,
-            "x": 12,
-            "y": 9
-          },
-          "id": 26,
-          "options": {
-            "colorMode": "value",
-            "graphMode": "none",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "percentChangeColorMode": "standard",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "showPercentChange": false,
-            "textMode": "auto",
-            "wideLayout": true
-          },
-          "pluginVersion": "12.2.1",
-          "targets": [
-            {
-              "format": "table",
-              "rawSql": "SELECT COALESCE(round(avg(rx_snr)::numeric, 2), 0) AS value FROM stridetastic_api_packet WHERE from_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}') AND time >= now() - interval '24 hours';",
-              "refId": "A"
-            }
-          ],
-          "title": "Average SNR",
-          "type": "stat"
-        },
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "timescaledb"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "thresholds"
-              },
-              "mappings": [],
-              "max": 100,
-              "min": 0,
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": 0
-                  },
-                  {
-                    "color": "yellow",
-                    "value": 25
-                  },
-                  {
-                    "color": "red",
-                    "value": 50
-                  }
-                ]
-              },
-              "unit": "percent"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 4,
-            "x": 16,
-            "y": 9
-          },
-          "id": 13,
-          "options": {
-            "minVizHeight": 75,
-            "minVizWidth": 75,
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "showThresholdLabels": false,
-            "showThresholdMarkers": true,
-            "sizing": "auto"
-          },
-          "pluginVersion": "12.2.1",
-          "targets": [
-            {
-              "format": "table",
-              "rawSql": "SELECT COALESCE(channel_utilization, 0) AS value FROM stridetastic_api_node WHERE node_id = '${node}' LIMIT 1;",
-              "refId": "A"
-            }
-          ],
-          "title": "Channel Utilization",
-          "type": "gauge"
-        },
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "timescaledb"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "thresholds"
-              },
-              "mappings": [],
-              "max": 100,
-              "min": 0,
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": 0
-                  },
-                  {
-                    "color": "yellow",
-                    "value": 50
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "percent"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 4,
-            "x": 20,
-            "y": 9
-          },
-          "id": 14,
-          "options": {
-            "colorMode": "value",
-            "graphMode": "none",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "percentChangeColorMode": "standard",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "showPercentChange": false,
-            "textMode": "auto",
-            "wideLayout": true
-          },
-          "pluginVersion": "12.2.1",
-          "targets": [
-            {
-              "format": "table",
-              "rawSql": "SELECT COALESCE(air_util_tx, 0) AS value FROM stridetastic_api_node WHERE node_id = '${node}' LIMIT 1;",
-              "refId": "A"
-            }
-          ],
-          "title": "Air Utilization TX",
-          "type": "stat"
-        },
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "timescaledb"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "Latency ms",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 10,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "smooth",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "showValues": false,
-                "spanNulls": true,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": 0
-                  }
-                ]
-              },
-              "unit": "ms"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 10,
-            "w": 12,
-            "x": 0,
-            "y": 13
-          },
-          "id": 27,
-          "options": {
-            "legend": {
-              "calcs": [
-                "mean"
-              ],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "multi",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "12.2.1",
-          "targets": [
-            {
-              "format": "time_series",
-              "rawSql": "WITH minute_buckets AS (SELECT date_trunc('minute', ts)::timestamp AS bucket FROM generate_series($__timeFrom()::timestamp, $__timeTo()::timestamp, '1 minute'::interval) ts UNION ALL SELECT date_trunc('minute', now())::timestamp) SELECT DISTINCT mb.bucket::timestamp AS \"time\", avg(l.latency_ms)::numeric(8,2) AS value FROM minute_buckets mb LEFT JOIN stridetastic_api_nodelatencyhistory l ON l.node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}') AND l.time >= mb.bucket AND l.time < mb.bucket + interval '1 minute' AND l.latency_ms IS NOT NULL GROUP BY mb.bucket ORDER BY mb.bucket;",
-              "refId": "A"
-            }
-          ],
-          "title": "Latency Trend",
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "timescaledb"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "Percentage %",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 15,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "smooth",
-                "lineWidth": 2,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "showValues": false,
-                "spanNulls": true,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "max": 100,
-              "min": 0,
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": 0
-                  },
-                  {
-                    "color": "yellow",
-                    "value": 50
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "percent"
-            },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Airtime (Duty Cycle)"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "blue",
-                      "mode": "fixed"
-                    }
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Channel Utilization"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "mode": "thresholds"
-                  },
-                  {
-                    "id": "thresholds",
-                    "value": {
-                      "mode": "absolute",
-                      "steps": [
-                        {
-                          "color": "green",
-                          "value": 0
-                        },
-                        {
-                          "color": "orange",
-                          "value": 25
-                        },
-                        {
-                          "color": "red",
-                          "value": 50
-                        }
-                      ]
-                    }
-                  }
-                ]
-              }
-            ]
-          },
-          "gridPos": {
-            "h": 10,
-            "w": 12,
-            "x": 12,
-            "y": 13
-          },
-          "id": 40,
-          "options": {
-            "legend": {
-              "calcs": [
-                "mean",
-                "max"
-              ],
-              "displayMode": "table",
-              "placement": "right",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "multi",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "12.2.1",
-          "targets": [
-            {
-              "format": "time_series",
-              "rawSql": "SELECT $__timeGroup(tp.time, '5m') AS \"time\", COALESCE(avg(tp.air_util_tx), 0) AS \"Airtime (Duty Cycle)\" FROM stridetastic_api_telemetrypayload tp WHERE tp.packet_data_id IN (SELECT id FROM stridetastic_api_packetdata WHERE packet_id IN (SELECT id FROM stridetastic_api_packet WHERE from_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}'))) AND $__timeFilter(tp.time) GROUP BY $__timeGroup(tp.time, '5m') ORDER BY \"time\";",
-              "refId": "A"
-            },
-            {
-              "format": "time_series",
-              "rawSql": "SELECT $__timeGroup(tp.time, '5m') AS \"time\", COALESCE(avg(tp.channel_utilization), 0) AS \"Channel Utilization\" FROM stridetastic_api_telemetrypayload tp WHERE tp.packet_data_id IN (SELECT id FROM stridetastic_api_packetdata WHERE packet_id IN (SELECT id FROM stridetastic_api_packet WHERE from_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}'))) AND $__timeFilter(tp.time) GROUP BY $__timeGroup(tp.time, '5m') ORDER BY \"time\";",
-              "refId": "B"
-            }
-          ],
-          "title": "Airtime & Channel Utilization",
-          "type": "timeseries"
-        }
-      ],
+      "panels": [],
       "title": "Radio Performance",
       "type": "row"
     },
     {
-      "collapsed": false,
+      "datasource": {
+        "type": "postgres",
+        "uid": "timescaledb"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 500
+              },
+              {
+                "color": "orange",
+                "value": 1000
+              },
+              {
+                "color": "red",
+                "value": 2000
+              }
+            ]
+          },
+          "unit": "ms"
+        },
+        "overrides": []
+      },
       "gridPos": {
-        "h": 1,
-        "w": 24,
+        "h": 4,
+        "w": 4,
         "x": 0,
         "y": 9
       },
-      "id": 39,
-      "panels": [],
-      "title": "Network Activity",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "timescaledb"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": 0
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 0,
-        "y": 10
-      },
-      "id": 30,
+      "id": 23,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
@@ -2396,192 +1760,15 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "format": "table",
-          "rawSql": "SELECT count(*) AS value FROM stridetastic_api_packet WHERE to_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}') AND time >= now() - interval '24 hours';",
+          "rawSql": "SELECT COALESCE(round(avg(latency_ms)::numeric, 2), 0) AS value FROM stridetastic_api_nodelatencyhistory WHERE node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}') AND time >= now() - interval '24 hours';",
           "refId": "A"
         }
       ],
-      "title": "Packets Received At",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "timescaledb"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": 0
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 4,
-        "y": 10
-      },
-      "id": 28,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.2.1",
-      "targets": [
-        {
-          "format": "table",
-          "rawSql": "SELECT count(*) AS value FROM stridetastic_api_packet WHERE from_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}') AND time >= now() - interval '24 hours';",
-          "refId": "A"
-        }
-      ],
-      "title": "Packets Sent From",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "timescaledb"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": 0
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 8,
-        "y": 10
-      },
-      "id": 31,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.2.1",
-      "targets": [
-        {
-          "format": "table",
-          "rawSql": "SELECT COALESCE(round(count(*) / NULLIF(EXTRACT(EPOCH FROM (max(time) - min(time))) / 60.0, 0), 2), 0) AS value FROM stridetastic_api_packet WHERE from_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}') AND time >= $__timeFrom()::timestamp AND time < $__timeTo()::timestamp;",
-          "refId": "A"
-        }
-      ],
-      "title": "Packets Per Minute",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "timescaledb"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": 0
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 12,
-        "y": 10
-      },
-      "id": 33,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.2.1",
-      "targets": [
-        {
-          "format": "table",
-          "rawSql": "SELECT COALESCE(round(count(*) / NULLIF(EXTRACT(EPOCH FROM (max(time) - min(time))) / 3600.0, 0), 2), 0) AS value FROM stridetastic_api_packet WHERE from_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}') AND time >= $__timeFrom()::timestamp AND time < $__timeTo()::timestamp;",
-          "refId": "A"
-        }
-      ],
-      "title": "Packets Per Hour",
+      "title": "Average Latency",
       "type": "stat"
     },
     {
@@ -2606,15 +1793,15 @@
               },
               {
                 "color": "orange",
-                "value": 80
+                "value": 50
               },
               {
                 "color": "yellow",
-                "value": 95
+                "value": 80
               },
               {
                 "color": "green",
-                "value": 98
+                "value": 90
               }
             ]
           },
@@ -2625,10 +1812,10 @@
       "gridPos": {
         "h": 4,
         "w": 4,
-        "x": 16,
-        "y": 10
+        "x": 4,
+        "y": 9
       },
-      "id": 29,
+      "id": 24,
       "options": {
         "colorMode": "value",
         "graphMode": "none",
@@ -2646,15 +1833,297 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "format": "table",
-          "rawSql": "SELECT COALESCE(round(100.0 * count(CASE WHEN ackd THEN 1 END) / NULLIF(count(CASE WHEN want_ack THEN 1 END), 0), 2), 0) AS value FROM stridetastic_api_packet WHERE from_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}') AND time >= now() - interval '24 hours' AND want_ack = true;",
+          "rawSql": "SELECT COALESCE(round(100.0 * count(CASE WHEN reachable THEN 1 END) / NULLIF(count(*), 0), 2), 0) AS value FROM stridetastic_api_nodelatencyhistory WHERE node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}') AND time >= now() - interval '24 hours';",
           "refId": "A"
         }
       ],
-      "title": "Delivery Rate",
+      "title": "Reachability",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "timescaledb"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "orange",
+                "value": -90
+              },
+              {
+                "color": "yellow",
+                "value": -80
+              },
+              {
+                "color": "green",
+                "value": -70
+              }
+            ]
+          },
+          "unit": "dBm"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 9
+      },
+      "id": 25,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.0",
+      "targets": [
+        {
+          "format": "table",
+          "rawSql": "SELECT COALESCE(round(avg(rx_rssi)::numeric, 2), 0) AS value FROM stridetastic_api_packet WHERE from_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}') AND time >= now() - interval '24 hours';",
+          "refId": "A"
+        }
+      ],
+      "title": "Average RSSI",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "timescaledb"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "dark-orange",
+                "value": -10
+              },
+              {
+                "color": "orange",
+                "value": -5
+              },
+              {
+                "color": "yellow",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 5
+              }
+            ]
+          },
+          "unit": "dB"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 9
+      },
+      "id": 26,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.0",
+      "targets": [
+        {
+          "format": "table",
+          "rawSql": "SELECT COALESCE(round(avg(rx_snr)::numeric, 2), 0) AS value FROM stridetastic_api_packet WHERE from_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}') AND time >= now() - interval '24 hours';",
+          "refId": "A"
+        }
+      ],
+      "title": "Average SNR",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "timescaledb"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 25
+              },
+              {
+                "color": "red",
+                "value": 50
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 9
+      },
+      "id": 13,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "12.3.0",
+      "targets": [
+        {
+          "format": "table",
+          "rawSql": "SELECT COALESCE(channel_utilization, 0) AS value FROM stridetastic_api_node WHERE node_id = '${node}' LIMIT 1;",
+          "refId": "A"
+        }
+      ],
+      "title": "Channel Utilization",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "timescaledb"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 50
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 9
+      },
+      "id": 14,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.0",
+      "targets": [
+        {
+          "format": "table",
+          "rawSql": "SELECT COALESCE(air_util_tx, 0) AS value FROM stridetastic_api_node WHERE node_id = '${node}' LIMIT 1;",
+          "refId": "A"
+        }
+      ],
+      "title": "Air Utilization TX",
       "type": "stat"
     },
     {
@@ -2671,427 +2140,7 @@
             "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "Packets",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "bars",
-            "fillOpacity": 70,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "showValues": false,
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 14
-      },
-      "id": 32,
-      "options": {
-        "legend": {
-          "calcs": [
-            "mean"
-          ],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "12.2.1",
-      "targets": [
-        {
-          "format": "time_series",
-          "rawSql": "SELECT $__timeGroup(p.time, '1m') AS \"time\", count(*) AS value FROM stridetastic_api_packet p WHERE p.from_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}') AND $__timeFilter(p.time) GROUP BY $__timeGroup(p.time, '1m') ORDER BY \"time\";",
-          "refId": "A"
-        }
-      ],
-      "title": "Packets Per Minute Timeline",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "timescaledb"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            }
-          },
-          "mappings": [],
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 14
-      },
-      "id": 48,
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "pieType": "pie",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": true
-        },
-        "sort": "desc",
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "12.2.1",
-      "targets": [
-        {
-          "format": "table",
-          "rawSql": "SELECT COALESCE(pd.port, 'UNKNOWN') AS port, count(*) AS value FROM stridetastic_api_packet p LEFT JOIN stridetastic_api_packetdata pd ON p.id = pd.packet_id WHERE p.from_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}') AND $__timeFilter(p.time) GROUP BY pd.port ORDER BY value DESC;",
-          "refId": "A"
-        }
-      ],
-      "title": "Message Type Distribution",
-      "type": "piechart"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 22
-      },
-      "id": 46,
-      "panels": [],
-      "title": "Node Network",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "timescaledb"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "footer": {
-              "reducers": []
-            },
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": 0
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "SNR (dB)"
-            },
-            "properties": [
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "red",
-                      "value": 0
-                    },
-                    {
-                      "color": "orange",
-                      "value": 0
-                    },
-                    {
-                      "color": "yellow",
-                      "value": 5
-                    },
-                    {
-                      "color": "green",
-                      "value": 10
-                    }
-                  ]
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Last Seen"
-            },
-            "properties": []
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 10,
-        "w": 24,
-        "x": 0,
-        "y": 23
-      },
-      "id": 42,
-      "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": "all",
-          "enablePagination": true,
-          "fields": "",
-          "mode": "auto",
-          "show": true
-        },
-        "frameIndex": 0,
-        "showHeader": true,
-        "sortBy": [
-          {
-            "desc": true,
-            "displayName": "Directionality"
-          }
-        ]
-      },
-      "pluginVersion": "12.2.1",
-      "targets": [
-        {
-          "format": "table",
-          "rawSql": "WITH all_neighbors AS (\n    -- Get neighbors from both directions\n    SELECT DISTINCT\n        COALESCE(out_edge.target_node_id, in_edge.source_node_id) as neighbor_id,\n        COALESCE(out_node.node_id, in_node.node_id) as neighbor_node_id,\n        COALESCE(out_node.short_name, in_node.short_name) as short_name,\n        COALESCE(out_node.long_name, in_node.long_name) as long_name,\n        CASE \n            WHEN out_edge.id IS NOT NULL AND in_edge.id IS NOT NULL THEN 'Bidirectional'\n            WHEN out_edge.id IS NOT NULL THEN 'Towards'\n            WHEN in_edge.id IS NOT NULL THEN 'Backwards'\n        END as directionality,\n        out_edge.last_rx_rssi as sent_rssi,\n        ROUND(out_edge.last_rx_snr::numeric, 2) as sent_snr,\n        out_edge.last_seen as sent_last_seen,\n        in_edge.last_rx_rssi as received_rssi,\n        ROUND(in_edge.last_rx_snr::numeric, 2) as received_snr,\n        in_edge.last_seen as received_last_seen\n    FROM (\n        SELECT * FROM stridetastic_api_edge \n        WHERE source_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\n        AND last_hops = 0\n    ) out_edge\n    FULL OUTER JOIN (\n        SELECT * FROM stridetastic_api_edge\n        WHERE target_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\n        AND last_hops = 0\n    ) in_edge ON out_edge.target_node_id = in_edge.source_node_id\n    LEFT JOIN stridetastic_api_node out_node ON out_edge.target_node_id = out_node.id\n    LEFT JOIN stridetastic_api_node in_node ON in_edge.source_node_id = in_node.id\n)\nSELECT \n    an.neighbor_node_id as \"Node ID\",\n    an.short_name as \"Short Name\",\n    an.long_name as \"Long Name\",\n    an.directionality as \"Directionality\",\n    an.sent_rssi as \"Sent RSSI\",\n    an.sent_snr as \"Sent SNR\",\n    nl_out.node_a_to_node_b_packets as \"Sent Packets\",\n    an.sent_last_seen as \"Sent Last Seen\",\n    an.received_rssi as \"Received RSSI\",\n    an.received_snr as \"Received SNR\",\n    nl_in.node_b_to_node_a_packets as \"Received Packets\",\n    an.received_last_seen as \"Received Last Seen\"\nFROM all_neighbors an\nLEFT JOIN stridetastic_api_nodelink nl_out ON \n    nl_out.node_a_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\n    AND nl_out.node_b_id = an.neighbor_id\nLEFT JOIN stridetastic_api_nodelink nl_in ON\n    nl_in.node_a_id = an.neighbor_id\n    AND nl_in.node_b_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\nORDER BY an.neighbor_node_id;",
-          "refId": "A"
-        }
-      ],
-      "title": "Direct Neighbors (0-Hop) - Comprehensive View",
-      "type": "table"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "timescaledb"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "footer": {
-              "reducers": []
-            },
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": 0
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Bidirectional"
-            },
-            "properties": [
-              {
-                "id": "mappings",
-                "value": [
-                  {
-                    "options": {
-                      "✓": {
-                        "color": "green",
-                        "index": 0
-                      },
-                      "✗": {
-                        "color": "red",
-                        "index": 1
-                      }
-                    },
-                    "type": "value"
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 14,
-        "x": 0,
-        "y": 33
-      },
-      "id": 44,
-      "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": "all",
-          "enablePagination": true,
-          "fields": "",
-          "mode": "auto",
-          "show": true
-        },
-        "frameIndex": 0,
-        "showHeader": true,
-        "sortBy": [
-          {
-            "desc": true,
-            "displayName": "Last Activity"
-          }
-        ]
-      },
-      "pluginVersion": "12.2.1",
-      "targets": [
-        {
-          "format": "table",
-          "rawSql": "SELECT \n    CASE \n        WHEN nl.node_a_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\n        THEN node_b.node_id\n        ELSE node_a.node_id\n    END::text as \"Remote Node\",\n    CASE \n        WHEN nl.node_a_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\n        THEN node_b.short_name\n        ELSE node_a.short_name\n    END as \"Name\",\n    CASE \n        WHEN nl.node_a_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\n        THEN nl.node_a_to_node_b_packets\n        ELSE nl.node_b_to_node_a_packets\n    END::int as \"Sent to\",\n    CASE \n        WHEN nl.node_a_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\n        THEN nl.node_b_to_node_a_packets\n        ELSE nl.node_a_to_node_b_packets\n    END::int as \"Received from\",\n    CASE WHEN nl.is_bidirectional THEN '✓' ELSE '✗' END as \"Bidirectional\",\n    nl.last_activity as \"Last Activity\"\nFROM stridetastic_api_nodelink nl\nJOIN stridetastic_api_node node_a ON nl.node_a_id = node_a.id\nJOIN stridetastic_api_node node_b ON nl.node_b_id = node_b.id\nWHERE nl.node_a_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\n    OR nl.node_b_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\nORDER BY nl.last_activity DESC;",
-          "refId": "A"
-        }
-      ],
-      "title": "Adressed Packets to/from Node",
-      "type": "table"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "timescaledb"
-      },
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 19,
-        "w": 10,
-        "x": 14,
-        "y": 33
-      },
-      "id": 47,
-      "options": {
-        "edges": {},
-        "layoutAlgorithm": "layered",
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true,
-          "values": []
-        },
-        "nodes": {},
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        },
-        "zoomMode": "cooperative"
-      },
-      "pluginVersion": "12.2.1",
-      "targets": [
-        {
-          "format": "table",
-          "rawSql": "SELECT DISTINCT\n    id,\n    title,\n    subtitle\nFROM (\n    SELECT \n        (SELECT node_id FROM stridetastic_api_node WHERE node_id = '${node}') as id,\n        (SELECT node_id FROM stridetastic_api_node WHERE node_id = '${node}') as title,\n        (SELECT COALESCE(short_name, 'N/A') || ' / ' || COALESCE(long_name, 'N/A') FROM stridetastic_api_node WHERE node_id = '${node}') as subtitle\n    UNION ALL\n    SELECT \n        target_node.node_id::text as id,\n        target_node.node_id::text as title,\n        COALESCE(target_node.short_name, 'N/A') || ' / ' || COALESCE(target_node.long_name, 'N/A') as subtitle\n    FROM stridetastic_api_edge e\n    JOIN stridetastic_api_node target_node ON e.target_node_id = target_node.id\n    WHERE e.source_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\n    AND e.last_hops = 0\n    \n    UNION ALL\n    \n    SELECT \n        source_node.node_id::text as id,\n        source_node.node_id::text as title,\n        COALESCE(source_node.short_name, 'N/A') || ' / ' || COALESCE(source_node.long_name, 'N/A') as subtitle\n    FROM stridetastic_api_edge e\n    JOIN stridetastic_api_node source_node ON e.source_node_id = source_node.id\n    WHERE e.target_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\n    AND e.last_hops = 0\n) all_nodes\nORDER BY id;",
-          "refId": "A"
-        },
-        {
-          "format": "table",
-          "rawSql": "SELECT \n    id,\n    source,\n    target,\n    mainstat,\n    secondarystat\nFROM (\n    -- Outgoing: We hear neighbor\n    SELECT \n        ROW_NUMBER() OVER (ORDER BY target_node.node_id) || '_out' as id,\n        (SELECT node_id FROM stridetastic_api_node WHERE node_id = '${node}') as source,\n        target_node.node_id::text as target,\n        'SNR: ' || ROUND(e.last_rx_snr::numeric, 2)::text as mainstat,\n        'RSSI: ' || COALESCE(e.last_rx_rssi, 0)::text as secondarystat\n    FROM stridetastic_api_edge e\n    JOIN stridetastic_api_node target_node ON e.target_node_id = target_node.id\n    WHERE e.source_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\n    AND e.last_hops = 0\n    \n    UNION ALL\n    \n    -- Incoming: They hear us\n    SELECT \n        ROW_NUMBER() OVER (ORDER BY source_node.node_id) || '_in' as id,\n        source_node.node_id::text as source,\n        (SELECT node_id FROM stridetastic_api_node WHERE node_id = '${node}') as target,\n        'SNR: ' || ROUND(e.last_rx_snr::numeric, 2)::text as mainstat,\n        'RSSI: ' || COALESCE(e.last_rx_rssi, 0)::text as secondarystat\n    FROM stridetastic_api_edge e\n    JOIN stridetastic_api_node source_node ON e.source_node_id = source_node.id\n    WHERE e.target_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\n    AND e.last_hops = 0\n) all_edges;",
-          "refId": "B"
-        }
-      ],
-      "title": "Direct Neighbors Network Graph",
-      "type": "nodeGraph"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "timescaledb"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "Packets",
+            "axisLabel": "Latency ms",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "barWidthFactor": 0.6,
@@ -3131,17 +2180,168 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "ms"
         },
         "overrides": []
       },
       "gridPos": {
         "h": 10,
-        "w": 14,
+        "w": 12,
         "x": 0,
-        "y": 42
+        "y": 13
       },
-      "id": 45,
+      "id": 27,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.0",
+      "targets": [
+        {
+          "format": "time_series",
+          "rawSql": "WITH minute_buckets AS (SELECT date_trunc('minute', ts)::timestamp AS bucket FROM generate_series($__timeFrom()::timestamp, $__timeTo()::timestamp, '1 minute'::interval) ts UNION ALL SELECT date_trunc('minute', now())::timestamp) SELECT DISTINCT mb.bucket::timestamp AS \"time\", avg(l.latency_ms)::numeric(8,2) AS value FROM minute_buckets mb LEFT JOIN stridetastic_api_nodelatencyhistory l ON l.node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}') AND l.time >= mb.bucket AND l.time < mb.bucket + interval '1 minute' AND l.latency_ms IS NOT NULL GROUP BY mb.bucket ORDER BY mb.bucket;",
+          "refId": "A"
+        }
+      ],
+      "title": "Latency Trend",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "timescaledb"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Percentage %",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 50
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Airtime (Duty Cycle)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Channel Utilization"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "mode": "thresholds"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": 0
+                    },
+                    {
+                      "color": "orange",
+                      "value": 25
+                    },
+                    {
+                      "color": "red",
+                      "value": 50
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 13
+      },
+      "id": 40,
       "options": {
         "legend": {
           "calcs": [
@@ -3158,16 +2358,891 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
+          "editorMode": "code",
           "format": "time_series",
-          "rawSql": "SELECT \n    DATE_TRUNC('hour', nl.last_activity) as \"time\",\n    CASE \n        WHEN nl.node_a_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\n        THEN 'Sent'\n        ELSE 'Received'\n    END as \"Direction\",\n    SUM(CASE \n        WHEN nl.node_a_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\n        THEN nl.node_a_to_node_b_packets\n        ELSE nl.node_b_to_node_a_packets\n    END)::int as \"Packets\"\nFROM stridetastic_api_nodelink nl\nWHERE (nl.node_a_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\n    OR nl.node_b_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}'))\nGROUP BY DATE_TRUNC('hour', nl.last_activity), \n         CASE \n            WHEN nl.node_a_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\n            THEN 'Sent'\n            ELSE 'Received'\n         END\nORDER BY DATE_TRUNC('hour', nl.last_activity) ASC;",
-          "refId": "A"
+          "rawQuery": true,
+          "rawSql": "SELECT\n  $__timeGroup(tp.time, '1m') AS \"time\",\n  avg(tp.air_util_tx) AS \"Airtime (Duty Cycle)\"\nFROM stridetastic_api_telemetrypayload tp\nWHERE tp.air_util_tx <> 0\n  AND tp.packet_data_id IN (\n    SELECT id FROM stridetastic_api_packetdata\n    WHERE packet_id IN (\n      SELECT id FROM stridetastic_api_packet\n      WHERE from_node_id = (\n        SELECT id FROM stridetastic_api_node\n        WHERE node_id = '${node}'\n      )\n    )\n  )\n  AND $__timeFilter(tp.time)\nGROUP BY $__timeGroup(tp.time, '1m')\nORDER BY \"time\";\n",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        },
+        {
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  $__timeGroup(tp.time, '1m') AS \"time\",\n  avg(tp.channel_utilization) AS \"Channel Utilization\"\nFROM stridetastic_api_telemetrypayload tp\nWHERE tp.channel_utilization <> 0\n  AND tp.packet_data_id IN (\n    SELECT id\n    FROM stridetastic_api_packetdata\n    WHERE packet_id IN (\n      SELECT id\n      FROM stridetastic_api_packet\n      WHERE from_node_id = (\n        SELECT id\n        FROM stridetastic_api_node\n        WHERE node_id = '${node}'\n      )\n    )\n  )\n  AND $__timeFilter(tp.time)\nGROUP BY $__timeGroup(tp.time, '1m')\nORDER BY \"time\";\n",
+          "refId": "B",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
         }
       ],
-      "title": "Publication Activity Timeline",
+      "title": "Airtime & Channel Utilization",
       "type": "timeseries"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 23
+      },
+      "id": 39,
+      "panels": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "timescaledb"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "blue",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 0,
+            "y": 114
+          },
+          "id": 30,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "12.3.1",
+          "targets": [
+            {
+              "format": "table",
+              "rawSql": "SELECT count(*) AS value FROM stridetastic_api_packet WHERE to_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}') AND time >= now() - interval '24 hours';",
+              "refId": "A"
+            }
+          ],
+          "title": "Packets Received At",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "timescaledb"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "blue",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 4,
+            "y": 114
+          },
+          "id": 28,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "12.3.1",
+          "targets": [
+            {
+              "format": "table",
+              "rawSql": "SELECT count(*) AS value FROM stridetastic_api_packet WHERE from_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}') AND time >= now() - interval '24 hours';",
+              "refId": "A"
+            }
+          ],
+          "title": "Packets Sent From",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "timescaledb"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "blue",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 8,
+            "y": 114
+          },
+          "id": 31,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "12.3.1",
+          "targets": [
+            {
+              "format": "table",
+              "rawSql": "SELECT COALESCE(round(count(*) / NULLIF(EXTRACT(EPOCH FROM (max(time) - min(time))) / 60.0, 0), 2), 0) AS value FROM stridetastic_api_packet WHERE from_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}') AND time >= $__timeFrom()::timestamp AND time < $__timeTo()::timestamp;",
+              "refId": "A"
+            }
+          ],
+          "title": "Packets Per Minute",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "timescaledb"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "blue",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 12,
+            "y": 114
+          },
+          "id": 33,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "12.3.1",
+          "targets": [
+            {
+              "format": "table",
+              "rawSql": "SELECT COALESCE(round(count(*) / NULLIF(EXTRACT(EPOCH FROM (max(time) - min(time))) / 3600.0, 0), 2), 0) AS value FROM stridetastic_api_packet WHERE from_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}') AND time >= $__timeFrom()::timestamp AND time < $__timeTo()::timestamp;",
+              "refId": "A"
+            }
+          ],
+          "title": "Packets Per Hour",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "timescaledb"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "max": 100,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": 0
+                  },
+                  {
+                    "color": "orange",
+                    "value": 80
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 95
+                  },
+                  {
+                    "color": "green",
+                    "value": 98
+                  }
+                ]
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 16,
+            "y": 114
+          },
+          "id": 29,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "12.3.1",
+          "targets": [
+            {
+              "format": "table",
+              "rawSql": "SELECT COALESCE(round(100.0 * count(CASE WHEN ackd THEN 1 END) / NULLIF(count(CASE WHEN want_ack THEN 1 END), 0), 2), 0) AS value FROM stridetastic_api_packet WHERE from_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}') AND time >= now() - interval '24 hours' AND want_ack = true;",
+              "refId": "A"
+            }
+          ],
+          "title": "Delivery Rate",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "timescaledb"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "Packets",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "bars",
+                "fillOpacity": 70,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 118
+          },
+          "id": 32,
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean"
+              ],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "12.3.1",
+          "targets": [
+            {
+              "format": "time_series",
+              "rawSql": "SELECT $__timeGroup(p.time, '1m') AS \"time\", count(*) AS value FROM stridetastic_api_packet p WHERE p.from_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}') AND $__timeFilter(p.time) GROUP BY $__timeGroup(p.time, '1m') ORDER BY \"time\";",
+              "refId": "A"
+            }
+          ],
+          "title": "Packets Per Minute Timeline",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "timescaledb"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                }
+              },
+              "mappings": [],
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 118
+          },
+          "id": 48,
+          "options": {
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "pieType": "pie",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": true
+            },
+            "sort": "desc",
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "12.3.1",
+          "targets": [
+            {
+              "format": "table",
+              "rawSql": "SELECT COALESCE(pd.port, 'UNKNOWN') AS port, count(*) AS value FROM stridetastic_api_packet p LEFT JOIN stridetastic_api_packetdata pd ON p.id = pd.packet_id WHERE p.from_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}') AND $__timeFilter(p.time) GROUP BY pd.port ORDER BY value DESC;",
+              "refId": "A"
+            }
+          ],
+          "title": "Message Type Distribution",
+          "type": "piechart"
+        }
+      ],
+      "title": "Network Activity",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "id": 46,
+      "panels": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "timescaledb"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "footer": {},
+                "inspect": false
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "blue",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "SNR (dB)"
+                },
+                "properties": [
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "red",
+                          "value": 0
+                        },
+                        {
+                          "color": "orange",
+                          "value": 0
+                        },
+                        {
+                          "color": "yellow",
+                          "value": 5
+                        },
+                        {
+                          "color": "green",
+                          "value": 10
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Last Seen"
+                },
+                "properties": []
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 10,
+            "w": 24,
+            "x": 0,
+            "y": 115
+          },
+          "id": 42,
+          "options": {
+            "cellHeight": "sm",
+            "footer": {
+              "countRows": "all",
+              "enablePagination": true,
+              "fields": "",
+              "mode": "auto",
+              "show": true
+            },
+            "frameIndex": 0,
+            "showHeader": true,
+            "sortBy": [
+              {
+                "desc": true,
+                "displayName": "Directionality"
+              }
+            ]
+          },
+          "pluginVersion": "12.2.1",
+          "targets": [
+            {
+              "format": "table",
+              "rawSql": "WITH all_neighbors AS (\n    -- Get neighbors from both directions\n    SELECT DISTINCT\n        COALESCE(out_edge.target_node_id, in_edge.source_node_id) as neighbor_id,\n        COALESCE(out_node.node_id, in_node.node_id) as neighbor_node_id,\n        COALESCE(out_node.short_name, in_node.short_name) as short_name,\n        COALESCE(out_node.long_name, in_node.long_name) as long_name,\n        CASE \n            WHEN out_edge.id IS NOT NULL AND in_edge.id IS NOT NULL THEN 'Bidirectional'\n            WHEN out_edge.id IS NOT NULL THEN 'Towards'\n            WHEN in_edge.id IS NOT NULL THEN 'Backwards'\n        END as directionality,\n        out_edge.last_rx_rssi as sent_rssi,\n        ROUND(out_edge.last_rx_snr::numeric, 2) as sent_snr,\n        out_edge.last_seen as sent_last_seen,\n        in_edge.last_rx_rssi as received_rssi,\n        ROUND(in_edge.last_rx_snr::numeric, 2) as received_snr,\n        in_edge.last_seen as received_last_seen\n    FROM (\n        SELECT * FROM stridetastic_api_edge \n        WHERE source_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\n        AND last_hops = 0\n    ) out_edge\n    FULL OUTER JOIN (\n        SELECT * FROM stridetastic_api_edge\n        WHERE target_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\n        AND last_hops = 0\n    ) in_edge ON out_edge.target_node_id = in_edge.source_node_id\n    LEFT JOIN stridetastic_api_node out_node ON out_edge.target_node_id = out_node.id\n    LEFT JOIN stridetastic_api_node in_node ON in_edge.source_node_id = in_node.id\n)\nSELECT \n    an.neighbor_node_id as \"Node ID\",\n    an.short_name as \"Short Name\",\n    an.long_name as \"Long Name\",\n    an.directionality as \"Directionality\",\n    an.sent_rssi as \"Sent RSSI\",\n    an.sent_snr as \"Sent SNR\",\n    nl_out.node_a_to_node_b_packets as \"Sent Packets\",\n    an.sent_last_seen as \"Sent Last Seen\",\n    an.received_rssi as \"Received RSSI\",\n    an.received_snr as \"Received SNR\",\n    nl_in.node_b_to_node_a_packets as \"Received Packets\",\n    an.received_last_seen as \"Received Last Seen\"\nFROM all_neighbors an\nLEFT JOIN stridetastic_api_nodelink nl_out ON \n    nl_out.node_a_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\n    AND nl_out.node_b_id = an.neighbor_id\nLEFT JOIN stridetastic_api_nodelink nl_in ON\n    nl_in.node_a_id = an.neighbor_id\n    AND nl_in.node_b_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\nORDER BY an.neighbor_node_id;",
+              "refId": "A"
+            }
+          ],
+          "title": "Direct Neighbors (0-Hop) - Comprehensive View",
+          "type": "table"
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "timescaledb"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "footer": {},
+                "inspect": false
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "blue",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Bidirectional"
+                },
+                "properties": [
+                  {
+                    "id": "mappings",
+                    "value": [
+                      {
+                        "options": {
+                          "✓": {
+                            "color": "green",
+                            "index": 0
+                          },
+                          "✗": {
+                            "color": "red",
+                            "index": 1
+                          }
+                        },
+                        "type": "value"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 9,
+            "w": 14,
+            "x": 0,
+            "y": 125
+          },
+          "id": 44,
+          "options": {
+            "cellHeight": "sm",
+            "footer": {
+              "countRows": "all",
+              "enablePagination": true,
+              "fields": "",
+              "mode": "auto",
+              "show": true
+            },
+            "frameIndex": 0,
+            "showHeader": true,
+            "sortBy": [
+              {
+                "desc": true,
+                "displayName": "Last Activity"
+              }
+            ]
+          },
+          "pluginVersion": "12.2.1",
+          "targets": [
+            {
+              "format": "table",
+              "rawSql": "SELECT \n    CASE \n        WHEN nl.node_a_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\n        THEN node_b.node_id\n        ELSE node_a.node_id\n    END::text as \"Remote Node\",\n    CASE \n        WHEN nl.node_a_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\n        THEN node_b.short_name\n        ELSE node_a.short_name\n    END as \"Name\",\n    CASE \n        WHEN nl.node_a_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\n        THEN nl.node_a_to_node_b_packets\n        ELSE nl.node_b_to_node_a_packets\n    END::int as \"Sent to\",\n    CASE \n        WHEN nl.node_a_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\n        THEN nl.node_b_to_node_a_packets\n        ELSE nl.node_a_to_node_b_packets\n    END::int as \"Received from\",\n    CASE WHEN nl.is_bidirectional THEN '✓' ELSE '✗' END as \"Bidirectional\",\n    nl.last_activity as \"Last Activity\"\nFROM stridetastic_api_nodelink nl\nJOIN stridetastic_api_node node_a ON nl.node_a_id = node_a.id\nJOIN stridetastic_api_node node_b ON nl.node_b_id = node_b.id\nWHERE nl.node_a_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\n    OR nl.node_b_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\nORDER BY nl.last_activity DESC;",
+              "refId": "A"
+            }
+          ],
+          "title": "Adressed Packets to/from Node",
+          "type": "table"
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "timescaledb"
+          },
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 19,
+            "w": 10,
+            "x": 14,
+            "y": 125
+          },
+          "id": 47,
+          "options": {
+            "edges": {},
+            "layoutAlgorithm": "layered",
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true,
+              "values": []
+            },
+            "nodes": {},
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            },
+            "zoomMode": "cooperative"
+          },
+          "pluginVersion": "12.3.1",
+          "targets": [
+            {
+              "format": "table",
+              "rawSql": "SELECT DISTINCT\n    id,\n    title,\n    subtitle\nFROM (\n    SELECT \n        (SELECT node_id FROM stridetastic_api_node WHERE node_id = '${node}') as id,\n        (SELECT node_id FROM stridetastic_api_node WHERE node_id = '${node}') as title,\n        (SELECT COALESCE(short_name, 'N/A') || ' / ' || COALESCE(long_name, 'N/A') FROM stridetastic_api_node WHERE node_id = '${node}') as subtitle\n    UNION ALL\n    SELECT \n        target_node.node_id::text as id,\n        target_node.node_id::text as title,\n        COALESCE(target_node.short_name, 'N/A') || ' / ' || COALESCE(target_node.long_name, 'N/A') as subtitle\n    FROM stridetastic_api_edge e\n    JOIN stridetastic_api_node target_node ON e.target_node_id = target_node.id\n    WHERE e.source_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\n    AND e.last_hops = 0\n    \n    UNION ALL\n    \n    SELECT \n        source_node.node_id::text as id,\n        source_node.node_id::text as title,\n        COALESCE(source_node.short_name, 'N/A') || ' / ' || COALESCE(source_node.long_name, 'N/A') as subtitle\n    FROM stridetastic_api_edge e\n    JOIN stridetastic_api_node source_node ON e.source_node_id = source_node.id\n    WHERE e.target_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\n    AND e.last_hops = 0\n) all_nodes\nORDER BY id;",
+              "refId": "A"
+            },
+            {
+              "format": "table",
+              "rawSql": "SELECT \n    id,\n    source,\n    target,\n    mainstat,\n    secondarystat\nFROM (\n    -- Outgoing: We hear neighbor\n    SELECT \n        ROW_NUMBER() OVER (ORDER BY target_node.node_id) || '_out' as id,\n        (SELECT node_id FROM stridetastic_api_node WHERE node_id = '${node}') as source,\n        target_node.node_id::text as target,\n        'SNR: ' || ROUND(e.last_rx_snr::numeric, 2)::text as mainstat,\n        'RSSI: ' || COALESCE(e.last_rx_rssi, 0)::text as secondarystat\n    FROM stridetastic_api_edge e\n    JOIN stridetastic_api_node target_node ON e.target_node_id = target_node.id\n    WHERE e.source_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\n    AND e.last_hops = 0\n    \n    UNION ALL\n    \n    -- Incoming: They hear us\n    SELECT \n        ROW_NUMBER() OVER (ORDER BY source_node.node_id) || '_in' as id,\n        source_node.node_id::text as source,\n        (SELECT node_id FROM stridetastic_api_node WHERE node_id = '${node}') as target,\n        'SNR: ' || ROUND(e.last_rx_snr::numeric, 2)::text as mainstat,\n        'RSSI: ' || COALESCE(e.last_rx_rssi, 0)::text as secondarystat\n    FROM stridetastic_api_edge e\n    JOIN stridetastic_api_node source_node ON e.source_node_id = source_node.id\n    WHERE e.target_node_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\n    AND e.last_hops = 0\n) all_edges;",
+              "refId": "B"
+            }
+          ],
+          "title": "Direct Neighbors Network Graph",
+          "type": "nodeGraph"
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "timescaledb"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "Packets",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "smooth",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": true,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 10,
+            "w": 14,
+            "x": 0,
+            "y": 134
+          },
+          "id": 45,
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max"
+              ],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "12.3.1",
+          "targets": [
+            {
+              "format": "time_series",
+              "rawSql": "SELECT \n    DATE_TRUNC('hour', nl.last_activity) as \"time\",\n    CASE \n        WHEN nl.node_a_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\n        THEN 'Sent'\n        ELSE 'Received'\n    END as \"Direction\",\n    SUM(CASE \n        WHEN nl.node_a_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\n        THEN nl.node_a_to_node_b_packets\n        ELSE nl.node_b_to_node_a_packets\n    END)::int as \"Packets\"\nFROM stridetastic_api_nodelink nl\nWHERE (nl.node_a_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\n    OR nl.node_b_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}'))\nGROUP BY DATE_TRUNC('hour', nl.last_activity), \n         CASE \n            WHEN nl.node_a_id = (SELECT id FROM stridetastic_api_node WHERE node_id = '${node}')\n            THEN 'Sent'\n            ELSE 'Received'\n         END\nORDER BY DATE_TRUNC('hour', nl.last_activity) ASC;",
+              "refId": "A"
+            }
+          ],
+          "title": "Publication Activity Timeline",
+          "type": "timeseries"
+        }
+      ],
+      "title": "Node Network",
+      "type": "row"
     }
   ],
   "preload": false,
@@ -3187,6 +3262,7 @@
         "includeAll": false,
         "label": "Node",
         "name": "node",
+        "options": [],
         "query": "SELECT DISTINCT CONCAT(node_id, ' - ', COALESCE(short_name, 'N/A'), ' / ', COALESCE(long_name, 'N/A')) AS __text, node_id AS __value FROM stridetastic_api_node ORDER BY node_id;",
         "refresh": 2,
         "type": "query"
@@ -3201,5 +3277,5 @@
   "timezone": "browser",
   "title": "B4 - Node Telemetry",
   "uid": "B4-node-telemetry",
-  "version": 88
+  "version": 2
 }

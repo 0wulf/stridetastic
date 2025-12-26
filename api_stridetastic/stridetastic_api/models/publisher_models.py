@@ -70,6 +70,7 @@ class PublisherPeriodicJob(models.Model):
         POSITION = "position", "Position"
         NODEINFO = "nodeinfo", "Node Info"
         TRACEROUTE = "traceroute", "Traceroute"
+        TELEMETRY = "telemetry", "Telemetry"
 
     class RunStatus(models.TextChoices):
         IDLE = "idle", "Idle"
@@ -138,8 +139,13 @@ class PublisherPeriodicJob(models.Model):
         if self.period_seconds < self.MIN_PERIOD_SECONDS:
             errors["period_seconds"] = f"Period must be at least {self.MIN_PERIOD_SECONDS} seconds."
 
-        if self.pki_encrypted and self.payload_type != self.PayloadTypes.TEXT:
-            errors["pki_encrypted"] = "PKI encryption is only supported for text payloads."
+        # Allow PKI encryption for text, position and telemetry periodic payloads
+        if self.pki_encrypted and self.payload_type not in (
+            self.PayloadTypes.TEXT,
+            self.PayloadTypes.POSITION,
+            self.PayloadTypes.TELEMETRY,
+        ):
+            errors["pki_encrypted"] = "PKI encryption is only supported for text, position, and telemetry payloads."
 
         if self.interface and self.interface.name != Interface.Names.MQTT:
             errors["interface"] = "Periodic publishing is only supported on MQTT interfaces."
@@ -164,11 +170,34 @@ class PublisherPeriodicJob(models.Model):
                 value = options.get(field)
                 if value is None:
                     errors[field] = "This field is required for position payloads."
+            # Optional: allow requesting a response in periodic position payloads
+            # (handled by PublisherService.publish_position)
+            if "want_response" in options and not isinstance(options.get("want_response"), (bool, int)):
+                errors["want_response"] = "want_response must be a boolean for position payloads."
         elif self.payload_type == self.PayloadTypes.NODEINFO:
             for field in ("short_name", "long_name", "hw_model", "public_key"):
                 value = options.get(field)
                 if value in (None, ""):
                     errors[field] = "This field is required for nodeinfo payloads."
+        elif self.payload_type == self.PayloadTypes.TELEMETRY:
+            # telemetry payload expects telemetry_type and telemetry_options
+            telemetry_type = options.get("telemetry_type")
+            telemetry_opts = options.get("telemetry_options")
+            if telemetry_type not in ("device", "environment"):
+                errors["telemetry_type"] = "telemetry_type must be 'device' or 'environment'"
+            if telemetry_opts is None:
+                errors["telemetry_options"] = "telemetry_options is required for telemetry payloads"
+            elif not isinstance(telemetry_opts, dict):
+                errors["telemetry_options"] = "telemetry_options must be an object/map"
+            else:
+                # Validate numericness of provided fields (best-effort)
+                for k, v in telemetry_opts.items():
+                    if v is None:
+                        continue
+                    if not (isinstance(v, (int, float)) or (isinstance(v, str) and v.strip() != "")):
+                        errors[f"telemetry_options.{k}"] = "Telemetry option must be numeric"
+            if "want_response" in options and not isinstance(options.get("want_response"), (bool, int)):
+                errors["want_response"] = "want_response must be a boolean for telemetry payloads."
         elif self.payload_type == self.PayloadTypes.TRACEROUTE:
             # No additional payload validation needed
             pass

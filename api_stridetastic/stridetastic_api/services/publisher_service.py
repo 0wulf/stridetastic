@@ -4,6 +4,7 @@ from ..mesh.packet.crafter import (
     craft_service_envelope,
     craft_nodeinfo,
     craft_position,
+    craft_telemetry,
     craft_traceroute,
     craft_reachability_probe,
 )
@@ -509,6 +510,8 @@ class PublisherService:
             hop_limit: int = 3,
             hop_start: int = 3,
             want_ack: bool = False,
+            want_response: bool = False,
+            pki_encrypted: bool = False,
             gateway_node: Optional[str] = None,
             publisher: Optional[PublishableInterface] = None,
             base_topic: Optional[str] = None,
@@ -519,22 +522,44 @@ class PublisherService:
         data_pb = craft_position(
             lat=lat,
             lon=lon,
-            alt=alt
+            alt=alt,
+            want_response=want_response,
         )
+
+        # Handle PKI encryption for position payloads (same pattern as text messages)
+        encrypted_payload: Optional[bytes] = None
+        resolved_public_key: Optional[Union[bytes, str]] = None
+        global_message_id = self._get_global_message_id()
+
+        if pki_encrypted:
+            try:
+                encrypted_payload, resolved_public_key = self._encrypt_pki_payload(
+                    from_node_id=from_node,
+                    to_node_id=to_node,
+                    data_protobuf=data_pb,
+                    packet_id=global_message_id,
+                )
+            except ValueError as exc:
+                raise ValueError(f"PKI encryption failed: {exc}") from exc
+
+        publish_channel = "PKI" if pki_encrypted else channel_name
+
         mesh_protobuf = craft_mesh_packet(
             from_id=from_node,
             to_id=to_node,
-            channel_name=channel_name,
+            channel_name=publish_channel,
             channel_aes_key=channel_aes_key,
-            global_message_id=self._get_global_message_id(),
+            global_message_id=global_message_id,
             data_protobuf=data_pb,
             hop_limit=hop_limit,
             hop_start=hop_start,
             want_ack=want_ack,
+            pki_encrypted=pki_encrypted,
+            encrypted_payload=encrypted_payload,
         )
         payload = craft_service_envelope(
             mesh_packet=mesh_protobuf,
-            channel_name=channel_name,
+            channel_name=publish_channel,
             gateway_id=gateway_node,
         )
         return self.publish(payload=payload, gateway_node_id=gateway_node, channel_name=channel_name, publisher=publisher, base_topic=base_topic)
@@ -649,6 +674,63 @@ class PublisherService:
                 )
         return published
 
+    def publish_telemetry(
+        self,
+        from_node: str,
+        to_node: str,
+        telemetry_type: str,
+        telemetry_options: Dict[str, Any],
+        channel_name: str,
+        channel_aes_key: str,
+        hop_limit: int = 3,
+        hop_start: int = 3,
+        want_ack: bool = False,
+        want_response: bool = False,
+        pki_encrypted: bool = False,
+        gateway_node: Optional[str] = None,
+        publisher: Optional[PublishableInterface] = None,
+        base_topic: Optional[str] = None,
+    ) -> bool:
+        """Publish telemetry values (device or environment metrics)."""
+        logging.info(f"[Publisher] Publishing telemetry from {from_node} to {to_node}: type={telemetry_type}, fields={list(telemetry_options.keys())}")
+        data_pb = craft_telemetry(telemetry_type=telemetry_type, telemetry_options=telemetry_options, want_response=want_response)
+        global_message_id = self._get_global_message_id()
+
+        encrypted_payload: Optional[bytes] = None
+        resolved_public_key: Optional[Union[bytes, str]] = None
+
+        if pki_encrypted:
+            try:
+                encrypted_payload, resolved_public_key = self._encrypt_pki_payload(
+                    from_node_id=from_node,
+                    to_node_id=to_node,
+                    data_protobuf=data_pb,
+                    packet_id=global_message_id,
+                )
+            except ValueError as exc:
+                raise ValueError(f"PKI encryption failed: {exc}") from exc
+
+        publish_channel = "PKI" if pki_encrypted else channel_name
+        mesh_protobuf = craft_mesh_packet(
+            from_id=from_node,
+            to_id=to_node,
+            channel_name=publish_channel,
+            channel_aes_key=channel_aes_key,
+            global_message_id=global_message_id,
+            data_protobuf=data_pb,
+            hop_limit=hop_limit,
+            hop_start=hop_start,
+            want_ack=want_ack,
+            pki_encrypted=pki_encrypted,
+            encrypted_payload=encrypted_payload,
+        )
+        payload = craft_service_envelope(
+            mesh_packet=mesh_protobuf,
+            channel_name=publish_channel,
+            gateway_id=gateway_node,
+        )
+        return self.publish(payload=payload, gateway_node_id=gateway_node, channel_name=publish_channel, publisher=publisher, base_topic=base_topic)
+
     def execute_periodic_job(
         self,
         job: "PublisherPeriodicJob",
@@ -659,6 +741,8 @@ class PublisherService:
         """Dispatch the appropriate publishing action for a periodic job definition."""
 
         options = job.payload_options or {}
+        # Normalize payload_type to avoid mismatches between DB-stored strings and TextChoices
+        payload_type = (job.payload_type or "").lower()
         channel_key = job.channel_key or ""
 
         base_kwargs = {
@@ -674,7 +758,7 @@ class PublisherService:
             "base_topic": base_topic,
         }
 
-        if job.payload_type == job.PayloadTypes.TEXT:
+        if payload_type == 'text' or job.payload_type == job.PayloadTypes.TEXT:
             message_text = options.get("message_text")
             if not message_text:
                 raise ValueError("Message text is required for periodic text payloads")
@@ -684,20 +768,23 @@ class PublisherService:
                 **base_kwargs,
             )
 
-        if job.payload_type == job.PayloadTypes.POSITION:
+        if payload_type == 'position' or job.payload_type == job.PayloadTypes.POSITION:
             lat = options.get("lat")
             lon = options.get("lon")
             if lat is None or lon is None:
                 raise ValueError("Latitude and longitude are required for periodic position payloads")
             alt = options.get("alt", 0.0) or 0.0
+            want_response = bool(options.get("want_response", False))
             return self.publish_position(
                 lat=float(lat),
                 lon=float(lon),
                 alt=float(alt),
+                want_response=want_response,
+                pki_encrypted=job.pki_encrypted,
                 **base_kwargs,
             )
 
-        if job.payload_type == job.PayloadTypes.NODEINFO:
+        if payload_type == 'nodeinfo' or job.payload_type == job.PayloadTypes.NODEINFO:
             required_fields = {
                 "short_name": options.get("short_name"),
                 "long_name": options.get("long_name"),
@@ -719,12 +806,24 @@ class PublisherService:
                 **base_kwargs,
             )
 
-        if job.payload_type == job.PayloadTypes.TRACEROUTE:
+        if payload_type == 'traceroute' or job.payload_type == job.PayloadTypes.TRACEROUTE:
             success, _ = self.publish_traceroute(
                 record_pending=True,
                 **base_kwargs,
             )
             return success
+
+        if payload_type == 'telemetry' or job.payload_type == job.PayloadTypes.TELEMETRY:
+            telemetry_type = options.get("telemetry_type") or "device"
+            telemetry_opts = options.get("telemetry_options") or {}
+            want_response = bool(options.get("want_response", False))
+            return self.publish_telemetry(
+                telemetry_type=telemetry_type,
+                telemetry_options=telemetry_opts,
+                want_response=want_response,
+                pki_encrypted=job.pki_encrypted,
+                **base_kwargs,
+            )
 
         raise ValueError(f"Unsupported periodic publish payload type: {job.payload_type}")
 

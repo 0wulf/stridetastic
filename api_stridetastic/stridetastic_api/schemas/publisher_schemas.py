@@ -28,9 +28,19 @@ class PublishPositionSchema(PublishGenericSchema):
     lat: float = Field(..., description="Latitude of the published position")
     lon: float = Field(..., description="Longitude of the published position")
     alt: float = Field(0.0, description="Altitude of the published position, default is 0.0")
+    # Whether the Data protobuf should request a response from the recipient
+    want_response: Optional[bool] = Field(False, description="Whether the Data protobuf should request a response (only used for request-style position packets)")
 
 class PublishTracerouteSchema(PublishGenericSchema):
     pass
+
+
+class PublishTelemetrySchema(PublishGenericSchema):
+    """Schema for publishing telemetry values (device or environment metrics)."""
+    # telemetry_type: 'device' or 'environment'
+    telemetry_type: str = Field(..., description="Telemetry category: 'device' or 'environment'")
+    telemetry_options: Dict[str, Any] = Field(default_factory=dict, description="Numeric telemetry fields to include in the payload")
+    want_response: Optional[bool] = Field(False, description="Whether the Data protobuf should request a response (only used for request-style telemetry packets)")
 
 
 class PublishReachabilitySchema(PublishGenericSchema):
@@ -89,6 +99,7 @@ class PeriodicPayloadType(str, Enum):
     POSITION = "position"
     NODEINFO = "nodeinfo"
     TRACEROUTE = "traceroute"
+    TELEMETRY = "telemetry"
 
 
 class PublisherPeriodicJobCreateSchema(Schema):
@@ -104,7 +115,7 @@ class PublisherPeriodicJobCreateSchema(Schema):
     hop_limit: int = Field(3, description="Hop limit for the payload")
     hop_start: int = Field(3, description="Initial hop count")
     want_ack: bool = Field(False, description="Whether to request an ACK")
-    pki_encrypted: bool = Field(False, description="Only applicable to text messages")
+    pki_encrypted: bool = Field(False, description="Whether to PKI-encrypt the periodic message (text, position, or telemetry)")
     period_seconds: int = Field(300, description="Execution period in seconds")
     interface_id: Optional[int] = Field(None, description="Preferred MQTT interface id")
     payload_options: Dict[str, Any] = Field(default_factory=dict, description="Payload specific options")

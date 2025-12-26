@@ -52,6 +52,7 @@ from .publisher_schemas import (
     PublishMessageSchema,
     PublishNodeInfoSchema,
     PublishPositionSchema,
+    PublishTelemetrySchema,
     PublishTracerouteSchema,
     PublishReachabilitySchema,
     PublisherReactiveConfigSchema,

@@ -213,6 +213,25 @@ CELERY_BEAT_SCHEDULE = {
     }
 }
 
+# Periodic background snapshot of high-level network overview metrics
+CELERY_BEAT_SCHEDULE["record_network_overview_snapshot"] = {
+    "task": "stridetastic_api.tasks.metrics_tasks.record_network_overview_snapshot",
+    "schedule": 60.0,
+}
+
+# Reachability configuration: nodes are considered reachable if seen within this timeout
+REACTIVE_REACHABILITY_TIMEOUT_SECS = _env_int("REACTIVE_REACHABILITY_TIMEOUT_SECS", 3600)
+# How often Celery beat should run the unreachable marker task (seconds)
+REACTIVE_REACHABILITY_CHECK_INTERVAL_SECS = _env_int(
+    "REACTIVE_REACHABILITY_CHECK_INTERVAL_SECS", 60
+)
+
+# Celery Beat job to mark nodes unreachable when not seen within timeout
+CELERY_BEAT_SCHEDULE["mark_unreachable_nodes"] = {
+    "task": "stridetastic_api.tasks.metrics_tasks.mark_unreachable_nodes",
+    "schedule": REACTIVE_REACHABILITY_CHECK_INTERVAL_SECS,
+}
+
 
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
 SESSION_COOKIE_SECURE = False #if ENVIRONMENT == "development" else True

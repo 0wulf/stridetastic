@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 9,
+  "id": 1,
   "links": [],
   "panels": [
     {
@@ -82,7 +82,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "format": "table",
@@ -149,7 +149,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "format": "table",
@@ -222,7 +222,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "format": "table",
@@ -293,7 +293,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "format": "table",
@@ -366,7 +366,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "format": "table",
@@ -439,7 +439,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "format": "table",
@@ -511,7 +511,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "format": "table",
@@ -576,7 +576,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "format": "table",
@@ -647,7 +647,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "format": "table",
@@ -718,7 +718,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "format": "table",
@@ -777,7 +777,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "format": "table",
@@ -836,7 +836,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "format": "table",
@@ -941,12 +941,67 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
+          "dataset": "postgres",
+          "editorMode": "code",
           "format": "time_series",
-          "rawSql": "WITH minute_buckets AS (SELECT date_trunc('minute', ts)::timestamp AS bucket FROM generate_series($__timeFrom()::timestamp, $__timeTo()::timestamp, '1 minute'::interval) ts UNION ALL SELECT date_trunc('minute', now())::timestamp) SELECT DISTINCT mb.bucket::timestamp AS \"time\", count(DISTINCT n.id) AS value FROM minute_buckets mb LEFT JOIN stridetastic_api_node n ON n.last_seen >= mb.bucket - interval '1 hour' AND n.last_seen <= mb.bucket GROUP BY mb.bucket ORDER BY mb.bucket;",
-          "refId": "A"
+          "rawQuery": true,
+          "rawSql": "SELECT $__timeGroup(\"time\",$__interval) AS \"time\", active_nodes, reachable_nodes FROM stridetastic_api_networkoverviewsnapshot ORDER BY $__timeGroup(\"time\", $__interval) DESC ",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "alias": "\"time\"",
+                "name": "$__timeGroup",
+                "parameters": [
+                  {
+                    "name": "\"time\"",
+                    "type": "functionParameter"
+                  },
+                  {
+                    "name": "$__interval",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              },
+              {
+                "parameters": [
+                  {
+                    "name": "active_nodes",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              },
+              {
+                "parameters": [
+                  {
+                    "name": "reachable_nodes",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              }
+            ],
+            "groupBy": [],
+            "limit": null,
+            "orderBy": {
+              "property": {
+                "name": "$__timeGroup(\"time\", $__interval)",
+                "type": "string"
+              },
+              "type": "property"
+            },
+            "orderByDirection": "DESC",
+            "whereJsonTree": {
+              "id": "bab98b9b-0123-4456-b89a-b19b525cebac",
+              "type": "group"
+            }
+          },
+          "table": "stridetastic_api_networkoverviewsnapshot"
         }
       ],
       "title": "Nodes Online Trend (1h window)",
@@ -1033,7 +1088,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "format": "time_series",
@@ -1125,7 +1180,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "format": "time_series",
@@ -1261,7 +1316,7 @@
           }
         ]
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "format": "table",
@@ -1335,7 +1390,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "format": "table",
@@ -1391,7 +1446,7 @@
         "cellHeight": "sm",
         "showHeader": true
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "format": "table",
@@ -1452,7 +1507,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "format": "table",
@@ -1609,5 +1664,5 @@
   "timezone": "browser",
   "title": "A1 - Network Health KPI",
   "uid": "network-health-kpi",
-  "version": 10
+  "version": 4
 }

@@ -13,6 +13,7 @@ from ..schemas import (
     PublishNodeInfoSchema,
     PublishPositionSchema,
     PublishTracerouteSchema,
+    PublishTelemetrySchema,
     PublishReachabilitySchema,
     PublisherReactiveConfigUpdateSchema,
     PublisherReactiveStatusSchema,
@@ -30,6 +31,7 @@ from ..tasks.publisher_tasks import (
     publish_position_task,
     publish_traceroute_task,
     publish_reachability_probe_task,
+    publish_telemetry_task,
 )
 
 auth = JWTAuth()
@@ -78,9 +80,41 @@ class PublisherController:
             for field in ("lat", "lon", "alt"):
                 if field in options and options[field] is not None:
                     options[field] = float(options[field])
+            # Accept optional want_response flag for periodic position requests
+            if "want_response" in options:
+                options["want_response"] = bool(options.get("want_response", False))
         elif payload_type == PublisherPeriodicJob.PayloadTypes.NODEINFO:
             if "hw_model" in options and options["hw_model"] is not None:
                 options["hw_model"] = int(options["hw_model"])
+        elif payload_type == PublisherPeriodicJob.PayloadTypes.TELEMETRY:
+            # Normalize telemetry payload options
+            telemetry_type = options.get("telemetry_type")
+            if telemetry_type is not None:
+                telemetry_type = str(telemetry_type)
+                if telemetry_type not in ("device", "environment"):
+                    telemetry_type = "device"
+            else:
+                telemetry_type = "device"
+            telemetry_opts = options.get("telemetry_options") or {}
+            sanitized_opts: Dict[str, Any] = {}
+            # Known device fields
+            for k in ("battery_level", "voltage", "channel_utilization", "air_util_tx", "uptime_seconds"):
+                if k in telemetry_opts and telemetry_opts[k] is not None and telemetry_opts[k] != "":
+                    try:
+                        sanitized_opts[k] = int(telemetry_opts[k]) if k in ("battery_level", "uptime_seconds") else float(telemetry_opts[k])
+                    except Exception:
+                        sanitized_opts[k] = telemetry_opts[k]
+            # Known environment fields
+            for k in ("temperature", "relative_humidity", "barometric_pressure", "gas_resistance", "iaq"):
+                if k in telemetry_opts and telemetry_opts[k] is not None and telemetry_opts[k] != "":
+                    try:
+                        sanitized_opts[k] = float(telemetry_opts[k])
+                    except Exception:
+                        sanitized_opts[k] = telemetry_opts[k]
+            options["telemetry_type"] = telemetry_type
+            options["telemetry_options"] = sanitized_opts
+            if "want_response" in options:
+                options["want_response"] = bool(options.get("want_response", False))
         return options
 
     def _serialize_periodic_job(self, job: PublisherPeriodicJob) -> Dict[str, Any]:
@@ -218,6 +252,8 @@ class PublisherController:
                 hop_limit=payload.hop_limit,
                 hop_start=payload.hop_start,
                 want_ack=payload.want_ack,
+                want_response=payload.want_response if hasattr(payload, 'want_response') else False,
+                pki_encrypted=payload.pki_encrypted if hasattr(payload, 'pki_encrypted') else False,
                 gateway_node=payload.gateway_node,
                 interface_id=payload.interface_id,
             )
@@ -288,6 +324,38 @@ class PublisherController:
             else:
                 error_msg = result.get("error", "Unknown error")
                 return 400, MessageSchema(message=f"Failed to send reachability probe: {error_msg}")
+        except Exception as e:
+            return 400, MessageSchema(message=f"Error queuing publish task: {str(e)}")
+
+    @route.post("/publish/telemetry", response={200: MessageSchema, 400: MessageSchema}, auth=auth)
+    def publish_telemetry(self, request, payload: PublishTelemetrySchema):
+        err = self._ensure_selectable_nodes([payload.from_node, payload.gateway_node])
+        if err:
+            return err
+
+        try:
+            task = publish_telemetry_task.delay(
+                from_node=payload.from_node,
+                to_node=payload.to_node,
+                channel_name=payload.channel_name,
+                channel_aes_key=payload.channel_key,
+                hop_limit=payload.hop_limit,
+                hop_start=payload.hop_start,
+                want_ack=payload.want_ack,
+                want_response=payload.want_response if hasattr(payload, 'want_response') else False,
+                telemetry_type=payload.telemetry_type,
+                telemetry_options=payload.telemetry_options,
+                pki_encrypted=payload.pki_encrypted,
+                gateway_node=payload.gateway_node,
+                interface_id=payload.interface_id,
+            )
+            result = task.get(timeout=10)
+
+            if result.get("success"):
+                return 200, MessageSchema(message="Telemetry published successfully")
+            else:
+                error_msg = result.get("error", "Unknown error")
+                return 400, MessageSchema(message=f"Failed to publish telemetry: {error_msg}")
         except Exception as e:
             return 400, MessageSchema(message=f"Error queuing publish task: {str(e)}")
 

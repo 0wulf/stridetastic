@@ -158,6 +158,73 @@ def _update_latency_history(
     NodeLatencyHistory.objects.create(**create_kwargs)
 
 
+def _process_probe_response(packet_data: PacketData) -> None:
+    """When an incoming packet is a response to a previously-sent probe/request,
+    compute latency and persist history. This is a best-effort helper that will
+    skip if the original request has already been marked as responded.
+    """
+    try:
+        # print(f"[_process_probe_response] Processing packet_data={packet_data}")
+        request_id = getattr(packet_data, 'request_id', None)
+        if request_id is None:
+            # print(f"[_process_probe_response] No request_id in packet_data={packet_data}")
+            return
+
+        # Find the original packet (the request) that this packet is responding to.
+        ackd_packet = Packet.objects.filter(
+            packet_id=request_id,
+            to_node=packet_data.packet.from_node,
+        ).select_related('to_node', 'data').first()
+
+        if not ackd_packet:
+            # print(f"[_process_probe_response] No original packet found for request_id={request_id}")
+            return
+
+        # If the original packet already marked as having got a response, skip.
+        orig_data = getattr(ackd_packet, 'data', None)
+        # if orig_data is not None and getattr(orig_data, 'got_response', False):
+        #     print(f"[_process_probe_response] Original packet with request_id={request_id} already marked as responded")
+        #     return
+
+        # Mark original as responded
+        if orig_data is not None:
+            orig_data.got_response = True
+            orig_data.save(update_fields=['got_response'])
+
+        # Mark ack flag on original packet where appropriate
+        try:
+            ackd_packet.ackd = True
+            ackd_packet.save(update_fields=['ackd'])
+        except Exception:
+            # non-fatal
+            pass
+
+        # Compute latency if possible and persist
+        target_node = ackd_packet.to_node
+        if target_node:
+            request_time = getattr(ackd_packet, 'time', None)
+            response_time = getattr(packet_data.packet, 'time', None)
+            latency_ms = None
+            if request_time and response_time:
+                latency_delta = response_time - request_time
+                latency_ms = max(0, int(latency_delta.total_seconds() * 1000))
+            responded_at = response_time or timezone.now()
+            Node.objects.filter(pk=target_node.pk).update(
+                latency_reachable=True,
+                latency_ms=latency_ms,
+            )
+            packet_id = getattr(ackd_packet, 'packet_id', None)
+            _update_latency_history(
+                node=target_node,
+                probe_message_id=packet_id,
+                latency_ms=latency_ms,
+                responded_at=responded_at,
+                request_time=request_time,
+            )
+    except Exception:
+        logging.exception("Failed to process probe response latency")
+
+
 def handle_nodeinfo(payload: bytes, packet_data: PacketData) -> None:
     user = mesh_pb2.User()
     user.ParseFromString(payload)
@@ -818,6 +885,18 @@ def handle_decoded_packet(
         case _:
             handle_other(decoded_data.portnum, data_obj)
 
+    # After handlers run, perform generic processing of response-based latency
+    # This will compute latency for packets that are replies to earlier
+    # request-style packets (including ones with Data.want_response).
+    try:
+        _process_probe_response(data_obj)
+        # Mark this incoming packet as having been a response
+        data_obj.got_response = True
+        data_obj.save(update_fields=['got_response'])
+    except Exception:
+        # _process_probe_response already logs failures; don't escalate here
+        pass
+
     return (packet, decoded_data, portnum, from_node, to_node, packet_obj)
 
 
@@ -953,7 +1032,7 @@ def on_message(client, userdata, normalized, iface="MQTT"):
     hops = 0 if hop_limit is None else (hop_start - hop_limit) if hop_start is not None else 0
     first_hop = getattr(packet, 'first_hop', None)
     next_hop = getattr(packet, 'next_hop', None)
-    pki_encrypted = getattr(packet, 'pki_encrypted', False)
+    pki_encrypted = getattr(packet, 'pki_encrypted', False) or channel_id == 'PKI'
     want_ack = getattr(packet, 'want_ack', None)
     ackd = False if want_ack is True else None
     relay_node = getattr(packet, 'relay_node', None)

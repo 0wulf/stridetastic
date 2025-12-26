@@ -226,6 +226,8 @@ def publish_position_task(
 	hop_limit: int,
 	hop_start: int,
 	want_ack: bool,
+	want_response: bool,
+	pki_encrypted: bool,
 	gateway_node: Optional[str],
 	interface_id: Optional[int],
 ) -> Dict[str, Any]:
@@ -256,6 +258,8 @@ def publish_position_task(
 			hop_limit=hop_limit,
 			hop_start=hop_start,
 			want_ack=want_ack,
+			want_response=want_response,
+			pki_encrypted=pki_encrypted,
 			gateway_node=gateway_node,
 			publisher=publisher,
 			base_topic=base_topic,
@@ -366,4 +370,62 @@ def publish_reachability_probe_task(
 			return {"success": False, "error": "Publisher publish returned False"}
 	except Exception as exc:
 		logger.exception("Reachability probe task failed")
+		return {"success": False, "error": str(exc)}
+
+
+@shared_task(name="stridetastic_api.tasks.publisher_tasks.publish_telemetry_task")
+def publish_telemetry_task(
+	from_node: str,
+	to_node: str,
+	channel_name: str,
+	channel_aes_key: str,
+	hop_limit: int,
+	hop_start: int,
+	want_ack: bool,
+	want_response: bool,
+	telemetry_type: str,
+	telemetry_options: Dict[str, Any],
+	pki_encrypted: bool,
+	gateway_node: Optional[str],
+	interface_id: Optional[int],
+) -> Dict[str, Any]:
+	"""Execute a one-shot telemetry publishing task in Celery worker."""
+	from ..services.service_manager import ServiceManager
+
+	try:
+		service_manager = ServiceManager.get_instance()
+		publisher_service = service_manager.initialize_publisher_service()
+
+		publisher = None
+		base_topic = None
+
+		if interface_id is not None:
+			publisher, base_topic, err = service_manager.resolve_publish_context(interface_id)
+			if err:
+				logger.error(f"[Publish-Task] Failed to resolve publisher for interface {interface_id}: {err}")
+				return {"success": False, "error": err}
+
+		success = publisher_service.publish_telemetry(
+			from_node=from_node,
+			to_node=to_node,
+			telemetry_type=telemetry_type,
+			telemetry_options=telemetry_options,
+			channel_name=channel_name,
+			channel_aes_key=channel_aes_key,
+			hop_limit=hop_limit,
+			hop_start=hop_start,
+			want_ack=want_ack,
+			want_response=want_response,
+			pki_encrypted=pki_encrypted,
+			gateway_node=gateway_node,
+			publisher=publisher,
+			base_topic=base_topic,
+		)
+
+		if success:
+			return {"success": True, "error": None}
+		else:
+			return {"success": False, "error": "Publisher publish returned False"}
+	except Exception as exc:
+		logger.exception("Telemetry task failed")
 		return {"success": False, "error": str(exc)}

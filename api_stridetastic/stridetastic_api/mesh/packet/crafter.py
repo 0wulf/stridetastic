@@ -1,6 +1,7 @@
 from typing import Optional
 
 from meshtastic.protobuf import mesh_pb2, mqtt_pb2, portnums_pb2, admin_pb2
+from meshtastic.protobuf import telemetry_pb2
 import time
 import base64
 # import re
@@ -96,9 +97,10 @@ def craft_nodeinfo(
 
 
 def craft_position(
-        lat,
-        lon,
-        alt
+    lat,
+    lon,
+    alt,
+    want_response: bool = False
 ):
     position_pb = mesh_pb2.Position()
     position_pb.latitude_i = int(float(lat) * 1e7)
@@ -111,7 +113,7 @@ def craft_position(
     position_packet.portnum = portnums_pb2.POSITION_APP
     position_packet.payload = position_pb
     position_packet.bitfield = 1
-    position_packet.want_response = True
+    position_packet.want_response = bool(want_response)
     return position_packet
 
 
@@ -138,6 +140,50 @@ def craft_reachability_probe():
     routing_packet.bitfield = 1
     routing_packet.want_response = False
     return routing_packet
+
+
+def craft_telemetry(telemetry_type: str, telemetry_options: dict, want_response: bool = False):
+    """Build a Telemetry Data protobuf from provided options.
+
+    telemetry_type: 'device' or 'environment'
+    telemetry_options: mapping of field names to numeric values
+    """
+    telemetry = telemetry_pb2.Telemetry()
+
+    # Populate device metrics
+    if telemetry_type == 'device':
+        dev = telemetry.device_metrics
+        if 'battery_level' in telemetry_options:
+            dev.battery_level = int(telemetry_options['battery_level'])
+        if 'voltage' in telemetry_options:
+            dev.voltage = float(telemetry_options['voltage'])
+        if 'channel_utilization' in telemetry_options:
+            dev.channel_utilization = float(telemetry_options['channel_utilization'])
+        if 'air_util_tx' in telemetry_options:
+            dev.air_util_tx = float(telemetry_options['air_util_tx'])
+        if 'uptime_seconds' in telemetry_options:
+            dev.uptime_seconds = int(telemetry_options['uptime_seconds'])
+
+    # Populate environment metrics
+    if telemetry_type == 'environment':
+        env = telemetry.environment_metrics
+        if 'temperature' in telemetry_options:
+            env.temperature = float(telemetry_options['temperature'])
+        if 'relative_humidity' in telemetry_options:
+            env.relative_humidity = float(telemetry_options['relative_humidity'])
+        if 'barometric_pressure' in telemetry_options:
+            env.barometric_pressure = float(telemetry_options['barometric_pressure'])
+        if 'gas_resistance' in telemetry_options:
+            env.gas_resistance = float(telemetry_options['gas_resistance'])
+        if 'iaq' in telemetry_options:
+            env.iaq = float(telemetry_options['iaq'])
+
+    data_packet = mesh_pb2.Data()
+    data_packet.portnum = portnums_pb2.TELEMETRY_APP
+    data_packet.payload = telemetry.SerializeToString()
+    data_packet.bitfield = 1
+    data_packet.want_response = bool(want_response)
+    return data_packet
 
 
 

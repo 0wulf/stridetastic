@@ -219,6 +219,20 @@ type PeriodicPayloadOptionsForm = {
   lat: number | '';
   lon: number | '';
   alt: number | '';
+  // Telemetry fields
+  telemetry_type?: 'device' | 'environment';
+  battery_level?: number | '';
+  voltage?: number | '';
+  uptime_seconds?: number | '';
+  channel_utilization?: number | '';
+  air_util_tx?: number | '';
+  temperature?: number | '';
+  relative_humidity?: number | '';
+  barometric_pressure?: number | '';
+  gas_resistance?: number | '';
+  iaq?: number | '';
+  // Whether to request a response from the recipient device
+  want_response?: boolean;
 };
 
 type PeriodicFormState = {
@@ -267,6 +281,18 @@ const INITIAL_PERIODIC_FORM: PeriodicFormState = {
     lat: '',
     lon: '',
     alt: '',
+    telemetry_type: 'device',
+    battery_level: '',
+    voltage: '',
+    uptime_seconds: '',
+    channel_utilization: '',
+    air_util_tx: '',
+    temperature: '',
+    relative_humidity: '',
+    barometric_pressure: '',
+    gas_resistance: '',
+    iaq: '',
+    want_response: false,
   },
 };
 
@@ -500,6 +526,9 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
     ...INITIAL_PERIODIC_FORM,
     payload_options: { ...INITIAL_PERIODIC_FORM.payload_options },
   }));
+  // Remember previous periodic channel values to restore on uncheck
+  const prevPeriodicChannelNameRef = useRef<string | null>(null);
+  const prevPeriodicChannelKeyRef = useRef<string | null>(null);
   const [periodicLoading, setPeriodicLoading] = useState(false);
   const [periodicSaving, setPeriodicSaving] = useState(false);
   const [periodicDeletingId, setPeriodicDeletingId] = useState<number | null>(null);
@@ -514,11 +543,16 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
   const [hopLimit, setHopLimit] = useState(3);
   const [hopStart, setHopStart] = useState(3);
   const [wantAck, setWantAck] = useState(false);
+  // Whether the Data protobuf should request a response from recipient
+  const [wantResponse, setWantResponse] = useState(false);
 
   // Text message
   const [messageText, setMessageText] = useState('');
   // PKI encryption for published messages
   const [pkiEncrypted, setPkiEncrypted] = useState(false);
+  // Remember previous channel values so we can restore them when PKI is unchecked
+  const prevChannelNameRef = useRef<string | null>(null);
+  const prevChannelKeyRef = useRef<string | null>(null);
 
   // Nodeinfo
   const [shortName, setShortName] = useState('');
@@ -530,6 +564,21 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
   const [lat, setLat] = useState<number | ''>('');
   const [lon, setLon] = useState<number | ''>('');
   const [alt, setAlt] = useState<number | ''>('');
+  // Telemetry publication state: choose category and set telemetry field values
+  const [telemetryCategory, setTelemetryCategory] = useState<'device' | 'environment'>('device');
+  const [telemetryValues, setTelemetryValues] = useState<Record<string, number | ''>>(() => ({
+    battery_level: '',
+    voltage: '',
+    uptime_seconds: '',
+    channel_utilization: '',
+    air_util_tx: '',
+    temperature: '',
+    relative_humidity: '',
+    barometric_pressure: '',
+    gas_resistance: '',
+    iaq: '',
+  }));
+  // Telemetry request configuration
 
   // Data lists
   const [nodes, setNodes] = useState<Node[]>([]);
@@ -729,14 +778,21 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
       title: 'Publish Text Message',
       description: 'Publish a one-shot text message to a destination node',
       icon: MessageSquare,
-      category: 'One-Shot'
+      category: 'One-Shot',
     },
     {
       id: 'traceroute',
       title: 'Traceroute Publication',
       description: 'Publish a traceroute request to discover network topology',
       icon: Target,
-      category: 'One-Shot'
+      category: 'One-Shot',
+    },
+    {
+      id: 'telemetry-publish',
+      title: 'Telemetry Publication',
+      description: 'Publish a telemetry packet (device or environmental metrics) to a target node',
+      icon: Activity,
+      category: 'One-Shot',
     },
     {
       id: 'reachability-test',
@@ -888,7 +944,24 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
   }, []);
 
   const updatePeriodicForm = useCallback(<K extends keyof PeriodicFormState>(key: K, value: PeriodicFormState[K]) => {
-    setPeriodicForm((prev) => ({ ...prev, [key]: value }));
+    setPeriodicForm((prev) => {
+      if (key === 'pki_encrypted') {
+        const checked = value as unknown as boolean;
+        if (checked) {
+          // store previous periodic channel values only once
+          if (prevPeriodicChannelNameRef.current == null) prevPeriodicChannelNameRef.current = prev.channel_name;
+          if (prevPeriodicChannelKeyRef.current == null) prevPeriodicChannelKeyRef.current = prev.channel_key;
+          return { ...prev, [key]: value, channel_name: 'PKI', channel_key: '' } as PeriodicFormState;
+        }
+        // on uncheck: restore previous values if available
+        const restoredName = prevPeriodicChannelNameRef.current ?? prev.channel_name;
+        const restoredKey = prevPeriodicChannelKeyRef.current ?? prev.channel_key;
+        prevPeriodicChannelNameRef.current = null;
+        prevPeriodicChannelKeyRef.current = null;
+        return { ...prev, [key]: value, channel_name: restoredName, channel_key: restoredKey } as PeriodicFormState;
+      }
+      return { ...prev, [key]: value };
+    });
   }, []);
 
   const updatePeriodicPayloadOption = useCallback(<K extends keyof PeriodicPayloadOptionsForm>(key: K, value: PeriodicPayloadOptionsForm[K]) => {
@@ -919,6 +992,7 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
           lat: latNumber !== null && Number.isFinite(latNumber) ? latNumber : null,
           lon: lonNumber !== null && Number.isFinite(lonNumber) ? lonNumber : null,
           alt: Number.isFinite(altNumber) ? altNumber : 0,
+          want_response: Boolean(options.want_response),
         };
       }
       if (payloadType === 'nodeinfo') {
@@ -927,6 +1001,25 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
           long_name: options.long_name.trim(),
           hw_model: options.hw_model === '' ? null : Number(options.hw_model),
           public_key: options.public_key.trim(),
+        };
+      }
+      if (payloadType === 'telemetry') {
+        const telemetry_type = options.telemetry_type || 'device';
+        const raw: Record<string, unknown> = {};
+        const fieldNames = [
+          'battery_level', 'voltage', 'uptime_seconds', 'channel_utilization', 'air_util_tx',
+          'temperature', 'relative_humidity', 'barometric_pressure', 'gas_resistance', 'iaq',
+        ];
+        for (const k of fieldNames) {
+          const v = (options as any)[k];
+          if (v !== undefined && v !== null && v !== '') {
+            raw[k] = typeof v === 'string' ? Number(v) : v;
+          }
+        }
+        return {
+          telemetry_type,
+          telemetry_options: raw,
+          want_response: Boolean(options.want_response),
         };
       }
       return {};
@@ -952,6 +1045,11 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
     const latValue = typeof latRaw === 'number' ? latRaw : typeof latRaw === 'string' && latRaw !== '' ? Number(latRaw) : '';
     const lonValue = typeof lonRaw === 'number' ? lonRaw : typeof lonRaw === 'string' && lonRaw !== '' ? Number(lonRaw) : '';
     const altValue = typeof altRaw === 'number' ? altRaw : typeof altRaw === 'string' && altRaw !== '' ? Number(altRaw) : '';
+    const telemetryOptions = typeof opts['telemetry_options'] === 'object' && opts['telemetry_options'] ? (opts['telemetry_options'] as Record<string, unknown>) : undefined;
+    const extractedWantResponse = typeof opts['want_response'] !== 'undefined'
+      ? Boolean(opts['want_response'])
+      : Boolean(telemetryOptions && telemetryOptions['want_response']);
+
     setPeriodicForm({
       id: job.id,
       name: job.name,
@@ -966,7 +1064,7 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
       hop_limit: job.hop_limit,
       hop_start: job.hop_start,
       want_ack: job.want_ack,
-      pki_encrypted: job.payload_type === 'text' ? job.pki_encrypted : false,
+      pki_encrypted: job.payload_type === 'text' || job.payload_type === 'position' || job.payload_type === 'telemetry' ? job.pki_encrypted : false,
       period_seconds: job.period_seconds,
       interface_id: job.interface_id ?? null,
       payload_options: {
@@ -978,6 +1076,18 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
         lat: latValue,
         lon: lonValue,
         alt: altValue,
+        telemetry_type: (opts['telemetry_type'] as any) || 'device',
+        battery_level: typeof opts['telemetry_options'] === 'object' && opts['telemetry_options'] ? (opts['telemetry_options'] as any)['battery_level'] ?? '' : '',
+        voltage: typeof opts['telemetry_options'] === 'object' && opts['telemetry_options'] ? (opts['telemetry_options'] as any)['voltage'] ?? '' : '',
+        uptime_seconds: typeof opts['telemetry_options'] === 'object' && opts['telemetry_options'] ? (opts['telemetry_options'] as any)['uptime_seconds'] ?? '' : '',
+        channel_utilization: typeof opts['telemetry_options'] === 'object' && opts['telemetry_options'] ? (opts['telemetry_options'] as any)['channel_utilization'] ?? '' : '',
+        air_util_tx: typeof opts['telemetry_options'] === 'object' && opts['telemetry_options'] ? (opts['telemetry_options'] as any)['air_util_tx'] ?? '' : '',
+        temperature: typeof opts['telemetry_options'] === 'object' && opts['telemetry_options'] ? (opts['telemetry_options'] as any)['temperature'] ?? '' : '',
+        relative_humidity: typeof opts['telemetry_options'] === 'object' && opts['telemetry_options'] ? (opts['telemetry_options'] as any)['relative_humidity'] ?? '' : '',
+        barometric_pressure: typeof opts['telemetry_options'] === 'object' && opts['telemetry_options'] ? (opts['telemetry_options'] as any)['barometric_pressure'] ?? '' : '',
+        gas_resistance: typeof opts['telemetry_options'] === 'object' && opts['telemetry_options'] ? (opts['telemetry_options'] as any)['gas_resistance'] ?? '' : '',
+        iaq: typeof telemetryOptions === 'object' && telemetryOptions ? (telemetryOptions as any)['iaq'] ?? '' : '',
+        want_response: extractedWantResponse,
       },
     });
   }, []);
@@ -1060,6 +1170,9 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
 
     setPeriodicSaving(true);
 
+    const effectivePeriodicChannelName = periodicForm.pki_encrypted ? 'PKI' : periodicForm.channel_name;
+    const effectivePeriodicChannelKey = periodicForm.pki_encrypted ? '' : periodicForm.channel_key.trim() || null;
+
     const basePayload: PublisherPeriodicJobCreatePayload = {
       name: periodicForm.name.trim(),
       description: periodicForm.description.trim() || undefined,
@@ -1067,13 +1180,13 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
       payload_type: periodicForm.payload_type,
       from_node: periodicForm.from_node,
       to_node: periodicForm.to_node,
-      channel_name: periodicForm.channel_name,
+      channel_name: effectivePeriodicChannelName,
       gateway_node: periodicForm.gateway_node.trim() || null,
-      channel_key: periodicForm.channel_key.trim() || null,
+      channel_key: effectivePeriodicChannelKey,
       hop_limit: periodicForm.hop_limit,
       hop_start: periodicForm.hop_start,
       want_ack: periodicForm.want_ack,
-      pki_encrypted: periodicForm.payload_type === 'text' ? periodicForm.pki_encrypted : false,
+      pki_encrypted: periodicForm.pki_encrypted,
       period_seconds: Math.max(30, periodicForm.period_seconds),
       interface_id: periodicForm.interface_id ?? null,
   payload_options: payloadOptions,
@@ -1175,6 +1288,22 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
       if (selectedSourceNodeObj.latitude != null) setLat(Number(selectedSourceNodeObj.latitude));
       if (selectedSourceNodeObj.longitude != null) setLon(Number(selectedSourceNodeObj.longitude));
       if (selectedSourceNodeObj.altitude != null) setAlt(Number(selectedSourceNodeObj.altitude));
+    }
+    if (selectedAction === 'telemetry-publish') {
+      // Prefill telemetry values from the selected node if available
+      setTelemetryValues((prev) => ({
+        ...prev,
+        battery_level: selectedSourceNodeObj.battery_level ?? prev.battery_level,
+        voltage: selectedSourceNodeObj.voltage ?? prev.voltage,
+        uptime_seconds: selectedSourceNodeObj.uptime_seconds ?? prev.uptime_seconds,
+        channel_utilization: selectedSourceNodeObj.channel_utilization ?? prev.channel_utilization,
+        air_util_tx: selectedSourceNodeObj.air_util_tx ?? prev.air_util_tx,
+        temperature: selectedSourceNodeObj.temperature ?? prev.temperature,
+        relative_humidity: selectedSourceNodeObj.relative_humidity ?? prev.relative_humidity,
+        barometric_pressure: selectedSourceNodeObj.barometric_pressure ?? prev.barometric_pressure,
+        gas_resistance: selectedSourceNodeObj.gas_resistance ?? prev.gas_resistance,
+        iaq: selectedSourceNodeObj.iaq ?? prev.iaq,
+      }));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSourceNodeObj, selectedAction]);
@@ -1354,14 +1483,17 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
       if (!selectedAction) return;
 
       const interfaceId = selectedInterfaceId ?? undefined;
+      const effectiveChannelName = pkiEncrypted ? 'PKI' : channelName;
+      const effectiveChannelKey = pkiEncrypted ? '' : channelKey;
+
       if (selectedAction === 'text-message') {
         const payload: PublishTextMessagePayloadCompat = {
           from_node: sourceNode,
           to_node: targetNode,
           message_text: messageText,
-          channel_name: channelName,
+          channel_name: effectiveChannelName,
           gateway_node: gatewayNode || undefined,
-          channel_key: channelKey,
+          channel_key: effectiveChannelKey,
           hop_limit: hopLimit,
           hop_start: hopStart,
           want_ack: wantAck,
@@ -1381,9 +1513,9 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
           long_name: longName,
           hw_model: Number(hwModel),
           public_key: publicKey,
-          channel_name: channelName,
+          channel_name: effectiveChannelName,
           gateway_node: gatewayNode || undefined,
-          channel_key: channelKey,
+          channel_key: effectiveChannelKey,
           hop_limit: hopLimit,
           hop_start: hopStart,
           want_ack: wantAck,
@@ -1400,21 +1532,53 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
           lat: Number(lat),
           lon: Number(lon),
           alt: alt === '' ? 0 : Number(alt),
-          channel_name: channelName,
+          channel_name: effectiveChannelName,
           gateway_node: gatewayNode || undefined,
-          channel_key: channelKey,
+          channel_key: effectiveChannelKey,
           hop_limit: hopLimit,
           hop_start: hopStart,
           want_ack: wantAck,
+          want_response: wantResponse,
+          pki_encrypted: pkiEncrypted,
+          interface_id: interfaceId,
+        });
+      } else if (selectedAction === 'telemetry-publish') {
+        // Telemetry publication: build telemetry fields payload and publish
+        const fields: Record<string, number> = {};
+        Object.entries(telemetryValues).forEach(([k, v]) => {
+          if (v !== '' && typeof v === 'number' && Number.isFinite(v)) {
+            fields[k] = v as number;
+          }
+        });
+
+        if (Object.keys(fields).length === 0) {
+          showToast('Please provide at least one telemetry field value to publish', 'error');
+          return;
+        }
+
+        await apiClient.publishTelemetry({
+          from_node: sourceNode,
+          to_node: targetNode,
+          channel_name: effectiveChannelName,
+          gateway_node: gatewayNode || undefined,
+          channel_key: effectiveChannelKey,
+          hop_limit: hopLimit,
+          hop_start: hopStart,
+          want_ack: wantAck,
+          // Allow the user to request a response via the 'Request response' checkbox
+          want_response: wantResponse,
+          telemetry_type: telemetryCategory,
+          telemetry_options: fields,
+          pki_encrypted: pkiEncrypted,
           interface_id: interfaceId,
         });
       } else if (selectedAction === 'reachability-test') {
         await apiClient.publishReachability({
           from_node: sourceNode,
           to_node: targetNode,
-          channel_name: channelName,
+          channel_name: effectiveChannelName,
           gateway_node: gatewayNode || undefined,
-          channel_key: channelKey,
+          channel_key: effectiveChannelKey,
           hop_limit: hopLimit,
           hop_start: hopStart,
           want_ack: true,
@@ -1425,9 +1589,9 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
         await apiClient.publishTraceroute({
           from_node: sourceNode,
           to_node: targetNode,
-          channel_name: channelName,
+          channel_name: effectiveChannelName,
           gateway_node: gatewayNode || undefined,
-          channel_key: channelKey,
+          channel_key: effectiveChannelKey,
           hop_limit: hopLimit,
           hop_start: hopStart,
           want_ack: wantAck,
@@ -1568,6 +1732,12 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
                   onChange={(e) => updatePeriodicPayloadOption('alt', e.target.value === '' ? '' : Number(e.target.value))}
                 />
               </div>
+              <div className="md:col-span-3 mt-2">
+                <label className="inline-flex items-center">
+                  <input type="checkbox" className="mr-2" checked={Boolean(periodicForm.payload_options.want_response)} onChange={(e) => updatePeriodicPayloadOption('want_response', e.target.checked)} />
+                  <span className="text-sm text-gray-700">Request response from recipient</span>
+                </label>
+              </div>
             </div>
           );
         }
@@ -1622,6 +1792,44 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
             </div>
           );
         }
+          if (periodicForm.payload_type === 'telemetry') {
+            return (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Telemetry Category</label>
+                  <select
+                    className={`${FORM_SELECT_CLASS} mt-1`}
+                    value={periodicForm.payload_options.telemetry_type}
+                    onChange={(e) => updatePeriodicPayloadOption('telemetry_type', e.target.value as 'device' | 'environment')}
+                  >
+                    <option value="device">Device</option>
+                    <option value="environment">Environment</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Telemetry Fields (leave blank to omit)</label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+                    <input type="number" step="any" placeholder="battery_level" value={periodicForm.payload_options.battery_level as any} onChange={(e) => updatePeriodicPayloadOption('battery_level', e.target.value === '' ? '' : Number(e.target.value))} className={FORM_INPUT_CLASS} />
+                    <input type="number" step="any" placeholder="voltage" value={periodicForm.payload_options.voltage as any} onChange={(e) => updatePeriodicPayloadOption('voltage', e.target.value === '' ? '' : Number(e.target.value))} className={FORM_INPUT_CLASS} />
+                    <input type="number" step="1" placeholder="uptime_seconds" value={periodicForm.payload_options.uptime_seconds as any} onChange={(e) => updatePeriodicPayloadOption('uptime_seconds', e.target.value === '' ? '' : Number(e.target.value))} className={FORM_INPUT_CLASS} />
+                    <input type="number" step="any" placeholder="channel_utilization" value={periodicForm.payload_options.channel_utilization as any} onChange={(e) => updatePeriodicPayloadOption('channel_utilization', e.target.value === '' ? '' : Number(e.target.value))} className={FORM_INPUT_CLASS} />
+                    <input type="number" step="any" placeholder="air_util_tx" value={periodicForm.payload_options.air_util_tx as any} onChange={(e) => updatePeriodicPayloadOption('air_util_tx', e.target.value === '' ? '' : Number(e.target.value))} className={FORM_INPUT_CLASS} />
+                    <input type="number" step="any" placeholder="temperature" value={periodicForm.payload_options.temperature as any} onChange={(e) => updatePeriodicPayloadOption('temperature', e.target.value === '' ? '' : Number(e.target.value))} className={FORM_INPUT_CLASS} />
+                    <input type="number" step="any" placeholder="relative_humidity" value={periodicForm.payload_options.relative_humidity as any} onChange={(e) => updatePeriodicPayloadOption('relative_humidity', e.target.value === '' ? '' : Number(e.target.value))} className={FORM_INPUT_CLASS} />
+                    <input type="number" step="any" placeholder="barometric_pressure" value={periodicForm.payload_options.barometric_pressure as any} onChange={(e) => updatePeriodicPayloadOption('barometric_pressure', e.target.value === '' ? '' : Number(e.target.value))} className={FORM_INPUT_CLASS} />
+                    <input type="number" step="any" placeholder="gas_resistance" value={periodicForm.payload_options.gas_resistance as any} onChange={(e) => updatePeriodicPayloadOption('gas_resistance', e.target.value === '' ? '' : Number(e.target.value))} className={FORM_INPUT_CLASS} />
+                    <input type="number" step="any" placeholder="iaq" value={periodicForm.payload_options.iaq as any} onChange={(e) => updatePeriodicPayloadOption('iaq', e.target.value === '' ? '' : Number(e.target.value))} className={FORM_INPUT_CLASS} />
+                  </div>
+                  <div className="mt-3">
+                    <label className="inline-flex items-center">
+                      <input type="checkbox" className="mr-2" checked={Boolean(periodicForm.payload_options.want_response)} onChange={(e) => updatePeriodicPayloadOption('want_response', e.target.checked)} />
+                      <span className="text-sm text-gray-700">Request response from recipient</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            );
+          }
         return (
           <p className="text-sm text-gray-600">Traceroute payload does not require additional configuration.</p>
         );
@@ -1805,6 +2013,7 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
                           <option value="position">Position</option>
                           <option value="nodeinfo">Node info</option>
                           <option value="traceroute">Traceroute</option>
+                          <option value="telemetry">Telemetry</option>
                         </select>
                       </div>
                       <div>
@@ -1929,11 +2138,11 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
                           <span className="sr-only">Toggle ACK requirement</span>
                         </button>
                       </div>
-                      {periodicForm.payload_type === 'text' && (
+                      {(periodicForm.payload_type === 'text' || periodicForm.payload_type === 'position' || periodicForm.payload_type === 'telemetry') && (
                         <div className="flex items-center justify-between">
                           <div>
                             <span className="block text-sm font-medium text-gray-700">PKI Encryption</span>
-                            <p className="text-xs text-gray-500">Encrypt text messages using the PKI keys on record.</p>
+                            <p className="text-xs text-gray-500">Encrypt published packets using the PKI keys on record.</p>
                           </div>
                           <button
                             type="button"
@@ -2485,26 +2694,7 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                   />
                 </div>
-                <div className="mt-2">
-                  <label className="block text-sm font-medium text-gray-900 mb-2">PKI Encrypted</label>
-                  <div className="h-10 flex items-center">
-                    <input
-                      id="pkiEncrypted"
-                      checked={pkiEncrypted}
-                      onChange={(e) => {
-                        const checked = (e.target as HTMLInputElement).checked;
-                        setPkiEncrypted(checked);
-                        if (checked) {
-                          setChannelName('PKI');
-                          setSelectedChannelObj(null);
-                          setChannelKey('');
-                        }
-                      }}
-                      type="checkbox"
-                      className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                    />
-                  </div>
-                </div>
+                {/* PKI Encrypted checkbox removed here to avoid duplication with Transmission Options */}
               </>
             )}
 
@@ -2530,6 +2720,38 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
                     type="checkbox"
                     disabled={selectedAction === 'reachability-test'}
                     className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 disabled:opacity-60"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">PKI Encrypted</label>
+                <div className="h-10 flex items-center">
+                  <input
+                    id="transmitPkiEncrypted"
+                    checked={pkiEncrypted}
+                    onChange={(e) => {
+                      const checked = (e.target as HTMLInputElement).checked;
+                      setPkiEncrypted(checked);
+                      if (checked) {
+                        if (prevChannelNameRef.current == null) prevChannelNameRef.current = channelName;
+                        if (prevChannelKeyRef.current == null) prevChannelKeyRef.current = channelKey;
+                        setChannelName('PKI');
+                        setSelectedChannelObj(null);
+                        setChannelKey('');
+                      } else {
+                        if (prevChannelNameRef.current != null) {
+                          setChannelName(prevChannelNameRef.current);
+                          setSelectedChannelObj(null);
+                          prevChannelNameRef.current = null;
+                        }
+                        if (prevChannelKeyRef.current != null) {
+                          setChannelKey(prevChannelKeyRef.current);
+                          prevChannelKeyRef.current = null;
+                        }
+                      }
+                    }}
+                    type="checkbox"
+                    className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                   />
                 </div>
               </div>
@@ -2676,6 +2898,92 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
                     placeholder="0"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                   />
+                  <div className="mt-3">
+                    <label className="inline-flex items-center space-x-2">
+                      <input type="checkbox" checked={wantResponse} onChange={(e) => setWantResponse(e.target.checked)} />
+                      <span className="text-sm text-gray-700">Want response</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {selectedAction === 'telemetry-publish' && (
+              <div className="space-y-4">
+                <div>
+                  <p className="text-xs text-gray-500 mt-1">Publish a telemetry packet containing the values below. Leave a field blank to omit it.</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-900 mb-2">Telemetry Category</label>
+                  <select
+                    value={telemetryCategory}
+                    onChange={(e) => setTelemetryCategory(e.target.value as 'device' | 'environment')}
+                    className={FORM_SELECT_CLASS}
+                  >
+                    <option value="device">Device Metrics</option>
+                    <option value="environment">Environmental Metrics</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="inline-flex items-center space-x-2">
+                    <input type="checkbox" checked={wantResponse} onChange={(e) => setWantResponse(e.target.checked)} />
+                    <span className="text-sm text-gray-700">Want response</span>
+                  </label>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-900 mb-2">Telemetry Fields</label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {telemetryCategory === 'device' ? (
+                      <>
+                        <div>
+                          <label className="block text-xs text-gray-700">Battery Level (%)</label>
+                          <input type="number" step="any" value={telemetryValues.battery_level} onChange={(e) => setTelemetryValues(s => ({ ...s, battery_level: e.target.value === '' ? '' : Number(e.target.value) }))} className={FORM_INPUT_CLASS + ' mt-1'} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-gray-700">Voltage (V)</label>
+                          <input type="number" step="any" value={telemetryValues.voltage} onChange={(e) => setTelemetryValues(s => ({ ...s, voltage: e.target.value === '' ? '' : Number(e.target.value) }))} className={FORM_INPUT_CLASS + ' mt-1'} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-gray-700">Uptime (s)</label>
+                          <input type="number" step="1" value={telemetryValues.uptime_seconds} onChange={(e) => setTelemetryValues(s => ({ ...s, uptime_seconds: e.target.value === '' ? '' : Number(e.target.value) }))} className={FORM_INPUT_CLASS + ' mt-1'} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-gray-700">Channel Utilization (%)</label>
+                          <input type="number" step="any" value={telemetryValues.channel_utilization} onChange={(e) => setTelemetryValues(s => ({ ...s, channel_utilization: e.target.value === '' ? '' : Number(e.target.value) }))} className={FORM_INPUT_CLASS + ' mt-1'} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-gray-700">Air Util TX (%)</label>
+                          <input type="number" step="any" value={telemetryValues.air_util_tx} onChange={(e) => setTelemetryValues(s => ({ ...s, air_util_tx: e.target.value === '' ? '' : Number(e.target.value) }))} className={FORM_INPUT_CLASS + ' mt-1'} />
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div>
+                          <label className="block text-xs text-gray-700">Temperature (°C)</label>
+                          <input type="number" step="any" value={telemetryValues.temperature} onChange={(e) => setTelemetryValues(s => ({ ...s, temperature: e.target.value === '' ? '' : Number(e.target.value) }))} className={FORM_INPUT_CLASS + ' mt-1'} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-gray-700">Relative Humidity (%)</label>
+                          <input type="number" step="any" value={telemetryValues.relative_humidity} onChange={(e) => setTelemetryValues(s => ({ ...s, relative_humidity: e.target.value === '' ? '' : Number(e.target.value) }))} className={FORM_INPUT_CLASS + ' mt-1'} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-gray-700">Barometric Pressure (hPa)</label>
+                          <input type="number" step="any" value={telemetryValues.barometric_pressure} onChange={(e) => setTelemetryValues(s => ({ ...s, barometric_pressure: e.target.value === '' ? '' : Number(e.target.value) }))} className={FORM_INPUT_CLASS + ' mt-1'} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-gray-700">Gas Resistance (Ω)</label>
+                          <input type="number" step="any" value={telemetryValues.gas_resistance} onChange={(e) => setTelemetryValues(s => ({ ...s, gas_resistance: e.target.value === '' ? '' : Number(e.target.value) }))} className={FORM_INPUT_CLASS + ' mt-1'} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-gray-700">IAQ</label>
+                          <input type="number" step="any" value={telemetryValues.iaq} onChange={(e) => setTelemetryValues(s => ({ ...s, iaq: e.target.value === '' ? '' : Number(e.target.value) }))} className={FORM_INPUT_CLASS + ' mt-1'} />
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
