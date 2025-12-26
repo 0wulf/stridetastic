@@ -359,6 +359,9 @@ export interface PublishGenericPayload {
   hop_limit?: number; // default 3
   hop_start?: number; // default 3
   want_ack?: boolean; // default false
+  // When set, instructs the recipient device to send a response packet
+  // (useful for requesting telemetry/position/etc). Optional boolean.
+  want_response?: boolean;
 }
 
 export interface PublishTextMessagePayload extends PublishGenericPayload {
@@ -380,6 +383,20 @@ export interface PublishPositionPayload extends PublishGenericPayload {
   lon: number;
   alt?: number; // default 0.0
   interface_id?: number;
+  // Allow marking position publish/request as PKI encrypted from frontend
+  pki_encrypted?: boolean;
+}
+
+// Payload used by the frontend to request telemetry/data from a node.
+export interface PublishTelemetryPayload extends PublishGenericPayload {
+  interface_id?: number;
+  // Which telemetry category to request. 'device' -> device metrics (battery, uptime, etc),
+  // 'environment' -> environmental metrics (temperature, humidity, pressure, etc).
+  telemetry_type?: 'device' | 'environment';
+  // Options specifying which fields to request or extra parameters (e.g. limit)
+  telemetry_options?: Record<string, unknown>;
+  // Whether to PKI-encrypt the request payload
+  pki_encrypted?: boolean;
 }
 
 // New: Traceroute payload (no extra fields beyond generic payload)
@@ -436,7 +453,7 @@ export interface PublisherReactiveConfigUpdatePayload {
   listen_interface_ids?: number[];
 }
 
-export type PeriodicPayloadType = 'text' | 'position' | 'nodeinfo' | 'traceroute';
+export type PeriodicPayloadType = 'text' | 'position' | 'nodeinfo' | 'traceroute' | 'telemetry';
 
 export interface PublisherPeriodicJob {
   id: number;
