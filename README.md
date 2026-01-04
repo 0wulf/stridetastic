@@ -141,7 +141,12 @@ CLAUDE.md               Full-stack architecture digest for AI copilots
 
 ## Contributing
 
-Contributions are welcome! Please open an issue to discuss major ideas, follow standard Python/TypeScript style guides, and include tests whenever possible (`pytest` for backend, future `pnpm test` for frontend). Pull requests that improve docs, dashboards, or research use-cases are highly appreciated.
+- Start with `CONTRIBUTING.md` for workflows (local dev, testing, branching, PR expectations).
+- Our community standards live in `CODE_OF_CONDUCT.md`.
+- Security reports should follow `SECURITY.md` (email `security@stridetastic.org`).
+- Architecture and deep dives: see `CLAUDE.md` and the `claude_docs/` quick-start and strategy guides.
+
+If you open a PR, keep it scoped, include tests for behavior changes, and attach screenshots for UI updates. Thank you for helping improve STRIDEtastic!
 
 ## License
 
