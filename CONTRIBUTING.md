@@ -7,6 +7,7 @@ Thanks for your interest in improving STRIDEtastic! This guide explains how to p
 - [Code of Conduct](#code-of-conduct)
 - [Architecture quick recap](#architecture-quick-recap)
 - [Local development](#local-development)
+- [Pre-commit hooks](#pre-commit-hooks)
 - [Backend workflow](#backend-workflow)
 - [Frontend workflow](#frontend-workflow)
 - [Testing expectations](#testing-expectations)
@@ -67,6 +68,11 @@ pnpm install
 pnpm dev
 ```
 Set `NEXT_PUBLIC_API_HOST_IP` (and other envs) to point at your API.
+
+## Pre-commit hooks
+- Install tooling once: `pip install pre-commit` (inside your virtualenv), then run `pre-commit install` at the repo root.
+- Run checks locally before pushing: `pre-commit run --all-files`.
+- Hooks cover ruff, black, isort, trailing whitespace/end-of-file fixes, YAML checks, and secret detection. This mirrors what CI enforces.
 
 ## Backend workflow
 - Run tests: `pytest` (from `api_stridetastic`).
