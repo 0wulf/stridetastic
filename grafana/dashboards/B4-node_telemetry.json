@@ -2099,11 +2099,9 @@
       },
       "id": 14,
       "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "center",
+        "minVizHeight": 75,
+        "minVizWidth": 75,
         "orientation": "auto",
-        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -2111,9 +2109,9 @@
           "fields": "",
           "values": false
         },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
       },
       "pluginVersion": "12.3.0",
       "targets": [
@@ -2123,8 +2121,8 @@
           "refId": "A"
         }
       ],
-      "title": "Air Utilization TX",
-      "type": "stat"
+      "title": "Duty Cycle",
+      "type": "gauge"
     },
     {
       "datasource": {
@@ -3277,5 +3275,5 @@
   "timezone": "browser",
   "title": "B4 - Node Telemetry",
   "uid": "B4-node-telemetry",
-  "version": 2
+  "version": 3
 }

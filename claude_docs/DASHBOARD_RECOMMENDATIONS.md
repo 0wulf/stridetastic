@@ -241,7 +241,7 @@ Deep dive into device metrics for a specific node.
   - Latency histogram (min/max/p50/p95/p99)
   - Reachability % (probe success rate)
   - RSSI/SNR distribution to neighbors (box plot)
-  - Air utilization TX % (traffic load)
+  - Duty Cycle % (traffic load)
   - Channel utilization % (congestion indicator)
   
 - **Network Activity**:

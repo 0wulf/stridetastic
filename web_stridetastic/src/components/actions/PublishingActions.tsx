@@ -804,14 +804,14 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
     {
       id: 'nodeinfo',
       title: 'Node Info Publication',
-      description: 'Publish synthetic node information (name, hardware model, etc.)',
+      description: 'Publish node information (name, hardware model, etc.)',
       icon: User,
       category: 'One-Shot'
     },
     {
       id: 'position',
       title: 'Position Publication',
-      description: 'Publish synthetic GPS coordinates to a target node',
+      description: 'Publish GPS coordinates to a target node',
       icon: MapPin,
       category: 'One-Shot'
     }
@@ -2630,7 +2630,7 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
                 }}
                 nodes={selectableNodes}
                 filterNodes={filterNodes}
-                placeholder="Synthetic source node ID"
+                placeholder="Source node ID"
                 required
                 helperText={isVirtualRestrictionActive ? 'Only virtual nodes can be used as publication sources.' : undefined}
                 onSelectNode={(node) => handleChooseNode('source', node)}
