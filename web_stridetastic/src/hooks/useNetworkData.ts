@@ -69,7 +69,7 @@ export function useNetworkData(
         isLoading: false,
       }));
     }
-  }, [showBidirectionalOnly, showMqttInterface, forceBidirectional, excludeMultiHop, nodeActivityFilter, linkActivityFilter]);
+  }, [graph_or_map, showBidirectionalOnly, showMqttInterface, forceBidirectional, excludeMultiHop, nodeActivityFilter, linkActivityFilter]);
 
   // Re-transform data when edge settings change
   useEffect(() => {
@@ -91,7 +91,7 @@ export function useNetworkData(
         virtualEdgeSet: transformed.virtualEdgeSet,
       }));
     }
-  }, [showBidirectionalOnly, showMqttInterface, forceBidirectional, excludeMultiHop, nodeActivityFilter, linkActivityFilter, state.rawData]);
+  }, [graph_or_map, showBidirectionalOnly, showMqttInterface, forceBidirectional, excludeMultiHop, nodeActivityFilter, linkActivityFilter, state.rawData]);
 
   // Initial data fetch
   useEffect(() => {

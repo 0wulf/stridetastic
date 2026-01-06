@@ -158,7 +158,7 @@ export default function VirtualNodesPanel(): React.ReactElement {
     }
   }, [applyPrefill]);
 
-  const hardwareOptions = options?.hardware_models ?? [];
+  const hardwareOptions = useMemo(() => options?.hardware_models ?? [], [options]);
   const filteredHardwareModels = useMemo(() => {
     if (!hardwareOptions.length) {
       return hardwareOptions;
@@ -783,7 +783,7 @@ export default function VirtualNodesPanel(): React.ReactElement {
                     </div>
                   )}
                   {!optionsLoading && hardwareOptions.length > 0 && filteredHardwareModels.length === 0 && hardwareSearch.trim() && (
-                    <p className="mt-2 text-xs text-red-600">No hardware models match "{hardwareSearch.trim()}".</p>
+                    <p className="mt-2 text-xs text-red-600">No hardware models match &quot;{hardwareSearch.trim()}&quot;.</p>
                   )}
                 </div>
                 <div className="flex items-center gap-2">

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { X, Hash, Users, Clock, Shield, MessageSquare, Activity } from 'lucide-react';
 import { ChannelDetail, Channel, Node } from '@/types';
 import { apiClient } from '@/lib/api';
@@ -67,13 +67,7 @@ export default function ChannelDetailsModal({ channel, isOpen, onClose, interfac
     setSelectedNode(null);
   };
 
-  useEffect(() => {
-    if (isOpen && channel) {
-      fetchChannelDetails();
-    }
-  }, [isOpen, channel]);
-
-  const fetchChannelDetails = async () => {
+  const fetchChannelDetails = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
@@ -85,7 +79,13 @@ export default function ChannelDetailsModal({ channel, isOpen, onClose, interfac
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [channel?.channel_id, channel?.channel_num]);
+
+  useEffect(() => {
+    if (isOpen && channel) {
+      fetchChannelDetails();
+    }
+  }, [isOpen, channel, fetchChannelDetails]);
 
   if (!isOpen) return null;
 

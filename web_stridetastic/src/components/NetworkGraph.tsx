@@ -52,10 +52,13 @@ export default function NetworkGraph({ className = '', onNavigateToMap }: Networ
   const [isIncrementalLoading, setIsIncrementalLoading] = useState(false);
 
   // Memoized nodes and links for stable reference
-  const memoizedGraphData = useMemo(() => ({
-    nodes: currentGraphDataRef.current.nodes,
-    links: currentGraphDataRef.current.links,
-  }), [graphVersion]);
+  const memoizedGraphData = useMemo(() => {
+    void graphVersion; // tie memoization to version updates
+    return {
+      nodes: currentGraphDataRef.current.nodes,
+      links: currentGraphDataRef.current.links,
+    };
+  }, [graphVersion]);
   
   // Custom hooks for different concerns
   const { dimensions, updateDimensions } = useGraphDimensions();
@@ -266,20 +269,19 @@ export default function NetworkGraph({ className = '', onNavigateToMap }: Networ
     fetchInterfacesAndBuild();
   }, [rawData.nodes, rawData.edges, graphData.nodes, selectedInterfaceIds, activityFilter]);
 
-  // Merge interface nodes/links into graph, and validate links
-  const mergedNodes = [
-    ...graphData.nodes.filter(n => !n.isMqttBroker),
-    ...interfaceNodes,
-  ];
-  const mergedNodeIds = new Set(mergedNodes.map(n => n.id));
-  const mergedLinks = [
-    ...graphData.links,
-    ...interfaceLinks,
-  ].filter(l => mergedNodeIds.has(l.source) && mergedNodeIds.has(l.target));
-  const mergedGraphData = {
-    nodes: mergedNodes,
-    links: mergedLinks,
-  };
+  // Merge interface nodes/links into graph, and validate links (memoized for stability)
+  const mergedGraphData = useMemo(() => {
+    const mergedNodes = [
+      ...graphData.nodes.filter(n => !n.isMqttBroker),
+      ...interfaceNodes,
+    ];
+    const mergedNodeIds = new Set(mergedNodes.map(n => n.id));
+    const mergedLinks = [
+      ...graphData.links,
+      ...interfaceLinks,
+    ].filter(l => mergedNodeIds.has(l.source) && mergedNodeIds.has(l.target));
+    return { nodes: mergedNodes, links: mergedLinks };
+  }, [graphData.nodes, graphData.links, interfaceNodes, interfaceLinks]);
 
   // On initial mount or when dependencies change, do an incremental update (no remount)
   useEffect(() => {
@@ -330,7 +332,7 @@ export default function NetworkGraph({ className = '', onNavigateToMap }: Networ
     }
 
     setGraphVersion(v => v + 1); // update memoized data only
-  }, [interfaceNodes, interfaceLinks, graphData.nodes, graphData.links]);
+  }, [mergedGraphData]);
 
   // Incremental update logic for refresh (do NOT remount GraphCanvas)
   const handleIncrementalRefresh = useCallback(async () => {
@@ -410,12 +412,12 @@ export default function NetworkGraph({ className = '', onNavigateToMap }: Networ
       setGraphVersion(v => v + 1);
       setIsIncrementalLoading(false);
     }
-  }, [isIncrementalLoading, isLoading, refetch, graphData.nodes, graphData.links, interfaceNodes, interfaceLinks]);
+  }, [isIncrementalLoading, isLoading, refetch, graphData.nodes, graphData.links, interfaceNodes, interfaceLinks, mergedGraphData.links, mergedGraphData.nodes]);
 
   useAutoRefresh(handleIncrementalRefresh, { intervalMs: 60_000 });
 
   // Style options for graph rendering
-  const styleOptions: GraphStyleOptions = {
+  const styleOptions: GraphStyleOptions = useMemo(() => ({
     selectedNodeId,
     secondSelectedNodeId,
     reachableNodes: reachableNodesFromSelected,
@@ -424,7 +426,7 @@ export default function NetworkGraph({ className = '', onNavigateToMap }: Networ
     virtualEdgeSet,
     rawNodes: rawData.nodes,
     rawEdges: rawData.edges,
-  };
+  }), [selectedNodeId, secondSelectedNodeId, reachableNodesFromSelected, reachableLinksFromSelected, pathNodeSet, virtualEdgeSet, rawData.nodes, rawData.edges]);
 
   // Zoom controls
   const handleZoomIn = useCallback(() => {
@@ -699,7 +701,7 @@ export default function NetworkGraph({ className = '', onNavigateToMap }: Networ
         target: typeof link.target === 'string' ? link.target : (link.target as any).id,
       })),
     };
-  }, [memoizedGraphData, graphVersion]);
+  }, [memoizedGraphData]);
 
   return (
     <div 

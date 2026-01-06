@@ -65,6 +65,7 @@ export const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({
     },
     getZoom: () => fgRef.current?.zoom() || 1,
   }));
+  GraphCanvas.displayName = 'GraphCanvas';
 
   useEffect(() => {
     const container = containerRef.current;
@@ -102,7 +103,7 @@ export const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({
       pinch: null,
     };
 
-    // Give the graph canvas full control over touch input so we can emulate pointer gestures.
+  GraphCanvas.displayName = 'GraphCanvas';
     container.style.touchAction = 'none';
     container.style.overscrollBehavior = 'contain';
 
@@ -378,3 +379,5 @@ export const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({
     </div>
   );
 });
+
+GraphCanvas.displayName = 'GraphCanvas';

@@ -72,15 +72,6 @@ export function SparklineChart({
   xAxisLabelColor = '#6b7280',
   xAxisLabelFontSize = 11,
 }: SparklineChartProps): React.JSX.Element {
-  if (!seriesList.length) {
-    return (
-      <div
-        className={`flex h-full w-full items-center justify-center text-sm text-gray-500 ${className ?? ''}`.trim()}
-      >
-        No data
-      </div>
-    );
-  }
   // Build unified data keyed by timestamp
   const data = useMemo(() => {
     const timestamps = new Set<number>();
@@ -95,6 +86,16 @@ export function SparklineChart({
       return row;
     });
   }, [seriesList]);
+
+  if (!seriesList.length) {
+    return (
+      <div
+        className={`flex h-full w-full items-center justify-center text-sm text-gray-500 ${className ?? ''}`.trim()}
+      >
+        No data
+      </div>
+    );
+  }
 
   const formatYAxisLabel = yAxisLabelFormatter ?? ((value: number) => value.toLocaleString());
 

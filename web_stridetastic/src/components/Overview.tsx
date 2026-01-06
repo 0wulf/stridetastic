@@ -738,7 +738,7 @@ function Overview() {
               ))
             ) : recentNodes.length > 0 ? (
               <div className="p-6 text-center text-gray-500">
-                No nodes match '{nodeSearch}'
+                No nodes match &quot;{nodeSearch}&quot;
               </div>
             ) : (
               <div className="p-6 text-center text-gray-500">

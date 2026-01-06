@@ -291,7 +291,7 @@ export default function LinksPanel() {
       if (!isMountedRef.current) return;
       setLoadingLinks(false);
     }
-  }, [debouncedSearch, directionFilter, timeRange, portFilter, loadLinkDetails]);
+  }, [debouncedSearch, directionFilter, timeRange, portFilter, loadLinkDetails, setSelectedLinkIdSync]);
 
   useEffect(() => {
     loadLinks();

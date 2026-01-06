@@ -577,9 +577,9 @@ export default function TamperingActions({ className = '' }: TamperingActionsPro
                             <div className="flex items-center text-sm text-gray-600">
                               <Code className="h-4 w-4 mr-2" />
                               <span className="font-mono">
-                                IF {rule.condition.type}="{rule.condition.value}" THEN {rule.action.type}
+                                IF {rule.condition.type}=&quot;{rule.condition.value}&quot; THEN {rule.action.type}
                                 {rule.action.field && ` ${rule.action.field}`}
-                                {rule.action.value && `="${rule.action.value}"`}
+                                {rule.action.value && `=&quot;${rule.action.value}&quot;`}
                               </span>
                             </div>
                           </div>

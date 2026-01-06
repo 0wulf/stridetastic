@@ -915,7 +915,7 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
         setReactiveLoading(false);
       }
     })();
-  }, [selectedAction, isConfiguring]);
+  }, [selectedAction, isConfiguring, showToast]);
 
   
 
