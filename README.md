@@ -9,31 +9,36 @@ Stridetastic is an open-source monitoring and observability framework for Meshta
 
 ## Feature Overview
 
-### Capture & Ingest
-- Multi-interface sniffer connects to multiple MQTT brokers, physical serial radios, and network-connected nodes (TCP) simultaneously.
-- Near real-time ingestion pipeline (Dispatcher → PacketHandler) that validates MeshPackets, **decrypts AES-CTR/PKI** payloads, maps nodes/channels/links, and normalizes protobuf payloads (NodeInfo, Position, Telemetry, NeighborInfo, RouteDiscovery, Routing).
-- TimescaleDB hypertables persist packets, metrics, and historical states; raw **PCAP-NG** files are stored on disk and indexed for later analysis.
-- UI-driven PCAP sessions with start/stop/download controls, automatic rotation, size limits, and per-frame annotations compatible with the bundled Wireshark Lua dissector (DLT 162).
+For a complete, user-perspective inventory of shipped features, see [`docs/FEATURES.md`](docs/FEATURES.md).
 
-### Active Publishing & Automation
-- PublisherService crafts **legitimate** Text, NodeInfo, Position, Traceroute, and reachability probe packets with automatic channel hashing, hop-limit control, and AES/PKI encryption.
-- **Reactive publishing engine** listens to configurable port triggers, enforces attempt windows, and targets per-interface publishers.
-- Periodic jobs (Celery Beat + TimescaleDB state) execute recurring traceroutes or probes with status tracking and manual overrides.
-- **Virtual nodes subsystem** provisions Curve25519 identities (public/private keys, NodeIDs, metadata) ready for legitimate packet injection.
+STRIDEtastic combines passive mesh traffic observability with controlled active measurements. You can ingest Meshtastic traffic from multiple sources, investigate topology/links/nodes from a web dashboard, capture PCAP-NG for Wireshark analysis, and run one-shot/reactive/periodic publishing jobs for reachability and path measurements.
 
-### Security & Crypto Tooling
-- AES-CTR decrypt/encrypt using per-channel PSKs with automatic normalization and channel-hash calculation.
-- PKI Curve25519 + AES-CCM support for Meshtastic direct messages, including key generation, fingerprinting, and nonce derivation.
-- Weak/duplicate key detection plus administrative views to audit channels, interfaces, and node secrets.
+### 1) Ingest & Decode
+- Ingest from multiple interfaces: MQTT, serial radios, and TCP-connected nodes.
+- Parse MeshPackets and decode common Meshtastic payload types (e.g., NodeInfo, Position, Telemetry, NeighborInfo, Routing).
+- Optional decryption when keys are available: channel PSKs (AES) and PKI direct messages.
 
-### Visualization & Analytics
-- Next.js 15 dashboard (React 19 + Tailwind) with:
-  - **Force-directed topology graph** synced with a Leaflet map.
-  - Path analysis to inspect hops, RTTs, RSSI/SNR.
-  - Node telemetry, latency, and position history panels.
-  - Capture management, interface controls, and publishing workflows (manual/ reactive/ periodic) all from the browser.
-- Grafana suite covering KPIs, geographic coverage, node health, packet flow, channel activity, routing, link quality, anomaly detection, SLA/compliance, and infrastructure capacity (Not fully developed).
-- Wireshark dissector (`wireshark/meshtastic.lua`) that reads PCAP-NG comments to auto-select the right protobuf schema for each packet.
+### 2) Investigate (Web Dashboard)
+- Overview KPIs and activity for quick triage.
+- Topology graph + geographic map for exploration and pivoting.
+- Logical links view (bidirectional vs unidirectional, last activity, basic grouping).
+
+### 3) Capture & Forensics
+- UI-driven capture sessions stored as PCAP-NG with per-frame annotations.
+- Download captures and inspect them in Wireshark using the bundled Lua dissector.
+
+### 4) Active Publishing & Automation
+- One-shot publishing: text, node identity, position, telemetry, traceroute, reachability probes.
+- Reactive publishing based on configurable port/app triggers with safety limits.
+- Periodic jobs (Celery Beat + workers) for recurring traceroutes/probes with status tracking.
+
+### 5) Reporting (Grafana)
+Shipped dashboards in `grafana/dashboards/`:
+- `A1-network-health-kpi.json`
+- `A3-geographic-coverage.json`
+- `B4-node_telemetry.json`
+- `B5-node_key_health.json`
+- `C1-cve-2025-53627-dm-downgrade-attempts.json`
 
 ## Demo
 

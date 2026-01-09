@@ -23,6 +23,18 @@
 
 ---
 
+## Dashboards Shipped In This Repo
+
+These dashboards are pre-provisioned from `grafana/dashboards/`.
+
+- `grafana/dashboards/A1-network-health-kpi.json`
+- `grafana/dashboards/A3-geographic-coverage.json`
+- `grafana/dashboards/B4-node_telemetry.json`
+- `grafana/dashboards/B5-node_key_health.json`
+- `grafana/dashboards/C1-cve-2025-53627-dm-downgrade-attempts.json` (CVE-2025-53627 detection: `TEXT_MESSAGE_APP` packets that are not PKI and not to `!ffffffff`)
+
+---
+
 ## Recommended Implementation Phases
 
 ### Phase 1: Foundation (Weeks 1-2) ✅ MVP
