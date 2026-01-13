@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("stridetastic_api", "0003_remove_node_reactive_latency_ms_and_more"),
     ]

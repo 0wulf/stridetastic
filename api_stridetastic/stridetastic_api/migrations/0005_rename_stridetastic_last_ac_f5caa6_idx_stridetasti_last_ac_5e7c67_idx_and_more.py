@@ -4,20 +4,19 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('stridetastic_api', '0004_node_is_low_entropy_public_key'),
+        ("stridetastic_api", "0004_node_is_low_entropy_public_key"),
     ]
 
     operations = [
         migrations.RenameIndex(
-            model_name='nodelink',
-            new_name='stridetasti_last_ac_5e7c67_idx',
-            old_name='stridetastic_last_ac_f5caa6_idx',
+            model_name="nodelink",
+            new_name="stridetasti_last_ac_5e7c67_idx",
+            old_name="stridetastic_last_ac_f5caa6_idx",
         ),
         migrations.RenameIndex(
-            model_name='nodelink',
-            new_name='stridetasti_is_bidi_1b258d_idx',
-            old_name='stridetastic_is_bidi_bcaca7_idx',
+            model_name="nodelink",
+            new_name="stridetasti_is_bidi_1b258d_idx",
+            old_name="stridetastic_is_bidi_bcaca7_idx",
         ),
     ]
