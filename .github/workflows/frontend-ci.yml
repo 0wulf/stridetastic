@@ -49,7 +49,7 @@ jobs:
         run: pnpm lint
 
       - name: Test
-        run: pnpm test -- --runInBand
+        run: pnpm test:ci
 
       - name: Build
         run: pnpm build
