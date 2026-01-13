@@ -1,6 +1,6 @@
 # STRIDEtastic
 
-Stridetastic is an open-source monitoring and observability framework for Meshtastic® LoRa mesh networks. It was born as an undergraduate research project at Pontificia Universidad Católica de Chile (IPre Program) to fill the gap between hobbyist tooling and more professional-grade monitoring, helping operators and administrators capture, inject, and visualize everything happening in their meshes.
+Stridetastic is an open-source monitoring and observability framework for Meshtastic® LoRa mesh networks. Born to fill the gap between hobbyist tooling and more professional-grade monitoring, it aims to help operators and administrators capture, inject, and visualize everything happening in their meshes. STRIDEtastic started as an undergraduate research project at Pontificia Universidad Católica de Chile as part of the IPre Program, under the supervision and guidance of [Prof. Miguel Gutiérrez Gaitán](https://www.linkedin.com/in/mgutierrezgaitan) from the [IoT-UC Research Lab](https://www.linkedin.com/company/iot-uc).
 
 ## Research Background
 
