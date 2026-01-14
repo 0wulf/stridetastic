@@ -197,9 +197,11 @@ class ServiceManager:
                 topic=iface.mqtt_topic or settings.MQTT_TOPIC,
                 username=iface.mqtt_username or settings.MQTT_USERNAME,
                 password=iface.mqtt_password or settings.MQTT_PASSWORD,
-                tls=iface.mqtt_tls
-                if iface.mqtt_tls is not None
-                else getattr(settings, "MQTT_TLS", False),
+                tls=(
+                    iface.mqtt_tls
+                    if iface.mqtt_tls is not None
+                    else getattr(settings, "MQTT_TLS", False)
+                ),
                 ca_certs=iface.mqtt_ca_certs
                 or getattr(settings, "MQTT_CA_CERTS", None),
                 interface_id=iface.id,

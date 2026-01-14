@@ -384,28 +384,40 @@ class NodeController:
                 NodeTelemetryHistorySchema(
                     timestamp=payload.time,
                     battery_level=payload.battery_level,
-                    voltage=float(payload.voltage)
-                    if payload.voltage is not None
-                    else None,
-                    channel_utilization=float(payload.channel_utilization)
-                    if payload.channel_utilization is not None
-                    else None,
-                    air_util_tx=float(payload.air_util_tx)
-                    if payload.air_util_tx is not None
-                    else None,
+                    voltage=(
+                        float(payload.voltage) if payload.voltage is not None else None
+                    ),
+                    channel_utilization=(
+                        float(payload.channel_utilization)
+                        if payload.channel_utilization is not None
+                        else None
+                    ),
+                    air_util_tx=(
+                        float(payload.air_util_tx)
+                        if payload.air_util_tx is not None
+                        else None
+                    ),
                     uptime_seconds=payload.uptime_seconds,
-                    temperature=float(payload.temperature)
-                    if payload.temperature is not None
-                    else None,
-                    relative_humidity=float(payload.relative_humidity)
-                    if payload.relative_humidity is not None
-                    else None,
-                    barometric_pressure=float(payload.barometric_pressure)
-                    if payload.barometric_pressure is not None
-                    else None,
-                    gas_resistance=float(payload.gas_resistance)
-                    if payload.gas_resistance is not None
-                    else None,
+                    temperature=(
+                        float(payload.temperature)
+                        if payload.temperature is not None
+                        else None
+                    ),
+                    relative_humidity=(
+                        float(payload.relative_humidity)
+                        if payload.relative_humidity is not None
+                        else None
+                    ),
+                    barometric_pressure=(
+                        float(payload.barometric_pressure)
+                        if payload.barometric_pressure is not None
+                        else None
+                    ),
+                    gas_resistance=(
+                        float(payload.gas_resistance)
+                        if payload.gas_resistance is not None
+                        else None
+                    ),
                     iaq=float(payload.iaq) if payload.iaq is not None else None,
                 )
             )
@@ -527,9 +539,9 @@ class NodeController:
                     sent_count=sent_entry["count"] if sent_entry else 0,
                     received_count=received_entry["count"] if received_entry else 0,
                     last_sent=sent_entry["last_seen"] if sent_entry else None,
-                    last_received=received_entry["last_seen"]
-                    if received_entry
-                    else None,
+                    last_received=(
+                        received_entry["last_seen"] if received_entry else None
+                    ),
                 )
             )
 

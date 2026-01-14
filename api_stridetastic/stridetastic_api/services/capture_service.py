@@ -276,9 +276,11 @@ class CaptureService:
                 filename=filename,
                 file_path=relative_path_str,
                 interface=interface,
-                started_by=started_by
-                if getattr(started_by, "is_authenticated", False)
-                else None,
+                started_by=(
+                    started_by
+                    if getattr(started_by, "is_authenticated", False)
+                    else None
+                ),
                 source_type=source_type,
             )
 

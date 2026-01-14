@@ -20,9 +20,11 @@ def normalize_tcp_message(raw_data, interface_id=None):
     """
     return {
         "gateway_node_id": None,
-        "channel_id": raw_data.get("channel", "0")
-        if isinstance(raw_data, dict) and "channel" in raw_data
-        else "0",
+        "channel_id": (
+            raw_data.get("channel", "0")
+            if isinstance(raw_data, dict) and "channel" in raw_data
+            else "0"
+        ),
         "packet": raw_data.get("raw") if isinstance(raw_data, dict) else raw_data,
         "interface_id": interface_id,
     }

@@ -309,12 +309,16 @@ class PublisherController:
                 hop_limit=payload.hop_limit,
                 hop_start=payload.hop_start,
                 want_ack=payload.want_ack,
-                want_response=payload.want_response
-                if hasattr(payload, "want_response")
-                else False,
-                pki_encrypted=payload.pki_encrypted
-                if hasattr(payload, "pki_encrypted")
-                else False,
+                want_response=(
+                    payload.want_response
+                    if hasattr(payload, "want_response")
+                    else False
+                ),
+                pki_encrypted=(
+                    payload.pki_encrypted
+                    if hasattr(payload, "pki_encrypted")
+                    else False
+                ),
                 gateway_node=payload.gateway_node,
                 interface_id=payload.interface_id,
             )
@@ -421,9 +425,11 @@ class PublisherController:
                 hop_limit=payload.hop_limit,
                 hop_start=payload.hop_start,
                 want_ack=payload.want_ack,
-                want_response=payload.want_response
-                if hasattr(payload, "want_response")
-                else False,
+                want_response=(
+                    payload.want_response
+                    if hasattr(payload, "want_response")
+                    else False
+                ),
                 telemetry_type=payload.telemetry_type,
                 telemetry_options=payload.telemetry_options,
                 pki_encrypted=payload.pki_encrypted,

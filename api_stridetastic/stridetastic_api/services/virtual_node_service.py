@@ -353,9 +353,11 @@ class VirtualNodeService:
         candidate = (
             provided_node_num
             if provided_node_num is not None
-            else seed_node_num
-            if seed_node_num is not None
-            else cls._next_available_node_num()
+            else (
+                seed_node_num
+                if seed_node_num is not None
+                else cls._next_available_node_num()
+            )
         )
 
         if candidate < cls.VIRTUAL_NODE_NUM_START:
