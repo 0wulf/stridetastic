@@ -1170,9 +1170,7 @@ def on_message(client, userdata, normalized, iface="MQTT"):
     hops = (
         0
         if hop_limit is None
-        else (hop_start - hop_limit)
-        if hop_start is not None
-        else 0
+        else (hop_start - hop_limit) if hop_start is not None else 0
     )
     first_hop = getattr(packet, "first_hop", None)
     next_hop = getattr(packet, "next_hop", None)

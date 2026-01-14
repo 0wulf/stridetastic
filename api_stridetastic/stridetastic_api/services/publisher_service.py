@@ -34,11 +34,9 @@ if TYPE_CHECKING:  # pragma: no cover - type checking only
 class PublishableInterface(Protocol):
     """Protocol defining the interface needed for publishing messages"""
 
-    def publish(self, topic: str, payload: bytes) -> bool:
-        ...
+    def publish(self, topic: str, payload: bytes) -> bool: ...
 
-    def is_connected(self) -> bool:
-        ...
+    def is_connected(self) -> bool: ...
 
 
 class PublisherService:
