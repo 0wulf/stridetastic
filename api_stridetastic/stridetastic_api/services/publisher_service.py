@@ -1000,12 +1000,12 @@ class PublisherService:
                 return
 
             channel_name = channel_obj.channel_id
-            channel_key = channel_key_config or getattr(channel_obj, "psk", "") or ""
-            if not channel_key:
-                logging.debug(
-                    "[Publisher] No channel key available for reactive traceroute; skipping"
-                )
-                return
+            default_channel_key = "AQ=="
+            channel_key = (
+                channel_key_config
+                or getattr(channel_obj, "psk", "")
+                or default_channel_key
+            )
 
             target_node_id = getattr(from_node, "node_id", None)
             if not target_node_id:

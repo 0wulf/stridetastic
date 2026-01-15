@@ -1103,10 +1103,21 @@ def _dispatch_to_publisher_service(
     packet, decoded_data, portnum, from_node, to_node, packet_obj
 ):
     try:
-        if ServiceManager is None:
-            return
+        global ServiceManager
 
-        service_manager = ServiceManager.get_instance()
+        service_manager_cls = ServiceManager
+        if service_manager_cls is None:
+            try:
+                from ...services.service_manager import (
+                    ServiceManager as ImportedServiceManager,
+                )
+
+                ServiceManager = ImportedServiceManager  # type: ignore[assignment]
+                service_manager_cls = ImportedServiceManager
+            except Exception:
+                return
+
+        service_manager = service_manager_cls.get_instance()
         publisher_service = service_manager.get_publisher_service()
 
         if publisher_service is None:
