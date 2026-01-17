@@ -60,8 +60,6 @@ services:
       - .env
     depends_on:
       - timescale_stridetastic
-    devices:
-      - "${SERIAL_PORT:-/dev/null}:${SERIAL_PORT:-/dev/null}"
 
 
   redis_stridetastic:
@@ -97,6 +95,8 @@ services:
       - timescale_stridetastic
       - api_stridetastic
       - redis_stridetastic
+    devices:
+      - "${SERIAL_PORT:-/dev/null}:${SERIAL_PORT:-/dev/null}"
 
   celery_beat_stridetastic:
     build:
