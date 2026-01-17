@@ -70,7 +70,7 @@ pnpm dev
 Set `NEXT_PUBLIC_API_HOST_IP` (and other envs) to point at your API.
 
 ## Pre-commit hooks
-- Install tooling once: `pip install pre-commit` (inside your virtualenv), then run `pre-commit install` at the repo root.
+- Required for contributions: install tooling once with `pip install pre-commit` (inside your virtualenv), then run `pre-commit install` at the repo root.
 - Run checks locally before pushing: `pre-commit run --all-files`.
 - Hooks cover ruff, black, isort, trailing whitespace/end-of-file fixes, YAML checks, and secret detection. This mirrors what CI enforces.
 

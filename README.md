@@ -161,8 +161,9 @@ Images are automatically built and published on every push to `main` and for ver
 ## Contributing
 
 - Start with `CONTRIBUTING.md` for workflows (local dev, testing, branching, PR expectations).
+- Install and enable the pre-commit hooks before contributing: `pip install pre-commit` (inside your virtualenv), then run `pre-commit install` at the repo root. Run checks with `pre-commit run --all-files`.
 - Our community standards live in `CODE_OF_CONDUCT.md`.
-- Security reports should follow `SECURITY.md` (email `security@stridetastic.org`).
+- Security reports should follow `SECURITY.md`.
 - Architecture and deep dives: see `CLAUDE.md` and the `claude_docs/` quick-start and strategy guides.
 
 If you open a PR, keep it scoped, include tests for behavior changes, and attach screenshots for UI updates. Thank you for helping improve STRIDEtastic!
