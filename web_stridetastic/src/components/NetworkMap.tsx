@@ -13,7 +13,8 @@ import {
   Map as MapIcon,
   Settings,
   Minimize2,
-  Target
+  Target,
+  Mountain
 } from 'lucide-react';
 import RefreshButton from './RefreshButton';
 import { useAutoRefresh } from '@/hooks/useAutoRefresh';
@@ -128,7 +129,7 @@ interface PositionedNode extends ForceGraphNode {
 }
 
 interface MapSettings {
-  tileLayer: 'street' | 'satellite' | 'hybrid' | 'minimal';
+  tileLayer: 'street' | 'satellite' | 'hybrid' | 'minimal' | 'topographic';
   showNodeLabels: boolean;
   showSignalStrength: boolean;
   showOnlyBidirectional: boolean;
@@ -141,6 +142,10 @@ const TILE_LAYERS = {
   street: {
     url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  },
+  topographic: {
+    url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+    attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="https://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a>'
   },
   satellite: {
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
@@ -677,6 +682,18 @@ export default function NetworkMap({ className = '' }: NetworkMapProps) {
               style={{ minHeight: '36px' }}
             >
               <MapIcon className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => setSettings(prev => ({ ...prev, tileLayer: 'topographic' }))}
+              className={`px-2 sm:px-3 py-1 text-sm font-medium transition-colors touch-manipulation ${
+                settings.tileLayer === 'topographic'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
+              }`}
+              title="Topographic Map"
+              style={{ minHeight: '36px' }}
+            >
+              <Mountain className="h-4 w-4" />
             </button>
             <button
               onClick={() => setSettings(prev => ({ ...prev, tileLayer: 'satellite' }))}
