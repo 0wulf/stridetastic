@@ -30,6 +30,13 @@ LOW_ENTROPY_HASHES: tuple[bytes, ...] = (
     bytes.fromhex("85fe7cecb67874c3ece1327fb0b70274f923d8e7fa14e6ee6644b18ca52f7ed2"),
     bytes.fromhex("8e66657b3b6f7ecc57b457eacc83f5aaf765a3ce937213c1b6467b2945b5c893"),
     bytes.fromhex("cc11fb1aaba131876ac6de8887a9b95937828db2ccd897409a5c8f4055cb4c3e"),
+    bytes.fromhex("f47ecc17e6b4a322eceed9084f3963ea8075e124ce053669633b2cbc028d348b"),
+    bytes.fromhex("5a9ea2a68aa666c15f550064a3a6fe71c0bb82c3323d7a7ae36efddda3a66b9"),
+    bytes.fromhex("367e2de1845f4252290a256454a6bfdb665ff151a51712240757f6919b6458"),
+    bytes.fromhex("1677eba45291fb26cf8fd7d9d15dc4687375edc55558ee9056d42f3129f78c1f"),
+    bytes.fromhex("0856f0d7ef77d6118c952d3cdfb122bf609be5a9c06e4b01dcd15744b2a5cf"),
+    bytes.fromhex("6e427a4a8c616222a189d3a4c219a38353a77a0a89e2545262e7ca8cf66a60"),
+    bytes.fromhex("cc11fb1aaba131876ac6de8887a9b9593782d8b2ccd897409a5c8f4055cb4c3e"),
 )
 
 LOW_ENTROPY_HASH_SET = frozenset(LOW_ENTROPY_HASHES)
