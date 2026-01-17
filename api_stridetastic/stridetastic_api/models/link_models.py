@@ -10,7 +10,8 @@ from django.utils import timezone
 class NodeLinkQuerySet(models.QuerySet):
     def with_totals(self) -> "NodeLinkQuerySet":
         return self.annotate(
-            total_packets=models.F("node_a_to_node_b_packets") + models.F("node_b_to_node_a_packets")
+            total_packets=models.F("node_a_to_node_b_packets")
+            + models.F("node_b_to_node_a_packets")
         )
 
 
@@ -73,9 +74,13 @@ class NodeLinkManager(models.Manager):
 
         increment = Value(1)
         if direction == "node_a_to_node_b":
-            update_kwargs["node_a_to_node_b_packets"] = F("node_a_to_node_b_packets") + increment
+            update_kwargs["node_a_to_node_b_packets"] = (
+                F("node_a_to_node_b_packets") + increment
+            )
         else:
-            update_kwargs["node_b_to_node_a_packets"] = F("node_b_to_node_a_packets") + increment
+            update_kwargs["node_b_to_node_a_packets"] = (
+                F("node_b_to_node_a_packets") + increment
+            )
 
         self.filter(pk=link.pk).update(**update_kwargs)
 
@@ -174,8 +179,8 @@ class NodeLink(models.Model):
         return self.node_a_to_node_b_packets + self.node_b_to_node_a_packets
 
 
+from .channel_models import Channel  # noqa: E402
 from .node_models import Node  # noqa: E402  # circular import guard
 from .packet_models import Packet  # noqa: E402
-from .channel_models import Channel  # noqa: E402
 
 __all__ = ["NodeLink", "NodeLinkManager", "NodeLinkQuerySet"]

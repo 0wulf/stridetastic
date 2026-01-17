@@ -10,7 +10,9 @@ logger = logging.getLogger(__name__)
 
 
 def _get_capture_service():
-    from ..services.service_manager import ServiceManager  # Local import to avoid circular deps at module load
+    from ..services.service_manager import (  # Local import to avoid circular deps at module load
+        ServiceManager,
+    )
 
     manager = ServiceManager.get_instance()
     service = manager.get_capture_service()
@@ -37,7 +39,9 @@ def stop_capture_session(session_id: str) -> Optional[dict]:
 
 
 @shared_task(name="stridetastic_api.tasks.capture_tasks.cancel_capture_session")
-def cancel_capture_session(session_id: str, reason: Optional[str] = None) -> Optional[dict]:
+def cancel_capture_session(
+    session_id: str, reason: Optional[str] = None
+) -> Optional[dict]:
     service = _get_capture_service()
     session = service.cancel_capture(UUID(session_id), reason=reason)
     return service.to_dict(session) if session else None

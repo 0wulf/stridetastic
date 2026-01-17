@@ -26,7 +26,9 @@ class NodeLinkManagerTests(TestCase):
 
     def test_record_activity_orders_by_node_num(self) -> None:
         # Broadcast node is created first so pk ordering would otherwise be incorrect.
-        packet = self._create_packet(sender=self.first_node, receiver=self.broadcast, packet_id=101)
+        packet = self._create_packet(
+            sender=self.first_node, receiver=self.broadcast, packet_id=101
+        )
 
         link = NodeLink.objects.record_activity(
             from_node=self.first_node,
@@ -43,7 +45,9 @@ class NodeLinkManagerTests(TestCase):
         self.assertEqual(link.node_b_to_node_a_packets, 0)
 
     def test_reverse_direction_updates_same_link(self) -> None:
-        packet_forward = self._create_packet(sender=self.first_node, receiver=self.broadcast, packet_id=201)
+        packet_forward = self._create_packet(
+            sender=self.first_node, receiver=self.broadcast, packet_id=201
+        )
         forward_link = NodeLink.objects.record_activity(
             from_node=self.first_node,
             to_node=self.broadcast,
@@ -52,7 +56,9 @@ class NodeLinkManagerTests(TestCase):
         )
         assert forward_link is not None
 
-        packet_reverse = self._create_packet(sender=self.broadcast, receiver=self.first_node, packet_id=202)
+        packet_reverse = self._create_packet(
+            sender=self.broadcast, receiver=self.first_node, packet_id=202
+        )
         reverse_link = NodeLink.objects.record_activity(
             from_node=self.broadcast,
             to_node=self.first_node,

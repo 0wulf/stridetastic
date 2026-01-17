@@ -2,13 +2,12 @@ from typing import Dict
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
-
-from stridetastic_api.models import (
-    Node,
-    Channel,
-    Interface,
+from stridetastic_api.models import Channel, Interface, Node
+from stridetastic_api.services.virtual_node_service import (
+    VirtualNodeError,
+    VirtualNodeService,
 )
-from stridetastic_api.services.virtual_node_service import VirtualNodeService, VirtualNodeError
+
 
 class Command(BaseCommand):
     help = "Seed the database with initial data"
@@ -23,7 +22,9 @@ class Command(BaseCommand):
             },
         )
 
-        _serial_interface = Interface.objects.filter(name=Interface.Names.SERIAL).first()
+        _serial_interface = Interface.objects.filter(
+            name=Interface.Names.SERIAL
+        ).first()
         if _serial_interface is None:
             _serial_interface = Interface.objects.create(
                 name=Interface.Names.SERIAL,
@@ -31,9 +32,7 @@ class Command(BaseCommand):
 
         mqtt_interface = Interface.objects.filter(name=Interface.Names.MQTT).first()
         if mqtt_interface is None:
-            mqtt_interface = Interface.objects.create(
-                name=Interface.Names.MQTT
-            )
+            mqtt_interface = Interface.objects.create(name=Interface.Names.MQTT)
 
         default_channel, _ = Channel.objects.get_or_create(
             channel_id="LongFast",
@@ -53,7 +52,9 @@ class Command(BaseCommand):
 
         node_id = (settings.DEFAULT_VIRTUAL_NODE_ID or "").strip()
         if not node_id:
-            raise CommandError("DEFAULT_VIRTUAL_NODE_ID must be set when DEFAULT_VIRTUAL_NODE_ENABLED is true.")
+            raise CommandError(
+                "DEFAULT_VIRTUAL_NODE_ID must be set when DEFAULT_VIRTUAL_NODE_ENABLED is true."
+            )
 
         payload = self._build_virtual_node_payload(node_id)
         existing = Node.objects.filter(node_id=node_id).first()
@@ -82,7 +83,11 @@ class Command(BaseCommand):
             notes.append("applied seeded key pair")
 
         note_text = f" ({'; '.join(notes)})" if notes else ""
-        self.stdout.write(self.style.SUCCESS(f"{action} default virtual node {node.node_id}{note_text}"))
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"{action} default virtual node {node.node_id}{note_text}"
+            )
+        )
 
     def _build_virtual_node_payload(self, node_id: str) -> Dict[str, object]:
         payload: Dict[str, object] = {"node_id": node_id}
@@ -123,5 +128,7 @@ class Command(BaseCommand):
         try:
             VirtualNodeService.assign_key_pair(node, public_key, private_key)
         except VirtualNodeError as exc:
-            raise CommandError(f"Seed virtual node key pair already in use: {exc}") from exc
+            raise CommandError(
+                f"Seed virtual node key pair already in use: {exc}"
+            ) from exc
         return True

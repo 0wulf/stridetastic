@@ -33,7 +33,9 @@ class PortActivityAPITests(TestCase):
             mac_address="00:00:00:00:bb:02",
         )
 
-    def _create_packet(self, *, sender: Node, receiver: Node, port: str, minutes_ago: int = 0) -> PacketData:
+    def _create_packet(
+        self, *, sender: Node, receiver: Node, port: str, minutes_ago: int = 0
+    ) -> PacketData:
         packet = Packet.objects.create(
             from_node=sender,
             to_node=receiver,
@@ -52,9 +54,18 @@ class PortActivityAPITests(TestCase):
         return packet_data
 
     def test_global_port_activity_counts_packets(self) -> None:
-        self._create_packet(sender=self.node_a, receiver=self.node_b, port="TEXT_MESSAGE_APP")
-        self._create_packet(sender=self.node_a, receiver=self.node_b, port="TEXT_MESSAGE_APP", minutes_ago=5)
-        self._create_packet(sender=self.node_b, receiver=self.node_a, port="POSITION_APP")
+        self._create_packet(
+            sender=self.node_a, receiver=self.node_b, port="TEXT_MESSAGE_APP"
+        )
+        self._create_packet(
+            sender=self.node_a,
+            receiver=self.node_b,
+            port="TEXT_MESSAGE_APP",
+            minutes_ago=5,
+        )
+        self._create_packet(
+            sender=self.node_b, receiver=self.node_a, port="POSITION_APP"
+        )
 
         response = self.client.get(
             "/ports/activity",
@@ -69,9 +80,18 @@ class PortActivityAPITests(TestCase):
         self.assertTrue(text_entry["display_name"].lower().startswith("text"))
 
     def test_node_port_activity_breakdown(self) -> None:
-        self._create_packet(sender=self.node_a, receiver=self.node_b, port="TEXT_MESSAGE_APP")
-        self._create_packet(sender=self.node_a, receiver=self.node_b, port="TEXT_MESSAGE_APP", minutes_ago=3)
-        self._create_packet(sender=self.node_b, receiver=self.node_a, port="POSITION_APP")
+        self._create_packet(
+            sender=self.node_a, receiver=self.node_b, port="TEXT_MESSAGE_APP"
+        )
+        self._create_packet(
+            sender=self.node_a,
+            receiver=self.node_b,
+            port="TEXT_MESSAGE_APP",
+            minutes_ago=3,
+        )
+        self._create_packet(
+            sender=self.node_b, receiver=self.node_a, port="POSITION_APP"
+        )
 
         response = self.client.get(
             f"/nodes/{self.node_a.node_id}/ports",
@@ -135,7 +155,9 @@ class PortActivityAPITests(TestCase):
         self.assertIn("temperature", payloads[1]["payload"]["fields"])
 
     def test_invalid_direction_filters_are_rejected(self) -> None:
-        self._create_packet(sender=self.node_a, receiver=self.node_b, port="TEXT_MESSAGE_APP")
+        self._create_packet(
+            sender=self.node_a, receiver=self.node_b, port="TEXT_MESSAGE_APP"
+        )
 
         response = self.client.get(
             f"/nodes/{self.node_a.node_id}/ports/TEXT_MESSAGE_APP/packets?direction=sideways",
@@ -146,9 +168,15 @@ class PortActivityAPITests(TestCase):
         self.assertIn("direction", response.json()["message"])
 
     def test_port_node_activity_returns_combined_counts(self) -> None:
-        self._create_packet(sender=self.node_a, receiver=self.node_b, port="POSITION_APP")
-        self._create_packet(sender=self.node_a, receiver=self.node_b, port="POSITION_APP")
-        self._create_packet(sender=self.node_b, receiver=self.node_a, port="POSITION_APP")
+        self._create_packet(
+            sender=self.node_a, receiver=self.node_b, port="POSITION_APP"
+        )
+        self._create_packet(
+            sender=self.node_a, receiver=self.node_b, port="POSITION_APP"
+        )
+        self._create_packet(
+            sender=self.node_b, receiver=self.node_a, port="POSITION_APP"
+        )
 
         response = self.client.get(
             "/ports/POSITION_APP/nodes",
@@ -157,16 +185,21 @@ class PortActivityAPITests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         data = response.json()
-        self.assertEqual(len(data), 1)
+        self.assertEqual(len(data), 2)
 
-        node_a_entry = data[0]
-        self.assertEqual(node_a_entry["node_id"], self.node_a.node_id)
+        node_a_entry = next(
+            item for item in data if item["node_id"] == self.node_a.node_id
+        )
         self.assertEqual(node_a_entry["sent_count"], 2)
         self.assertEqual(node_a_entry["received_count"], 0)
         self.assertEqual(node_a_entry["total_packets"], 2)
 
-        node_ids = {item["node_id"] for item in data}
-        self.assertNotIn(self.node_b.node_id, node_ids)
+        node_b_entry = next(
+            item for item in data if item["node_id"] == self.node_b.node_id
+        )
+        self.assertEqual(node_b_entry["sent_count"], 1)
+        self.assertEqual(node_b_entry["received_count"], 0)
+        self.assertEqual(node_b_entry["total_packets"], 1)
 
     def test_port_node_activity_rejects_blank_identifier(self) -> None:
         response = self.client.get(

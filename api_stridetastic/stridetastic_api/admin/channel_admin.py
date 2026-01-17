@@ -1,5 +1,6 @@
-from unfold.admin import ModelAdmin
 from django.contrib import admin
+from unfold.admin import ModelAdmin
+
 from ..models.channel_models import Channel
 
 
@@ -11,7 +12,7 @@ class ChannelAdmin(ModelAdmin):
         "psk",
         "members_count",
         "packets_count",
-        "last_seen"
+        "last_seen",
     )
 
     list_filter = (
@@ -33,27 +34,28 @@ class ChannelAdmin(ModelAdmin):
     )
 
     fieldsets = (
-        (None, {
-            "fields": (
-                "interfaces",
-                "channel_id",
-                "channel_num",
-                "psk",
-                "members",
-                "members_count",
-                "packets_count",
-                "last_seen",
-            ),
-        }),
+        (
+            None,
+            {
+                "fields": (
+                    "interfaces",
+                    "channel_id",
+                    "channel_num",
+                    "psk",
+                    "members",
+                    "members_count",
+                    "packets_count",
+                    "last_seen",
+                ),
+            },
+        ),
     )
-
 
     ordering = ("-last_seen",)
 
     def members_count(self, obj):
-        has_broadcast = 1 if obj.members.filter(node_id='!ffffffff').exists() else 0
+        has_broadcast = 1 if obj.members.filter(node_id="!ffffffff").exists() else 0
         return obj.members.count() - has_broadcast
 
     def packets_count(self, obj):
         return obj.packets.count()
-    

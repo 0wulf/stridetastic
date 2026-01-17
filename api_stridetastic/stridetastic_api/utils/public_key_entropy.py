@@ -47,8 +47,10 @@ def _decode_public_key_material(public_key: str) -> bytes:
         pass
 
     hex_candidate = stripped.replace(":", "").replace("-", "")
-    if hex_candidate and len(hex_candidate) % 2 == 0 and all(
-        ch in "0123456789abcdefABCDEF" for ch in hex_candidate
+    if (
+        hex_candidate
+        and len(hex_candidate) % 2 == 0
+        and all(ch in "0123456789abcdefABCDEF" for ch in hex_candidate)
     ):
         try:
             return bytes.fromhex(hex_candidate)

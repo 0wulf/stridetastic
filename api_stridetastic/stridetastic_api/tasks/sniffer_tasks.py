@@ -1,7 +1,7 @@
 from celery import shared_task
-
-from stridetastic_api.interfaces.serial_interface import SerialInterface
 from stridetastic_api.interfaces.mqtt_interface import MqttInterface
+from stridetastic_api.interfaces.serial_interface import SerialInterface
+
 
 # @shared_task
 def run_mqtt_interface(

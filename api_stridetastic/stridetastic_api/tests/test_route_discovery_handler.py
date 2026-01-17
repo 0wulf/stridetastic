@@ -2,7 +2,6 @@ from datetime import timedelta
 
 from django.test import TestCase  # type: ignore[import]
 from django.utils import timezone  # type: ignore[import]
-
 from meshtastic.protobuf import mesh_pb2  # type: ignore[import]
 
 from ..mesh.packet.handler import (
@@ -57,7 +56,9 @@ class RouteDiscoveryBroadcastTests(TestCase):
         if route_route:
             self.assertNotIn(BROADCAST_NODE_ID, route_route.node_list or [])
 
-    def test_response_traceroute_with_broadcast_updates_ack_and_skips_edges(self) -> None:
+    def test_response_traceroute_with_broadcast_updates_ack_and_skips_edges(
+        self,
+    ) -> None:
         responder_node = Node.objects.create(
             node_num=0x3,
             node_id="!00000003",
@@ -109,7 +110,9 @@ class RouteDiscoveryBroadcastTests(TestCase):
             self.assertTrue(entry.reachable)
             self.assertEqual(entry.latency_ms, responder_node.latency_ms)
 
-    def test_response_traceroute_with_broadcast_in_middle_skips_only_broadcast_edges(self) -> None:
+    def test_response_traceroute_with_broadcast_in_middle_skips_only_broadcast_edges(
+        self,
+    ) -> None:
         responder_node = Node.objects.create(
             node_num=0x3,
             node_id="!00000003",
@@ -150,9 +153,21 @@ class RouteDiscoveryBroadcastTests(TestCase):
         edges = list(Edge.objects.all())
         self.assertEqual(len(edges), 3)
 
-        forward_edge = next(e for e in edges if e.source_node == responder_node and e.target_node == relay_node)
-        reverse_edge = next(e for e in edges if e.source_node == self.origin_node and e.target_node == relay_node)
-        unknown_hop_edge = next(e for e in edges if e.source_node == relay_node and e.target_node == self.origin_node)
+        forward_edge = next(
+            e
+            for e in edges
+            if e.source_node == responder_node and e.target_node == relay_node
+        )
+        reverse_edge = next(
+            e
+            for e in edges
+            if e.source_node == self.origin_node and e.target_node == relay_node
+        )
+        unknown_hop_edge = next(
+            e
+            for e in edges
+            if e.source_node == relay_node and e.target_node == self.origin_node
+        )
 
         self.assertEqual(forward_edge.last_rx_snr, 8 / 4)
         self.assertEqual(forward_edge.last_hops, 0)
@@ -162,7 +177,9 @@ class RouteDiscoveryBroadcastTests(TestCase):
         self.assertIsNone(unknown_hop_edge.last_rx_snr)
         self.assertFalse(Node.objects.filter(node_id=BROADCAST_NODE_ID).exists())
 
-    def test_response_traceroute_with_consecutive_broadcast_records_unknown_hops(self) -> None:
+    def test_response_traceroute_with_consecutive_broadcast_records_unknown_hops(
+        self,
+    ) -> None:
         source_node = Node.objects.create(
             node_num=int("11223344", 16),
             node_id="!11223344",
@@ -197,13 +214,17 @@ class RouteDiscoveryBroadcastTests(TestCase):
         )
 
         route_discovery = mesh_pb2.RouteDiscovery()
-        route_discovery.route.extend([BROADCAST_NODE_NUM, BROADCAST_NODE_NUM, intermediate_node.node_num])
+        route_discovery.route.extend(
+            [BROADCAST_NODE_NUM, BROADCAST_NODE_NUM, intermediate_node.node_num]
+        )
         route_discovery.snr_towards.extend([7, 6, 5])
         payload = route_discovery.SerializeToString()
 
         handle_route_discovery(payload, response_packet_data)
 
-        edge = Edge.objects.filter(source_node=source_node, target_node=intermediate_node).first()
+        edge = Edge.objects.filter(
+            source_node=source_node, target_node=intermediate_node
+        ).first()
         self.assertIsNotNone(edge)
         if edge:
             self.assertEqual(edge.last_hops, 2)
@@ -249,7 +270,6 @@ class RouteDiscoveryBroadcastTests(TestCase):
         self.assertIsNotNone(responder_node.latency_ms)
         self.assertGreaterEqual(responder_node.latency_ms or 0, 0)
 
-
     def test_routing_ack_updates_existing_pending_history(self) -> None:
         responder_node = Node.objects.create(
             node_num=0x6,
@@ -263,7 +283,7 @@ class RouteDiscoveryBroadcastTests(TestCase):
             packet_id=7777,
             ackd=False,
         )
-        request_data = PacketData.objects.create(packet=request_packet)
+        PacketData.objects.create(packet=request_packet)
         request_time = timezone.now() - timedelta(milliseconds=180)
         request_packet.time = request_time
         request_packet.save(update_fields=["time"])

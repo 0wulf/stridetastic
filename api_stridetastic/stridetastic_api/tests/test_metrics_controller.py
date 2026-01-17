@@ -6,14 +6,7 @@ from django.test import TestCase  # type: ignore[import]
 from django.utils import timezone  # type: ignore[import]
 
 from ..controllers.metrics_controller import MetricsController
-from ..models import (
-    Node,
-    Edge,
-    Interface,
-    Channel,
-    NetworkOverviewSnapshot,
-    NodeLink,
-)
+from ..models import Channel, Edge, Interface, NetworkOverviewSnapshot, Node, NodeLink
 
 
 class MetricsControllerTests(TestCase):

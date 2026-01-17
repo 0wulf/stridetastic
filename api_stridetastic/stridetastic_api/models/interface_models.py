@@ -1,10 +1,12 @@
 from django.db import models
 
+
 class Interface(models.Model):
     """
     Represents a communication interface instance (MQTT, SERIAL, TCP, etc.).
     Multiple instances per type can exist with their own configuration.
     """
+
     class Names(models.TextChoices):  # Backwards compatibility (used as type)
         MQTT = "MQTT", "MQTT"
         SERIAL = "SERIAL", "Serial"
@@ -22,35 +24,50 @@ class Interface(models.Model):
         max_length=20,
         choices=Names.choices,
         default=Names.MQTT,
-        help_text="Type of the interface (MQTT / SERIAL)."
+        help_text="Type of the interface (MQTT / SERIAL).",
     )
 
     # Human readable unique name for this specific instance
     display_name = models.CharField(
         max_length=50,
         unique=True,
-        help_text="Unique display name for this interface instance."
+        help_text="Unique display name for this interface instance.",
     )
 
     # Lifecycle
-    is_enabled = models.BooleanField(default=True, help_text="Whether this interface should be started.")
+    is_enabled = models.BooleanField(
+        default=True, help_text="Whether this interface should be started."
+    )
     status = models.CharField(
         max_length=15,
         choices=Status.choices,
         default=Status.INIT,
-        help_text="Current runtime status of this interface instance."
+        help_text="Current runtime status of this interface instance.",
     )
-    last_connected = models.DateTimeField(null=True, blank=True, help_text="Last time the interface successfully connected/started.")
-    last_error = models.TextField(null=True, blank=True, help_text="Last runtime error message, if any.")
+    last_connected = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Last time the interface successfully connected/started.",
+    )
+    last_error = models.TextField(
+        null=True, blank=True, help_text="Last runtime error message, if any."
+    )
 
     # Generic config (allows future expansion without schema changes)
-    config = models.JSONField(null=True, blank=True, help_text="Arbitrary configuration blob.")
+    config = models.JSONField(
+        null=True, blank=True, help_text="Arbitrary configuration blob."
+    )
 
     # MQTT specific configuration
     mqtt_broker_address = models.CharField(max_length=255, null=True, blank=True)
     mqtt_port = models.IntegerField(null=True, blank=True)
     mqtt_topic = models.CharField(max_length=255, null=True, blank=True)
-    mqtt_base_topic = models.CharField(max_length=255, null=True, blank=True, help_text="Base publish topic override for this interface.")
+    mqtt_base_topic = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        help_text="Base publish topic override for this interface.",
+    )
     mqtt_username = models.CharField(max_length=255, null=True, blank=True)
     mqtt_password = models.CharField(max_length=255, null=True, blank=True)
     mqtt_tls = models.BooleanField(default=False)
@@ -60,16 +77,26 @@ class Interface(models.Model):
     serial_port = models.CharField(max_length=255, null=True, blank=True)
     serial_baudrate = models.IntegerField(null=True, blank=True)
     serial_node = models.ForeignKey(
-        'Node',
+        "Node",
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
-        help_text="Node to bind the serial interface to (if applicable)."
+        help_text="Node to bind the serial interface to (if applicable).",
     )
 
     # TCP specific configuration (for network-connected nodes)
-    tcp_hostname = models.CharField(max_length=255, null=True, blank=True, help_text="IP address or hostname of the Meshtastic node.")
-    tcp_port = models.IntegerField(null=True, blank=True, default=4403, help_text="TCP port for the Meshtastic node (default 4403).")
+    tcp_hostname = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        help_text="IP address or hostname of the Meshtastic node.",
+    )
+    tcp_port = models.IntegerField(
+        null=True,
+        blank=True,
+        default=4403,
+        help_text="TCP port for the Meshtastic node (default 4403).",
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

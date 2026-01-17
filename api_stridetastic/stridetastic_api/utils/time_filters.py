@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone as dt_timezone
+from datetime import datetime, timedelta
+from datetime import timezone as dt_timezone
 from typing import Optional, Tuple, Union
 
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
-
 
 LAST_CHOICES = {"all", "5min", "1hour", "2hours", "24hours", "7days"}
 
@@ -53,7 +53,9 @@ def parse_time_window(
 
     if last is not None:
         if last not in LAST_CHOICES:
-            raise ValueError(f"Invalid 'last' value: {last}. Must be one of {sorted(LAST_CHOICES)}")
+            raise ValueError(
+                f"Invalid 'last' value: {last}. Must be one of {sorted(LAST_CHOICES)}"
+            )
         if last == "all":
             # No time filter from 'last'
             # Fall through to since/until if provided

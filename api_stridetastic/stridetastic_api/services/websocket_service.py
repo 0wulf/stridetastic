@@ -1,11 +1,14 @@
 from ..interfaces.websocket_interface import WebSocketInterface
 
+
 class WebSocketService:
     def __init__(self, group_name=None):
         self.interface = WebSocketInterface(group_name=group_name)
         self.interface.connect()
 
-    def send_packet(self, packet, decoded_data, portnum, from_node, to_node, packet_obj):
+    def send_packet(
+        self, packet, decoded_data, portnum, from_node, to_node, packet_obj
+    ):
         # Serialize and send the packet to all connected clients
         data = {
             "packet_id": getattr(packet_obj, "packet_id", None),

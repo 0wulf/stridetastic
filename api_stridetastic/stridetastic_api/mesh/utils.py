@@ -1,13 +1,15 @@
 import base64
 import logging
 
-from meshtastic.protobuf import mesh_pb2, config_pb2
+from meshtastic.protobuf import config_pb2, mesh_pb2
+
 
 def xor_hash(data):
     result = 0
     for char in data:
         result ^= char
     return result
+
 
 def ensure_aes_key(key):
     if key == "AQ==" or key is None:
@@ -21,9 +23,9 @@ def ensure_aes_key(key):
 
 
 def generate_hash(name, key):
-    replaced_key = key.replace('-', '+').replace('_', '/')
-    key_bytes = base64.b64decode(replaced_key.encode('utf-8'))
-    h_name = xor_hash(bytes(name, 'utf-8'))
+    replaced_key = key.replace("-", "+").replace("_", "/")
+    key_bytes = base64.b64decode(replaced_key.encode("utf-8"))
+    h_name = xor_hash(bytes(name, "utf-8"))
     h_key = xor_hash(key_bytes)
     result = h_name ^ h_key
     return result
@@ -38,7 +40,7 @@ def num_to_id(num):
 
 def id_to_num(node_id):
     """Convert a node_id address string to a node_number."""
-    if not isinstance(node_id, str) or not node_id.startswith('!'):
+    if not isinstance(node_id, str) or not node_id.startswith("!"):
         raise ValueError("Node ID must start with '!'")
     try:
         return int(node_id[1:], 16)
@@ -65,7 +67,12 @@ def hw_model_to_num(hw_model):
     """Convert a hardware model name to its number."""
     if hw_model is None:
         return None
-    return mesh_pb2.HardwareModel.Value(hw_model) if isinstance(hw_model, str) else hw_model
+    return (
+        mesh_pb2.HardwareModel.Value(hw_model)
+        if isinstance(hw_model, str)
+        else hw_model
+    )
+
 
 def role_num_ro_role(role_n):
     """Convert a role number to its name."""
@@ -73,6 +80,7 @@ def role_num_ro_role(role_n):
     if role_int is None and role_int != 0:
         return None
     return config_pb2.Config.DeviceConfig.Role.Name(role_int) if role_int else None
+
 
 def error_reason_num_to_str(error_reason):
     """Convert an error reason number to its string representation."""

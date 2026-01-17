@@ -1,7 +1,9 @@
-from .base import BaseInterface
-from ..ingest.dispatcher import ingest_packet
 import meshtastic.serial_interface
 import pubsub.pub as pub
+
+from ..ingest.dispatcher import ingest_packet
+from .base import BaseInterface
+
 
 class SerialInterface(BaseInterface):
     def __init__(self, port, baudrate=None, interface_id=None, **kwargs):
@@ -12,7 +14,9 @@ class SerialInterface(BaseInterface):
 
     def connect(self):
         try:
-            self.interface = meshtastic.serial_interface.SerialInterface(devPath=self.port, noProto=False)
+            self.interface = meshtastic.serial_interface.SerialInterface(
+                devPath=self.port, noProto=False
+            )
         except Exception as e:
             print(f"Failed to connect to serial interface on port {self.port}: {e}")
 
@@ -29,7 +33,11 @@ class SerialInterface(BaseInterface):
             self.interface = None
 
     def _on_receive(self, packet, interface):
-        ingest_packet("serial", packet, meta={"port": self.port, "interface_id": self.interface_id})
+        ingest_packet(
+            "serial",
+            packet,
+            meta={"port": self.port, "interface_id": self.interface_id},
+        )
 
     def publish(self, data: bytes):
         if self.interface:
@@ -40,4 +48,3 @@ class SerialInterface(BaseInterface):
                     self.interface.sendText(data.decode(errors="ignore"))
             except Exception:
                 pass
-

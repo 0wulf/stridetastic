@@ -1,44 +1,47 @@
-from typing import List, Optional, Sequence, Dict, Any
+from typing import Any, Dict, List, Optional, Sequence
 
 from django.conf import settings  # type: ignore[import]
-from ninja_extra import api_controller, route, permissions  # type: ignore[import]
-from ninja_jwt.authentication import JWTAuth  # type: ignore[import]
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from ninja_extra import permissions  # type: ignore[import]
+from ninja_extra import api_controller, route
+from ninja_jwt.authentication import JWTAuth  # type: ignore[import]
 
+from ..models import Node, PublisherPeriodicJob
+from ..models.interface_models import Interface
 from ..schemas import (
     MessageSchema,
     NodeSchema,
+    PublisherPeriodicJobCreateSchema,
+    PublisherPeriodicJobSchema,
+    PublisherPeriodicJobUpdateSchema,
+    PublisherReactiveConfigUpdateSchema,
+    PublisherReactiveStatusSchema,
     PublishMessageSchema,
     PublishNodeInfoSchema,
     PublishPositionSchema,
-    PublishTracerouteSchema,
-    PublishTelemetrySchema,
     PublishReachabilitySchema,
-    PublisherReactiveConfigUpdateSchema,
-    PublisherReactiveStatusSchema,
-    PublisherPeriodicJobSchema,
-    PublisherPeriodicJobCreateSchema,
-    PublisherPeriodicJobUpdateSchema,
+    PublishTelemetrySchema,
+    PublishTracerouteSchema,
 )
 from ..services.service_manager import ServiceManager
-from ..models import Node, PublisherPeriodicJob
-from ..models.interface_models import Interface
-from ..utils.node_serialization import serialize_node
 from ..tasks.publisher_tasks import (
-    publish_text_message_task,
     publish_nodeinfo_task,
     publish_position_task,
-    publish_traceroute_task,
     publish_reachability_probe_task,
     publish_telemetry_task,
+    publish_text_message_task,
+    publish_traceroute_task,
 )
+from ..utils.node_serialization import serialize_node
 
 auth = JWTAuth()
 
-@api_controller("/publisher", tags=["Publisher"], permissions=[permissions.IsAuthenticated])
-class PublisherController:
 
+@api_controller(
+    "/publisher", tags=["Publisher"], permissions=[permissions.IsAuthenticated]
+)
+class PublisherController:
     def __init__(self):
         self.service_manager = ServiceManager.get_instance()
 
@@ -58,20 +61,34 @@ class PublisherController:
         if not candidates:
             return None
 
-        existing = set(Node.objects.filter(node_id__in=candidates).values_list("node_id", flat=True))
+        existing = set(
+            Node.objects.filter(node_id__in=candidates).values_list(
+                "node_id", flat=True
+            )
+        )
         missing = [nid for nid in candidates if nid not in existing]
         if missing:
-            return 400, MessageSchema(message=f"Node(s) not found or not selectable: {', '.join(missing)}")
+            return 400, MessageSchema(
+                message=f"Node(s) not found or not selectable: {', '.join(missing)}"
+            )
 
         non_virtual = list(
-            Node.objects.filter(node_id__in=candidates, is_virtual=False).values_list("node_id", flat=True)
+            Node.objects.filter(node_id__in=candidates, is_virtual=False).values_list(
+                "node_id", flat=True
+            )
         )
         if non_virtual:
-            return 400, MessageSchema(message=f"Node(s) must be virtual to be used for publishing: {', '.join(non_virtual)}")
+            return 400, MessageSchema(
+                message=f"Node(s) must be virtual to be used for publishing: {', '.join(non_virtual)}"
+            )
 
         return None
 
-    def _sanitize_payload_options(self, payload_type: PublisherPeriodicJob.PayloadTypes, payload_options: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+    def _sanitize_payload_options(
+        self,
+        payload_type: PublisherPeriodicJob.PayloadTypes,
+        payload_options: Optional[Dict[str, Any]],
+    ) -> Dict[str, Any]:
         options = dict(payload_options or {})
         if payload_type == PublisherPeriodicJob.PayloadTypes.TEXT:
             if "message_text" in options and isinstance(options["message_text"], str):
@@ -98,15 +115,39 @@ class PublisherController:
             telemetry_opts = options.get("telemetry_options") or {}
             sanitized_opts: Dict[str, Any] = {}
             # Known device fields
-            for k in ("battery_level", "voltage", "channel_utilization", "air_util_tx", "uptime_seconds"):
-                if k in telemetry_opts and telemetry_opts[k] is not None and telemetry_opts[k] != "":
+            for k in (
+                "battery_level",
+                "voltage",
+                "channel_utilization",
+                "air_util_tx",
+                "uptime_seconds",
+            ):
+                if (
+                    k in telemetry_opts
+                    and telemetry_opts[k] is not None
+                    and telemetry_opts[k] != ""
+                ):
                     try:
-                        sanitized_opts[k] = int(telemetry_opts[k]) if k in ("battery_level", "uptime_seconds") else float(telemetry_opts[k])
+                        sanitized_opts[k] = (
+                            int(telemetry_opts[k])
+                            if k in ("battery_level", "uptime_seconds")
+                            else float(telemetry_opts[k])
+                        )
                     except Exception:
                         sanitized_opts[k] = telemetry_opts[k]
             # Known environment fields
-            for k in ("temperature", "relative_humidity", "barometric_pressure", "gas_resistance", "iaq"):
-                if k in telemetry_opts and telemetry_opts[k] is not None and telemetry_opts[k] != "":
+            for k in (
+                "temperature",
+                "relative_humidity",
+                "barometric_pressure",
+                "gas_resistance",
+                "iaq",
+            ):
+                if (
+                    k in telemetry_opts
+                    and telemetry_opts[k] is not None
+                    and telemetry_opts[k] != ""
+                ):
                     try:
                         sanitized_opts[k] = float(telemetry_opts[k])
                     except Exception:
@@ -166,13 +207,17 @@ class PublisherController:
             queryset = queryset.filter(is_virtual=True)
         return [serialize_node(node) for node in queryset]
 
-    @route.post("/publish/text-message", response={200: MessageSchema, 400: MessageSchema}, auth=auth)
+    @route.post(
+        "/publish/text-message",
+        response={200: MessageSchema, 400: MessageSchema},
+        auth=auth,
+    )
     def publish_text_message(self, request, payload: PublishMessageSchema):
         # Enforce selectable node constraints if configured
         err = self._ensure_selectable_nodes([payload.from_node, payload.gateway_node])
         if err:
             return err
-        
+
         try:
             # Queue the task in Celery worker (which has MQTT interfaces)
             task = publish_text_message_task.delay(
@@ -190,21 +235,27 @@ class PublisherController:
             )
             # Wait for task completion with timeout
             result = task.get(timeout=10)
-            
+
             if result.get("success"):
                 return 200, MessageSchema(message="Text message published successfully")
             else:
                 error_msg = result.get("error", "Unknown error")
-                return 400, MessageSchema(message=f"Failed to publish message: {error_msg}")
+                return 400, MessageSchema(
+                    message=f"Failed to publish message: {error_msg}"
+                )
         except Exception as e:
             return 400, MessageSchema(message=f"Error queuing publish task: {str(e)}")
 
-    @route.post("/publish/nodeinfo", response={200: MessageSchema, 400: MessageSchema}, auth=auth)
+    @route.post(
+        "/publish/nodeinfo",
+        response={200: MessageSchema, 400: MessageSchema},
+        auth=auth,
+    )
     def publish_nodeinfo(self, request, payload: PublishNodeInfoSchema):
         err = self._ensure_selectable_nodes([payload.from_node, payload.gateway_node])
         if err:
             return err
-        
+
         try:
             # Queue the task in Celery worker (which has MQTT interfaces)
             task = publish_nodeinfo_task.delay(
@@ -224,21 +275,27 @@ class PublisherController:
             )
             # Wait for task completion with timeout
             result = task.get(timeout=10)
-            
+
             if result.get("success"):
                 return 200, MessageSchema(message="Node info published successfully")
             else:
                 error_msg = result.get("error", "Unknown error")
-                return 400, MessageSchema(message=f"Failed to publish node info: {error_msg}")
+                return 400, MessageSchema(
+                    message=f"Failed to publish node info: {error_msg}"
+                )
         except Exception as e:
             return 400, MessageSchema(message=f"Error queuing publish task: {str(e)}")
 
-    @route.post("/publish/position", response={200: MessageSchema, 400: MessageSchema}, auth=auth)
+    @route.post(
+        "/publish/position",
+        response={200: MessageSchema, 400: MessageSchema},
+        auth=auth,
+    )
     def publish_position(self, request, payload: PublishPositionSchema):
         err = self._ensure_selectable_nodes([payload.from_node, payload.gateway_node])
         if err:
             return err
-        
+
         try:
             # Queue the task in Celery worker (which has MQTT interfaces)
             task = publish_position_task.delay(
@@ -252,28 +309,42 @@ class PublisherController:
                 hop_limit=payload.hop_limit,
                 hop_start=payload.hop_start,
                 want_ack=payload.want_ack,
-                want_response=payload.want_response if hasattr(payload, 'want_response') else False,
-                pki_encrypted=payload.pki_encrypted if hasattr(payload, 'pki_encrypted') else False,
+                want_response=(
+                    payload.want_response
+                    if hasattr(payload, "want_response")
+                    else False
+                ),
+                pki_encrypted=(
+                    payload.pki_encrypted
+                    if hasattr(payload, "pki_encrypted")
+                    else False
+                ),
                 gateway_node=payload.gateway_node,
                 interface_id=payload.interface_id,
             )
             # Wait for task completion with timeout
             result = task.get(timeout=10)
-            
+
             if result.get("success"):
                 return 200, MessageSchema(message="Position published successfully")
             else:
                 error_msg = result.get("error", "Unknown error")
-                return 400, MessageSchema(message=f"Failed to publish position: {error_msg}")
+                return 400, MessageSchema(
+                    message=f"Failed to publish position: {error_msg}"
+                )
         except Exception as e:
             return 400, MessageSchema(message=f"Error queuing publish task: {str(e)}")
 
-    @route.post("/publish/traceroute", response={200: MessageSchema, 400: MessageSchema}, auth=auth)
+    @route.post(
+        "/publish/traceroute",
+        response={200: MessageSchema, 400: MessageSchema},
+        auth=auth,
+    )
     def publish_traceroute(self, request, payload: PublishTracerouteSchema):
         err = self._ensure_selectable_nodes([payload.from_node, payload.gateway_node])
         if err:
             return err
-        
+
         try:
             # Queue the task in Celery worker (which has MQTT interfaces)
             task = publish_traceroute_task.delay(
@@ -289,21 +360,27 @@ class PublisherController:
             )
             # Wait for task completion with timeout
             result = task.get(timeout=10)
-            
+
             if result.get("success"):
                 return 200, MessageSchema(message="Traceroute published successfully")
             else:
                 error_msg = result.get("error", "Unknown error")
-                return 400, MessageSchema(message=f"Failed to publish traceroute: {error_msg}")
+                return 400, MessageSchema(
+                    message=f"Failed to publish traceroute: {error_msg}"
+                )
         except Exception as e:
             return 400, MessageSchema(message=f"Error queuing publish task: {str(e)}")
 
-    @route.post("/publish/reachability-test", response={200: MessageSchema, 400: MessageSchema}, auth=auth)
+    @route.post(
+        "/publish/reachability-test",
+        response={200: MessageSchema, 400: MessageSchema},
+        auth=auth,
+    )
     def publish_reachability_test(self, request, payload: PublishReachabilitySchema):
         err = self._ensure_selectable_nodes([payload.from_node, payload.gateway_node])
         if err:
             return err
-        
+
         try:
             # Queue the task in Celery worker (which has MQTT interfaces)
             task = publish_reachability_probe_task.delay(
@@ -318,16 +395,22 @@ class PublisherController:
             )
             # Wait for task completion with timeout
             result = task.get(timeout=10)
-            
+
             if result.get("success"):
                 return 200, MessageSchema(message="Reachability probe dispatched")
             else:
                 error_msg = result.get("error", "Unknown error")
-                return 400, MessageSchema(message=f"Failed to send reachability probe: {error_msg}")
+                return 400, MessageSchema(
+                    message=f"Failed to send reachability probe: {error_msg}"
+                )
         except Exception as e:
             return 400, MessageSchema(message=f"Error queuing publish task: {str(e)}")
 
-    @route.post("/publish/telemetry", response={200: MessageSchema, 400: MessageSchema}, auth=auth)
+    @route.post(
+        "/publish/telemetry",
+        response={200: MessageSchema, 400: MessageSchema},
+        auth=auth,
+    )
     def publish_telemetry(self, request, payload: PublishTelemetrySchema):
         err = self._ensure_selectable_nodes([payload.from_node, payload.gateway_node])
         if err:
@@ -342,7 +425,11 @@ class PublisherController:
                 hop_limit=payload.hop_limit,
                 hop_start=payload.hop_start,
                 want_ack=payload.want_ack,
-                want_response=payload.want_response if hasattr(payload, 'want_response') else False,
+                want_response=(
+                    payload.want_response
+                    if hasattr(payload, "want_response")
+                    else False
+                ),
                 telemetry_type=payload.telemetry_type,
                 telemetry_options=payload.telemetry_options,
                 pki_encrypted=payload.pki_encrypted,
@@ -355,11 +442,17 @@ class PublisherController:
                 return 200, MessageSchema(message="Telemetry published successfully")
             else:
                 error_msg = result.get("error", "Unknown error")
-                return 400, MessageSchema(message=f"Failed to publish telemetry: {error_msg}")
+                return 400, MessageSchema(
+                    message=f"Failed to publish telemetry: {error_msg}"
+                )
         except Exception as e:
             return 400, MessageSchema(message=f"Error queuing publish task: {str(e)}")
 
-    @route.get("/reactive/status", response={200: PublisherReactiveStatusSchema, 400: MessageSchema}, auth=auth)
+    @route.get(
+        "/reactive/status",
+        response={200: PublisherReactiveStatusSchema, 400: MessageSchema},
+        auth=auth,
+    )
     def get_reactive_status(self, request):
         publisher_service = self._get_publisher_service()
         if not publisher_service:
@@ -367,8 +460,14 @@ class PublisherController:
         status = publisher_service.get_reactive_status()
         return 200, status
 
-    @route.post("/reactive/config", response={200: PublisherReactiveStatusSchema, 400: MessageSchema}, auth=auth)
-    def update_reactive_config(self, request, payload: PublisherReactiveConfigUpdateSchema):
+    @route.post(
+        "/reactive/config",
+        response={200: PublisherReactiveStatusSchema, 400: MessageSchema},
+        auth=auth,
+    )
+    def update_reactive_config(
+        self, request, payload: PublisherReactiveConfigUpdateSchema
+    ):
         publisher_service = self._get_publisher_service()
         if not publisher_service:
             return 400, MessageSchema(message="Publisher service not available")
@@ -376,10 +475,12 @@ class PublisherController:
         update_data = payload.dict(exclude_unset=True)
 
         if update_data:
-            err = self._ensure_selectable_nodes([
-                update_data.get("from_node"),
-                update_data.get("gateway_node"),
-            ])
+            err = self._ensure_selectable_nodes(
+                [
+                    update_data.get("from_node"),
+                    update_data.get("gateway_node"),
+                ]
+            )
             if err:
                 return err
 
@@ -389,17 +490,25 @@ class PublisherController:
             status = publisher_service.get_reactive_status()
             return 200, status
         except Exception as exc:
-            return 400, MessageSchema(message=f"Failed to update reactive config: {exc}")
+            return 400, MessageSchema(
+                message=f"Failed to update reactive config: {exc}"
+            )
 
     @route.get("/periodic/jobs", response=List[PublisherPeriodicJobSchema], auth=auth)
     def list_periodic_jobs(self, request):
         jobs = PublisherPeriodicJob.objects.select_related("interface").order_by("name")
         return [self._serialize_periodic_job(job) for job in jobs]
 
-    @route.post("/periodic/jobs", response={200: PublisherPeriodicJobSchema, 400: MessageSchema}, auth=auth)
+    @route.post(
+        "/periodic/jobs",
+        response={200: PublisherPeriodicJobSchema, 400: MessageSchema},
+        auth=auth,
+    )
     def create_periodic_job(self, request, payload: PublisherPeriodicJobCreateSchema):
         data = payload.dict()
-        err = self._ensure_selectable_nodes([data.get("from_node"), data.get("gateway_node")])
+        err = self._ensure_selectable_nodes(
+            [data.get("from_node"), data.get("gateway_node")]
+        )
         if err:
             return err
 
@@ -422,7 +531,9 @@ class PublisherController:
         if data.get("gateway_node") is None:
             data["gateway_node"] = ""
 
-        job = PublisherPeriodicJob(**data, payload_options=payload_options, interface=interface)
+        job = PublisherPeriodicJob(
+            **data, payload_options=payload_options, interface=interface
+        )
 
         try:
             job.full_clean()
@@ -436,9 +547,23 @@ class PublisherController:
         job.refresh_from_db()
         return self._serialize_periodic_job(job)
 
-    @route.put("/periodic/jobs/{job_id}", response={200: PublisherPeriodicJobSchema, 400: MessageSchema, 404: MessageSchema}, auth=auth)
-    def update_periodic_job(self, request, job_id: int, payload: PublisherPeriodicJobUpdateSchema):
-        job = PublisherPeriodicJob.objects.select_related("interface").filter(pk=job_id).first()
+    @route.put(
+        "/periodic/jobs/{job_id}",
+        response={
+            200: PublisherPeriodicJobSchema,
+            400: MessageSchema,
+            404: MessageSchema,
+        },
+        auth=auth,
+    )
+    def update_periodic_job(
+        self, request, job_id: int, payload: PublisherPeriodicJobUpdateSchema
+    ):
+        job = (
+            PublisherPeriodicJob.objects.select_related("interface")
+            .filter(pk=job_id)
+            .first()
+        )
         if not job:
             return 404, MessageSchema(message="Periodic job not found")
 
@@ -446,17 +571,21 @@ class PublisherController:
         if not update_data:
             return self._serialize_periodic_job(job)
 
-        err = self._ensure_selectable_nodes([
-            update_data.get("from_node", job.from_node),
-            update_data.get("gateway_node", job.gateway_node or None),
-        ])
+        err = self._ensure_selectable_nodes(
+            [
+                update_data.get("from_node", job.from_node),
+                update_data.get("gateway_node", job.gateway_node or None),
+            ]
+        )
         if err:
             return err
 
         interface_id = update_data.pop("interface_id", None)
         if "payload_options" in update_data:
             update_data["payload_options"] = self._sanitize_payload_options(
-                PublisherPeriodicJob.PayloadTypes(update_data.get("payload_type", job.payload_type)),
+                PublisherPeriodicJob.PayloadTypes(
+                    update_data.get("payload_type", job.payload_type)
+                ),
                 update_data["payload_options"],
             )
 
@@ -470,7 +599,6 @@ class PublisherController:
                 job.interface = interface
 
         previous_enabled = job.enabled
-        previous_period = job.period_seconds
 
         for field, value in update_data.items():
             if field in {"name", "channel_name"} and isinstance(value, str):
@@ -488,7 +616,9 @@ class PublisherController:
 
         reset_next_run = False
         if "enabled" in update_data:
-            reset_next_run = reset_next_run or (previous_enabled is False and job.enabled is True)
+            reset_next_run = reset_next_run or (
+                previous_enabled is False and job.enabled is True
+            )
         if "period_seconds" in update_data and job.enabled:
             reset_next_run = True
 
@@ -499,7 +629,11 @@ class PublisherController:
         job.refresh_from_db()
         return self._serialize_periodic_job(job)
 
-    @route.delete("/periodic/jobs/{job_id}", response={200: MessageSchema, 404: MessageSchema}, auth=auth)
+    @route.delete(
+        "/periodic/jobs/{job_id}",
+        response={200: MessageSchema, 404: MessageSchema},
+        auth=auth,
+    )
     def delete_periodic_job(self, request, job_id: int):
         job = PublisherPeriodicJob.objects.filter(pk=job_id).first()
         if not job:

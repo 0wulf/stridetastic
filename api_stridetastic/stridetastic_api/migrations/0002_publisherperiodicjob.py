@@ -1,9 +1,8 @@
-from django.db import migrations, models
 import django.utils.timezone
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         (
             "stridetastic_api",
@@ -15,7 +14,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="PublisherPeriodicJob",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=128)),
                 ("description", models.TextField(blank=True, default="")),
                 ("enabled", models.BooleanField(default=True)),
@@ -35,7 +42,10 @@ class Migration(migrations.Migration):
                 ("to_node", models.CharField(max_length=32)),
                 ("channel_name", models.CharField(max_length=64)),
                 ("channel_key", models.TextField(blank=True, default="")),
-                ("gateway_node", models.CharField(blank=True, default="", max_length=32)),
+                (
+                    "gateway_node",
+                    models.CharField(blank=True, default="", max_length=32),
+                ),
                 ("hop_limit", models.PositiveSmallIntegerField(default=3)),
                 ("hop_start", models.PositiveSmallIntegerField(default=3)),
                 ("want_ack", models.BooleanField(default=False)),
@@ -43,9 +53,14 @@ class Migration(migrations.Migration):
                 ("payload_options", models.JSONField(blank=True, default=dict)),
                 (
                     "period_seconds",
-                    models.PositiveIntegerField(default=300, help_text="Execution period in seconds."),
+                    models.PositiveIntegerField(
+                        default=300, help_text="Execution period in seconds."
+                    ),
                 ),
-                ("next_run_at", models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    "next_run_at",
+                    models.DateTimeField(default=django.utils.timezone.now),
+                ),
                 ("last_run_at", models.DateTimeField(blank=True, null=True)),
                 (
                     "last_status",
@@ -82,6 +97,8 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="publisherperiodicjob",
-            index=models.Index(fields=("enabled", "next_run_at"), name="periodic_publish_due_idx"),
+            index=models.Index(
+                fields=("enabled", "next_run_at"), name="periodic_publish_due_idx"
+            ),
         ),
     ]

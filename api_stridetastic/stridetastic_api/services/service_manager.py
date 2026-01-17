@@ -1,21 +1,24 @@
-from typing import Optional, Dict
-import sys
 import logging
+import sys
 import time
-from django.utils import timezone
+from typing import Dict, Optional
+
 from django.conf import settings
+from django.utils import timezone
 
 from ..interfaces.mqtt_interface import MqttInterface
 from ..interfaces.serial_interface import SerialInterface
 from ..interfaces.tcp_interface import TcpInterface
 from ..models.interface_models import Interface
-from .publisher_service import PublisherService, PublishableInterface
-from .sniffer_service import SnifferService
 from .capture_service import CaptureService
 from .pki_service import PKIService
+from .publisher_service import PublishableInterface, PublisherService
+from .sniffer_service import SnifferService
+
 
 class RuntimeInterfaceWrapper:
     """Holds the runtime implementation and metadata for a DB Interface instance."""
+
     def __init__(self, db_interface: Interface, impl):
         self.db = db_interface
         self.impl = impl
@@ -53,9 +56,11 @@ class RuntimeInterfaceWrapper:
         except Exception:
             return False
 
+
 class ServiceManager:
     """Centralized service manager for coordinating interfaces and services"""
-    _instance: Optional['ServiceManager'] = None
+
+    _instance: Optional["ServiceManager"] = None
 
     def __new__(cls):
         if cls._instance is None:
@@ -63,7 +68,7 @@ class ServiceManager:
         return cls._instance
 
     def __init__(self):
-        if hasattr(self, '_initialized'):
+        if hasattr(self, "_initialized"):
             return
         self._runtime_interfaces: Dict[int, RuntimeInterfaceWrapper] = {}
         self._publisher_service: Optional[PublisherService] = None
@@ -79,9 +84,13 @@ class ServiceManager:
         if not self._allow_interface_runtime:
             return
         # Set all enabled interfaces to INIT status at startup
-        Interface.objects.filter(is_enabled=True).exclude(status=Interface.Status.INIT).update(status=Interface.Status.INIT)
+        Interface.objects.filter(is_enabled=True).exclude(
+            status=Interface.Status.INIT
+        ).update(status=Interface.Status.INIT)
         # Set all disabled interfaces to STOPPED
-        Interface.objects.filter(is_enabled=False).exclude(status=Interface.Status.STOPPED).update(status=Interface.Status.STOPPED)
+        Interface.objects.filter(is_enabled=False).exclude(
+            status=Interface.Status.STOPPED
+        ).update(status=Interface.Status.STOPPED)
 
     def load_enabled_interfaces(self):
         if not self._allow_interface_runtime:
@@ -91,32 +100,37 @@ class ServiceManager:
         for iface in Interface.objects.filter(is_enabled=True):
             if iface.id not in self._runtime_interfaces:
                 self._runtime_interfaces[iface.id] = RuntimeInterfaceWrapper(
-                    db_interface=iface,
-                    impl=self._build_interface_impl(iface)
+                    db_interface=iface, impl=self._build_interface_impl(iface)
                 )
         if not self._runtime_interfaces:
             # Auto-create a default MQTT interface if none present, so the system works out-of-the-box
-            logging.warning("No enabled interfaces found. Creating a default MQTT interface (auto).")
+            logging.warning(
+                "No enabled interfaces found. Creating a default MQTT interface (auto)."
+            )
             default_iface = Interface.objects.create(
                 name=Interface.Names.MQTT,
                 display_name="mqtt-default",
                 is_enabled=True,
-                mqtt_broker_address=getattr(settings, 'MQTT_BROKER_ADDRESS', 'mqtt.meshtastic.org'),
-                mqtt_port=getattr(settings, 'MQTT_BROKER_PORT', 1883),
-                mqtt_topic=getattr(settings, 'MQTT_TOPIC', 'msh/#'),
-                mqtt_base_topic=getattr(settings, 'MQTT_BASE_TOPIC', 'msh/US/2/e'),
-                mqtt_username=getattr(settings, 'MQTT_USERNAME', ''),
-                mqtt_password=getattr(settings, 'MQTT_PASSWORD', ''),
-                mqtt_tls=getattr(settings, 'MQTT_TLS', False),
-                mqtt_ca_certs=getattr(settings, 'MQTT_CA_CERTS', None),
+                mqtt_broker_address=getattr(
+                    settings, "MQTT_BROKER_ADDRESS", "mqtt.meshtastic.org"
+                ),
+                mqtt_port=getattr(settings, "MQTT_BROKER_PORT", 1883),
+                mqtt_topic=getattr(settings, "MQTT_TOPIC", "msh/#"),
+                mqtt_base_topic=getattr(settings, "MQTT_BASE_TOPIC", "msh/US/2/e"),
+                mqtt_username=getattr(settings, "MQTT_USERNAME", ""),
+                mqtt_password=getattr(settings, "MQTT_PASSWORD", ""),
+                mqtt_tls=getattr(settings, "MQTT_TLS", False),
+                mqtt_ca_certs=getattr(settings, "MQTT_CA_CERTS", None),
             )
             self._runtime_interfaces[default_iface.id] = RuntimeInterfaceWrapper(
                 db_interface=default_iface,
-                impl=self._build_interface_impl(default_iface)
+                impl=self._build_interface_impl(default_iface),
             )
         logging.info(
-            f"Loaded {len(self._runtime_interfaces)} interface instances: " + ", ".join(
-                f"{w.db.id}:{w.db.display_name}({w.db.name}) topic={getattr(w.db,'mqtt_topic', None)} status={w.db.status}" for w in self._runtime_interfaces.values()
+            f"Loaded {len(self._runtime_interfaces)} interface instances: "
+            + ", ".join(
+                f"{w.db.id}:{w.db.display_name}({w.db.name}) topic={getattr(w.db,'mqtt_topic', None)} status={w.db.status}"
+                for w in self._runtime_interfaces.values()
             )
         )
 
@@ -124,7 +138,10 @@ class ServiceManager:
         if not self._allow_interface_runtime:
             return
         for wrapper in self._runtime_interfaces.values():
-            if wrapper.db.status not in (Interface.Status.RUNNING, Interface.Status.CONNECTING):
+            if wrapper.db.status not in (
+                Interface.Status.RUNNING,
+                Interface.Status.CONNECTING,
+            ):
                 wrapper.start()
 
     def stop_all(self):
@@ -134,7 +151,9 @@ class ServiceManager:
         for wrapper in self._runtime_interfaces.values():
             wrapper.stop()
         # Ensure all interfaces in DB are marked as STOPPED
-        Interface.objects.exclude(status=Interface.Status.STOPPED).update(status=Interface.Status.STOPPED)
+        Interface.objects.exclude(status=Interface.Status.STOPPED).update(
+            status=Interface.Status.STOPPED
+        )
         if self._capture_service:
             self._capture_service.stop_all()
 
@@ -148,7 +167,9 @@ class ServiceManager:
         if not db_iface:
             self._runtime_interfaces.pop(interface_id, None)
             return
-        new_wrapper = RuntimeInterfaceWrapper(db_interface=db_iface, impl=self._build_interface_impl(db_iface))
+        new_wrapper = RuntimeInterfaceWrapper(
+            db_interface=db_iface, impl=self._build_interface_impl(db_iface)
+        )
         self._runtime_interfaces[interface_id] = new_wrapper
         if db_iface.is_enabled:
             new_wrapper.start()
@@ -159,33 +180,44 @@ class ServiceManager:
             if db_iface.status != Interface.Status.STOPPED:
                 db_iface.status = Interface.Status.STOPPED
                 db_iface.save(update_fields=["status"])
+
     def shutdown(self):
         """Call this on container/service shutdown to ensure all interfaces are stopped and states are correct."""
         self.stop_all()
-        logging.info("ServiceManager shutdown: all interfaces stopped and states updated.")
+        logging.info(
+            "ServiceManager shutdown: all interfaces stopped and states updated."
+        )
 
     def _build_interface_impl(self, iface: Interface):
         if iface.name == Interface.Names.MQTT:
             return MqttInterface(
-                broker_address=iface.mqtt_broker_address or settings.MQTT_BROKER_ADDRESS,
+                broker_address=iface.mqtt_broker_address
+                or settings.MQTT_BROKER_ADDRESS,
                 port=iface.mqtt_port or settings.MQTT_BROKER_PORT,
                 topic=iface.mqtt_topic or settings.MQTT_TOPIC,
                 username=iface.mqtt_username or settings.MQTT_USERNAME,
                 password=iface.mqtt_password or settings.MQTT_PASSWORD,
-                tls=iface.mqtt_tls if iface.mqtt_tls is not None else getattr(settings, 'MQTT_TLS', False),
-                ca_certs=iface.mqtt_ca_certs or getattr(settings, 'MQTT_CA_CERTS', None),
+                tls=(
+                    iface.mqtt_tls
+                    if iface.mqtt_tls is not None
+                    else getattr(settings, "MQTT_TLS", False)
+                ),
+                ca_certs=iface.mqtt_ca_certs
+                or getattr(settings, "MQTT_CA_CERTS", None),
                 interface_id=iface.id,
             )
         elif iface.name == Interface.Names.SERIAL:
             return SerialInterface(
-                port=iface.serial_port or getattr(settings, 'SERIAL_PORT', None),
-                baudrate=iface.serial_baudrate or getattr(settings, 'SERIAL_BAUDRATE', 9600),
+                port=iface.serial_port or getattr(settings, "SERIAL_PORT", None),
+                baudrate=iface.serial_baudrate
+                or getattr(settings, "SERIAL_BAUDRATE", 9600),
                 interface_id=iface.id,
             )
         elif iface.name == Interface.Names.TCP:
             return TcpInterface(
-                hostname=iface.tcp_hostname or getattr(settings, 'TCP_HOSTNAME', 'localhost'),
-                port=iface.tcp_port or getattr(settings, 'TCP_PORT', 4403),
+                hostname=iface.tcp_hostname
+                or getattr(settings, "TCP_HOSTNAME", "localhost"),
+                port=iface.tcp_port or getattr(settings, "TCP_PORT", 4403),
                 interface_id=iface.id,
             )
         else:
@@ -194,7 +226,10 @@ class ServiceManager:
     def get_publishable_mqtt(self) -> Optional[PublishableInterface]:
         # Return first running MQTT interface
         for w in self._runtime_interfaces.values():
-            if w.db.name == Interface.Names.MQTT and w.db.status == Interface.Status.RUNNING:
+            if (
+                w.db.name == Interface.Names.MQTT
+                and w.db.status == Interface.Status.RUNNING
+            ):
                 return w.impl
         return None
 
@@ -242,7 +277,9 @@ class ServiceManager:
         pki_service = self.initialize_pki_service()
         if self._publisher_service is None:
             publisher = self.get_publishable_mqtt()
-            self._publisher_service = PublisherService(publisher=publisher, pki_service=pki_service)
+            self._publisher_service = PublisherService(
+                publisher=publisher, pki_service=pki_service
+            )
             logging.info("Publisher service initialized")
         else:
             # Update publisher if a new one is available
@@ -272,7 +309,9 @@ class ServiceManager:
     def initialize_sniffer_service(self) -> SnifferService:
         if self._sniffer_service is None:
             mqtt_iface = self.get_publishable_mqtt()
-            serial_cfg = None  # Serial interface runs in its own Celery task, optionally
+            serial_cfg = (
+                None  # Serial interface runs in its own Celery task, optionally
+            )
             self._sniffer_service = SnifferService(
                 mqtt_interface=mqtt_iface,
                 serial_config=serial_cfg,
@@ -317,22 +356,29 @@ class ServiceManager:
                     getattr(w.db, "mqtt_topic", None),
                 )
         else:
-            logging.info("ServiceManager bootstrap: interface runtime disabled in process role %s", self._process_role)
+            logging.info(
+                "ServiceManager bootstrap: interface runtime disabled in process role %s",
+                self._process_role,
+            )
         self.initialize_pki_service()
         self.initialize_publisher_service()
         self.initialize_sniffer_service()
         self.initialize_capture_service()
 
     @classmethod
-    def get_instance(cls) -> 'ServiceManager':
+    def get_instance(cls) -> "ServiceManager":
         if cls._instance is None:
             cls._instance = cls()
         return cls._instance
 
-    def get_runtime_interface(self, interface_id: int) -> Optional[RuntimeInterfaceWrapper]:
+    def get_runtime_interface(
+        self, interface_id: int
+    ) -> Optional[RuntimeInterfaceWrapper]:
         return self._runtime_interfaces.get(interface_id)
 
-    def get_running_mqtt_interface(self, interface_id: int) -> Optional[RuntimeInterfaceWrapper]:
+    def get_running_mqtt_interface(
+        self, interface_id: int
+    ) -> Optional[RuntimeInterfaceWrapper]:
         wrapper = self.get_runtime_interface(interface_id)
         if not wrapper:
             return None
@@ -342,7 +388,9 @@ class ServiceManager:
             return None
         return wrapper
 
-    def resolve_publish_context(self, interface_id: int) -> tuple[Optional[PublishableInterface], Optional[str], Optional[str]]:
+    def resolve_publish_context(
+        self, interface_id: int
+    ) -> tuple[Optional[PublishableInterface], Optional[str], Optional[str]]:
         """Resolve a publishable interface implementation and base topic for a given interface id."""
         if not self._allow_interface_runtime:
             return None, None, "Interface operations not permitted in this process"
@@ -353,7 +401,9 @@ class ServiceManager:
                 return None, None, "Interface not found"
             if not db_iface.is_enabled:
                 return None, None, "Interface disabled"
-            wrapper = RuntimeInterfaceWrapper(db_interface=db_iface, impl=self._build_interface_impl(db_iface))
+            wrapper = RuntimeInterfaceWrapper(
+                db_interface=db_iface, impl=self._build_interface_impl(db_iface)
+            )
             self._runtime_interfaces[interface_id] = wrapper
         if wrapper.db.name != Interface.Names.MQTT:
             return None, None, "Interface type not supported for publishing"
@@ -382,7 +432,9 @@ class ServiceManager:
                 except Exception:
                     connected = False
                 if not connected:
-                    for _ in range(20):  # wait up to ~2 seconds for async connect callbacks
+                    for _ in range(
+                        20
+                    ):  # wait up to ~2 seconds for async connect callbacks
                         time.sleep(0.1)
                         try:
                             if wrapper.impl.is_connected():

@@ -25,7 +25,9 @@ def _humanize_port_name(port_name: str) -> str:
     return pretty
 
 
-def resolve_port_identity(port: Optional[str], portnum: Optional[int]) -> Tuple[str, str]:
+def resolve_port_identity(
+    port: Optional[str], portnum: Optional[int]
+) -> Tuple[str, str]:
     """Return a canonical port key and display label for the given values."""
     if port:
         label = _PORT_CHOICE_LABELS.get(port) or _PORT_LABEL_OVERRIDES.get(port)

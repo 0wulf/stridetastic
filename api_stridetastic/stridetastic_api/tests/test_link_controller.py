@@ -12,7 +12,6 @@ from ..api import api
 from ..models import Channel, Node, NodeLink
 from ..models.packet_models import Packet, PacketData
 
-
 API_CLIENT = TestClient(api)
 
 
@@ -111,7 +110,10 @@ class LinkControllerAPITests(TestCase):
         self.assertEqual(len(data), 2)
 
         entries_by_id = {entry["id"]: entry for entry in data}
-        self.assertEqual(set(entries_by_id.keys()), {self.link_bidirectional.pk, self.link_unidirectional.pk})
+        self.assertEqual(
+            set(entries_by_id.keys()),
+            {self.link_bidirectional.pk, self.link_unidirectional.pk},
+        )
 
         bidirectional_entry = entries_by_id[self.link_bidirectional.pk]
         self.assertEqual(bidirectional_entry["total_packets"], 3)
@@ -165,7 +167,9 @@ class LinkControllerAPITests(TestCase):
         self.assertEqual(data, [])
 
     def test_list_links_port_filter_respects_time_window(self) -> None:
-        Packet.objects.filter(pk=self.packet_ab.pk).update(time=timezone.now() - timedelta(minutes=10))
+        Packet.objects.filter(pk=self.packet_ab.pk).update(
+            time=timezone.now() - timedelta(minutes=10)
+        )
 
         response = self.client.get(
             "/links/?port=TEXT_MESSAGE_APP&last=5min",

@@ -8,7 +8,6 @@ from typing import Optional
 
 from django.utils import timezone
 
-from ..models import Node
 from ..mesh.encryption.pkc import (
     PKIDecryptionError,
     PKIDecryptionInputs,
@@ -18,6 +17,7 @@ from ..mesh.encryption.pkc import (
     encrypt_with_private_key,
     load_public_key_bytes,
 )
+from ..models import Node
 
 logger = logging.getLogger(__name__)
 
@@ -67,20 +67,28 @@ class PKIService:
 
         private_key_material = target_node.private_key
         if not private_key_material:
-            return PKIDecryptionResult(success=False, reason="Private key not available for target node")
+            return PKIDecryptionResult(
+                success=False, reason="Private key not available for target node"
+            )
 
         encrypted_section = getattr(packet, "encrypted", None)
         if not encrypted_section:
-            return PKIDecryptionResult(success=False, reason="Packet missing encrypted payload")
+            return PKIDecryptionResult(
+                success=False, reason="Packet missing encrypted payload"
+            )
 
         encrypted_payload = bytes(encrypted_section)
         if len(encrypted_payload) <= 12:
-            return PKIDecryptionResult(success=False, reason="Encrypted payload too short for PKI decryption")
+            return PKIDecryptionResult(
+                success=False, reason="Encrypted payload too short for PKI decryption"
+            )
 
         from_node_num = getattr(packet, "from", None)
         packet_id = getattr(packet, "id", None)
         if from_node_num is None or packet_id is None:
-            return PKIDecryptionResult(success=False, reason="Packet metadata incomplete for PKI decryption")
+            return PKIDecryptionResult(
+                success=False, reason="Packet metadata incomplete for PKI decryption"
+            )
 
         remote_public_key_bytes: Optional[bytes] = None
         try:
@@ -88,13 +96,19 @@ class PKIService:
             if raw_public_key:
                 remote_public_key_bytes = load_public_key_bytes(raw_public_key)
             else:
-                remote_public_key_bytes = self._resolve_remote_public_key(int(from_node_num))
+                remote_public_key_bytes = self._resolve_remote_public_key(
+                    int(from_node_num)
+                )
         except PKIDecryptionError as exc:
-            logger.info("PKI public key decode failed for node %s: %s", from_node_num, exc)
+            logger.info(
+                "PKI public key decode failed for node %s: %s", from_node_num, exc
+            )
             return PKIDecryptionResult(success=False, reason=str(exc))
 
         if remote_public_key_bytes is None:
-            return PKIDecryptionResult(success=False, reason="Sender public key unavailable")
+            return PKIDecryptionResult(
+                success=False, reason="Sender public key unavailable"
+            )
 
         inputs = PKIDecryptionInputs(
             encrypted_payload=encrypted_payload,
@@ -108,25 +122,40 @@ class PKIService:
             plaintext = decrypt_with_private_key(inputs, private_key_material)
         except PKIDecryptionError as exc:
             logger.info(
-                "PKI decrypt failed for packet %s from node %s: %s", packet_id, from_node_num, exc
+                "PKI decrypt failed for packet %s from node %s: %s",
+                packet_id,
+                from_node_num,
+                exc,
             )
             return PKIDecryptionResult(success=False, reason=str(exc))
-        except Exception as exc:  # pragma: no cover - defensive logging
+        except Exception:  # pragma: no cover - defensive logging
             logger.exception(
-                "PKI decrypt encountered an unexpected error for packet %s from node %s", packet_id, from_node_num
+                "PKI decrypt encountered an unexpected error for packet %s from node %s",
+                packet_id,
+                from_node_num,
             )
-            return PKIDecryptionResult(success=False, reason="PKI decryption encountered an internal error")
+            return PKIDecryptionResult(
+                success=False, reason="PKI decryption encountered an internal error"
+            )
 
-        logger.debug("PKI decrypt succeeded for packet %s using node %s", packet_id, target_node.node_num)
+        logger.debug(
+            "PKI decrypt succeeded for packet %s using node %s",
+            packet_id,
+            target_node.node_num,
+        )
         return PKIDecryptionResult(success=True, plaintext=plaintext)
 
     def _resolve_remote_public_key(self, from_node_num: int) -> Optional[bytes]:
-        remote_node = Node.objects.filter(node_num=from_node_num).only("public_key").first()
+        remote_node = (
+            Node.objects.filter(node_num=from_node_num).only("public_key").first()
+        )
         if remote_node and remote_node.public_key:
             try:
                 return load_public_key_bytes(remote_node.public_key)
             except PKIDecryptionError as exc:
-                logger.info("Stored public key invalid for node %s: %s", from_node_num, exc)
+                logger.info(
+                    "Stored public key invalid for node %s: %s", from_node_num, exc
+                )
         return None
 
     def encrypt_packet(
@@ -137,7 +166,9 @@ class PKIService:
         """Attempt to encrypt a payload for PKI delivery."""
 
         if not private_key_material:
-            return PKIEncryptionResult(success=False, reason="Private key not available for source node")
+            return PKIEncryptionResult(
+                success=False, reason="Private key not available for source node"
+            )
 
         try:
             ciphertext = encrypt_with_private_key(inputs, private_key_material)
@@ -149,12 +180,16 @@ class PKIService:
                 exc,
             )
             return PKIEncryptionResult(success=False, reason=str(exc))
-        except Exception as exc:  # pragma: no cover - defensive logging
+        except Exception:  # pragma: no cover - defensive logging
             logger.exception(
                 "PKI encrypt encountered an unexpected error for packet %s to node %s",
                 inputs.packet_id,
                 inputs.to_node_num,
             )
-            return PKIEncryptionResult(success=False, reason="PKI encryption encountered an internal error")
+            return PKIEncryptionResult(
+                success=False, reason="PKI encryption encountered an internal error"
+            )
 
-        return PKIEncryptionResult(success=True, ciphertext=ciphertext, public_key=inputs.public_key)
+        return PKIEncryptionResult(
+            success=True, ciphertext=ciphertext, public_key=inputs.public_key
+        )

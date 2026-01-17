@@ -48,8 +48,8 @@ def serialize_node(node: Node) -> NodeSchema:
         iaq=_coerce(node.iaq),
         interfaces=interface_names,
         private_key_updated_at=node.private_key_updated_at,
-    latency_reachable=node.latency_reachable,
-    latency_ms=node.latency_ms,
+        latency_reachable=node.latency_reachable,
+        latency_ms=node.latency_ms,
         first_seen=node.first_seen,
         last_seen=node.last_seen,
     )

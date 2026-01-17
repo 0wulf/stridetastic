@@ -56,7 +56,11 @@ class NodeKeyHealthAPITests(TestCase):
         data = response.json()
         self.assertEqual(len(data), 3)
 
-        duplicate_entries = [entry for entry in data if entry["node_id"] in {dup_a.node_id, dup_b.node_id}]
+        duplicate_entries = [
+            entry
+            for entry in data
+            if entry["node_id"] in {dup_a.node_id, dup_b.node_id}
+        ]
         self.assertEqual(len(duplicate_entries), 2)
         for entry in duplicate_entries:
             self.assertEqual(entry["duplicate_count"], 2)

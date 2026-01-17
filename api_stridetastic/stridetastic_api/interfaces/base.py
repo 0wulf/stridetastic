@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+
 class BaseInterface(ABC):
     @abstractmethod
     def connect(self):
@@ -12,6 +13,7 @@ class BaseInterface(ABC):
     @abstractmethod
     def start(self):
         pass
+
 
 class WebSocketInterface(BaseInterface):
     @abstractmethod

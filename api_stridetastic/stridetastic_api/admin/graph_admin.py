@@ -1,6 +1,8 @@
-from unfold.admin import ModelAdmin
 from django.contrib import admin
+from unfold.admin import ModelAdmin
+
 from ..models.graph_models import Edge
+
 
 @admin.register(Edge)
 class EdgeAdmin(ModelAdmin):

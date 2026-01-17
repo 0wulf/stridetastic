@@ -3,16 +3,20 @@ from typing import List, Tuple
 
 import pytest
 from cryptography.hazmat.primitives.asymmetric import x25519
-
 from stridetastic_api.models import Node
-from stridetastic_api.services.virtual_node_service import VirtualNodeService, VirtualNodeError
+from stridetastic_api.services.virtual_node_service import (
+    VirtualNodeError,
+    VirtualNodeService,
+)
 
 
 class _DummyPublicKey:
     def __init__(self, raw: bytes) -> None:
         self._raw = raw
 
-    def public_bytes(self, encoding, format):  # noqa: ANN001 - signature dictated by cryptography API
+    def public_bytes(
+        self, encoding, format
+    ):  # noqa: ANN001 - signature dictated by cryptography API
         return self._raw
 
 
@@ -21,7 +25,9 @@ class _DummyPrivateKey:
         self._private_raw = private_raw
         self._public_key = _DummyPublicKey(public_raw)
 
-    def private_bytes(self, encoding, format, encryption_algorithm):  # noqa: ANN001 - signature dictated by API
+    def private_bytes(
+        self, encoding, format, encryption_algorithm
+    ):  # noqa: ANN001 - signature dictated by API
         return self._private_raw
 
     def public_key(self):
@@ -56,13 +62,17 @@ def test_generate_key_pair_skips_colliding_material(monkeypatch):
         (unique_private, unique_public),
     ]
 
-    def _fake_generate(cls) -> _DummyPrivateKey:  # noqa: ANN001 - signature dictated by cryptography API
+    def _fake_generate(
+        cls,
+    ) -> _DummyPrivateKey:  # noqa: ANN001 - signature dictated by cryptography API
         if not key_material:
             raise AssertionError("No more key material to supply")
         private_raw, public_raw = key_material.pop(0)
         return _DummyPrivateKey(private_raw, public_raw)
 
-    monkeypatch.setattr(x25519.X25519PrivateKey, "generate", classmethod(_fake_generate))
+    monkeypatch.setattr(
+        x25519.X25519PrivateKey, "generate", classmethod(_fake_generate)
+    )
 
     secrets = VirtualNodeService.generate_key_pair()
     assert secrets.public_key == unique_public_b64
@@ -84,10 +94,14 @@ def test_generate_key_pair_raises_when_unique_material_unavailable(monkeypatch):
     )
     existing.store_private_key(duplicate_private_b64)
 
-    def _always_duplicate(cls) -> _DummyPrivateKey:  # noqa: ANN001 - signature dictated by cryptography API
+    def _always_duplicate(
+        cls,
+    ) -> _DummyPrivateKey:  # noqa: ANN001 - signature dictated by cryptography API
         return _DummyPrivateKey(duplicate_private, duplicate_public)
 
-    monkeypatch.setattr(x25519.X25519PrivateKey, "generate", classmethod(_always_duplicate))
+    monkeypatch.setattr(
+        x25519.X25519PrivateKey, "generate", classmethod(_always_duplicate)
+    )
 
     with pytest.raises(VirtualNodeError):
         VirtualNodeService.generate_key_pair()

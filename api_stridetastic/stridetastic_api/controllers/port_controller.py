@@ -1,9 +1,11 @@
 from typing import List
+from urllib.parse import unquote
 
 from django.db.models import Count, Max, Q  # type: ignore[import]
-from ninja_extra import api_controller, permissions, route  # type: ignore[import]
-from ninja_jwt.authentication import JWTAuth  # type: ignore[import]
 from meshtastic.protobuf import portnums_pb2  # type: ignore[attr-defined]
+from ninja_extra import permissions  # type: ignore[import]
+from ninja_extra import api_controller, route
+from ninja_jwt.authentication import JWTAuth  # type: ignore[import]
 
 from ..models.packet_models import PacketData
 from ..schemas import MessageSchema, PortActivitySchema, PortNodeActivitySchema
@@ -25,7 +27,9 @@ class PortController:
 
         results: List[PortActivitySchema] = []
         for entry in queryset:
-            canonical_port, display_name = resolve_port_identity(entry["port"], entry["portnum"])
+            canonical_port, display_name = resolve_port_identity(
+                entry["port"], entry["portnum"]
+            )
             results.append(
                 PortActivitySchema(
                     port=canonical_port,
@@ -43,7 +47,7 @@ class PortController:
         auth=auth,
     )
     def get_port_node_activity(self, port: str):
-        raw_port = port.strip()
+        raw_port = unquote(port).strip()
         if not raw_port:
             return 400, MessageSchema(message="Port identifier is required")
 

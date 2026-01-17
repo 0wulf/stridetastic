@@ -36,7 +36,9 @@ class VirtualNodeAPITests(TestCase):
         return response.json()
 
     def test_create_virtual_node_generates_identity_and_keys(self) -> None:
-        result = self._create_virtual_node({"short_name": "VN01", "long_name": "Virtual Node"})
+        result = self._create_virtual_node(
+            {"short_name": "VN01", "long_name": "Virtual Node"}
+        )
         node_data = result["node"]
 
         self.assertTrue(node_data["is_virtual"])
@@ -55,14 +57,19 @@ class VirtualNodeAPITests(TestCase):
         response = self.client.get("/nodes/virtual", headers=self.auth_headers)
         self.assertEqual(response.status_code, 200)
         nodes = response.json()
-        self.assertTrue(any(node["node_id"] == created["node"]["node_id"] for node in nodes))
+        self.assertTrue(
+            any(node["node_id"] == created["node"]["node_id"] for node in nodes)
+        )
 
     def test_update_virtual_node_and_rotate_keys(self) -> None:
         created = self._create_virtual_node({"long_name": "Initial"})
         node_id = created["node"]["node_id"]
         original_public_key = created["node"]["public_key"]
 
-        update_payload: Dict[str, Any] = {"long_name": "Updated", "regenerate_keys": True}
+        update_payload: Dict[str, Any] = {
+            "long_name": "Updated",
+            "regenerate_keys": True,
+        }
         response = self.client.put(
             f"/nodes/virtual/{node_id}",
             headers=self.auth_headers,
@@ -110,7 +117,15 @@ class VirtualNodeAPITests(TestCase):
         expected_node_num = id_to_num(supplied_node_id)
         if expected_node_num < VirtualNodeService.VIRTUAL_NODE_NUM_START:
             span = 1 << 32
-            expected_node_num += ((VirtualNodeService.VIRTUAL_NODE_NUM_START - expected_node_num + span - 1) // span) * span
+            expected_node_num += (
+                (
+                    VirtualNodeService.VIRTUAL_NODE_NUM_START
+                    - expected_node_num
+                    + span
+                    - 1
+                )
+                // span
+            ) * span
         self.assertEqual(node_data["node_num"], expected_node_num)
 
         expected_mac = num_to_mac(expected_node_num).upper()
@@ -120,7 +135,9 @@ class VirtualNodeAPITests(TestCase):
         created = self._create_virtual_node()
         node_id = created["node"]["node_id"]
 
-        response = self.client.delete(f"/nodes/virtual/{node_id}", headers=self.auth_headers)
+        response = self.client.delete(
+            f"/nodes/virtual/{node_id}", headers=self.auth_headers
+        )
         self.assertEqual(response.status_code, 200)
         self.assertFalse(Node.objects.filter(node_id=node_id).exists())
 
@@ -139,7 +156,9 @@ class VirtualNodeAPITests(TestCase):
         data = response.json()
         self.assertIn("roles", data)
         self.assertIn("hardware_models", data)
-        self.assertTrue(any(option["value"] == data["default_role"] for option in data["roles"]))
+        self.assertTrue(
+            any(option["value"] == data["default_role"] for option in data["roles"])
+        )
 
     def test_virtual_node_prefill_endpoint(self) -> None:
         response = self.client.get("/nodes/virtual/prefill", headers=self.auth_headers)

@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import base64
 import binascii
-import os
 import logging
+import os
 from dataclasses import dataclass
 from typing import Optional, Union
 
@@ -116,7 +116,9 @@ def load_private_key_bytes(key_material: str) -> bytes:
     raise PKIDecryptionError("Unsupported private key format")
 
 
-def decrypt_with_private_key(inputs: PKIDecryptionInputs, private_key_material: str) -> bytes:
+def decrypt_with_private_key(
+    inputs: PKIDecryptionInputs, private_key_material: str
+) -> bytes:
     """Decrypt a PKI-encrypted payload using the Meshtastic reference process."""
 
     if inputs.public_key is None:
@@ -153,7 +155,9 @@ def decrypt_with_private_key(inputs: PKIDecryptionInputs, private_key_material: 
         raise PKIDecryptionError("PKI authentication failed") from exc
 
     logger.debug(
-        "PKI decrypt succeeded from=%s packet_id=%s", inputs.from_node_num, inputs.packet_id
+        "PKI decrypt succeeded from=%s packet_id=%s",
+        inputs.from_node_num,
+        inputs.packet_id,
     )
     return plaintext
 
@@ -183,7 +187,12 @@ def encrypt_with_private_key(
     if len(extra_nonce_bytes) != 4:
         raise PKIEncryptionError("Extra nonce must be 4 bytes")
 
-    nonce = _build_nonce(inputs.packet_id, inputs.from_node_num, extra_nonce_bytes, error_cls=PKIEncryptionError)
+    nonce = _build_nonce(
+        inputs.packet_id,
+        inputs.from_node_num,
+        extra_nonce_bytes,
+        error_cls=PKIEncryptionError,
+    )
     aead = AESCCM(derived_key, tag_length=8)
 
     ciphertext = aead.encrypt(nonce, bytes(inputs.plaintext), None)

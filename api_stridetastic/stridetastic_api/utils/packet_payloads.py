@@ -78,7 +78,9 @@ def _serialize_route_section(route: Any) -> Optional[Dict[str, Any]]:
     )
 
 
-def build_packet_payload_schema(packet_data: PacketData) -> Optional[PacketPayloadSchema]:
+def build_packet_payload_schema(
+    packet_data: PacketData,
+) -> Optional[PacketPayloadSchema]:
     base_fields = _base_payload_fields(packet_data)
 
     telemetry = getattr(packet_data, "telemetry_payload", None)
@@ -137,7 +139,9 @@ def build_packet_payload_schema(packet_data: PacketData) -> Optional[PacketPaylo
     neighbor_info = getattr(packet_data, "neighbor_info_payload", None)
     if neighbor_info:
         fields = dict(base_fields)
-        reporting_node = _serialize_node_summary(getattr(neighbor_info, "reporting_node", None))
+        reporting_node = _serialize_node_summary(
+            getattr(neighbor_info, "reporting_node", None)
+        )
         if reporting_node:
             fields["reporting_node"] = reporting_node
 
@@ -146,7 +150,9 @@ def build_packet_payload_schema(packet_data: PacketData) -> Optional[PacketPaylo
                 "node_num": getattr(neighbor_info, "last_sent_by_node_num", None),
             }
         )
-        last_sent_node = _serialize_node_summary(getattr(neighbor_info, "last_sent_by_node", None))
+        last_sent_node = _serialize_node_summary(
+            getattr(neighbor_info, "last_sent_by_node", None)
+        )
         if last_sent_node:
             last_sent_fields["node"] = last_sent_node
         if last_sent_fields:
@@ -155,8 +161,12 @@ def build_packet_payload_schema(packet_data: PacketData) -> Optional[PacketPaylo
         fields.update(
             _filter_fields(
                 {
-                    "reporting_node_id_text": getattr(neighbor_info, "reporting_node_id_text", None),
-                    "node_broadcast_interval_secs": getattr(neighbor_info, "node_broadcast_interval_secs", None),
+                    "reporting_node_id_text": getattr(
+                        neighbor_info, "reporting_node_id_text", None
+                    ),
+                    "node_broadcast_interval_secs": getattr(
+                        neighbor_info, "node_broadcast_interval_secs", None
+                    ),
                 }
             )
         )
@@ -166,11 +176,17 @@ def build_packet_payload_schema(packet_data: PacketData) -> Optional[PacketPaylo
             neighbor_summary = _filter_fields(
                 {
                     "advertised_node_id": getattr(neighbor, "advertised_node_id", None),
-                    "advertised_node_num": getattr(neighbor, "advertised_node_num", None),
+                    "advertised_node_num": getattr(
+                        neighbor, "advertised_node_num", None
+                    ),
                     "snr": getattr(neighbor, "snr", None),
-                    "last_rx_time": _serialize_datetime(getattr(neighbor, "last_rx_time", None)),
+                    "last_rx_time": _serialize_datetime(
+                        getattr(neighbor, "last_rx_time", None)
+                    ),
                     "last_rx_time_raw": getattr(neighbor, "last_rx_time_raw", None),
-                    "broadcast_interval_secs": getattr(neighbor, "node_broadcast_interval_secs", None),
+                    "broadcast_interval_secs": getattr(
+                        neighbor, "node_broadcast_interval_secs", None
+                    ),
                 }
             )
             resolved = _serialize_node_summary(getattr(neighbor, "node", None))
@@ -185,7 +201,9 @@ def build_packet_payload_schema(packet_data: PacketData) -> Optional[PacketPaylo
     route_discovery = getattr(packet_data, "route_discovery_payload", None)
     if route_discovery:
         fields = dict(base_fields)
-        towards = _serialize_route_section(getattr(route_discovery, "route_towards", None))
+        towards = _serialize_route_section(
+            getattr(route_discovery, "route_towards", None)
+        )
         back = _serialize_route_section(getattr(route_discovery, "route_back", None))
         if towards:
             fields["route_towards"] = towards
@@ -211,12 +229,17 @@ def build_packet_payload_schema(packet_data: PacketData) -> Optional[PacketPaylo
         )
         return PacketPayloadSchema(payload_type="routing", fields=fields)
 
-    if getattr(packet_data, "port", None) == "TEXT_MESSAGE_APP" and packet_data.raw_payload:
+    if (
+        getattr(packet_data, "port", None) == "TEXT_MESSAGE_APP"
+        and packet_data.raw_payload
+    ):
         fields = dict(base_fields)
         fields["text"] = packet_data.raw_payload
         return PacketPayloadSchema(payload_type="text_message", fields=fields)
 
-    raw_payload = packet_data.raw_payload or getattr(packet_data.packet, "raw_data", None)
+    raw_payload = packet_data.raw_payload or getattr(
+        packet_data.packet, "raw_data", None
+    )
     if raw_payload:
         fields = dict(base_fields)
         fields["raw_payload"] = raw_payload

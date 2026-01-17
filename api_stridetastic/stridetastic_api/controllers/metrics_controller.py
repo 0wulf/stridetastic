@@ -4,21 +4,16 @@ from typing import List, Optional
 
 from django.db.models import Avg
 from django.utils import timezone
-from ninja_extra import api_controller, route, permissions  # type: ignore[import]
+from ninja_extra import permissions  # type: ignore[import]
+from ninja_extra import api_controller, route
 from ninja_jwt.authentication import JWTAuth  # type: ignore[import]
 
-from ..models import (
-    Node,
-    Edge,
-    Channel,
-    NetworkOverviewSnapshot,
-    NodeLink,
-)
+from ..models import Channel, Edge, NetworkOverviewSnapshot, Node, NodeLink
 from ..schemas import (
+    MessageSchema,
+    OverviewMetricSnapshotSchema,
     OverviewMetricsResponseSchema,
     OverviewMetricsSchema,
-    OverviewMetricSnapshotSchema,
-    MessageSchema,
 )
 from ..utils.time_filters import parse_time_window
 
@@ -36,7 +31,9 @@ def _to_float(value: Optional[Decimal | float | int]) -> Optional[float]:
     return float(value)
 
 
-def _build_snapshot_payload(snapshot: NetworkOverviewSnapshot) -> OverviewMetricSnapshotSchema:
+def _build_snapshot_payload(
+    snapshot: NetworkOverviewSnapshot,
+) -> OverviewMetricSnapshotSchema:
     return OverviewMetricSnapshotSchema(
         timestamp=snapshot.time,
         total_nodes=snapshot.total_nodes,
@@ -88,9 +85,19 @@ class MetricsController:
         channels_qs = Channel.objects.all()
         channels_count = channels_qs.count()
 
-        avg_battery_result = nodes_qs.exclude(battery_level__isnull=True).aggregate(avg=Avg("battery_level"))
-        avg_rssi_result = active_edges_qs.exclude(last_rx_rssi__isnull=True).exclude(last_rx_rssi=0).aggregate(avg=Avg("last_rx_rssi"))
-        avg_snr_result = active_edges_qs.exclude(last_rx_snr__isnull=True).exclude(last_rx_snr=0).aggregate(avg=Avg("last_rx_snr"))
+        avg_battery_result = nodes_qs.exclude(battery_level__isnull=True).aggregate(
+            avg=Avg("battery_level")
+        )
+        avg_rssi_result = (
+            active_edges_qs.exclude(last_rx_rssi__isnull=True)
+            .exclude(last_rx_rssi=0)
+            .aggregate(avg=Avg("last_rx_rssi"))
+        )
+        avg_snr_result = (
+            active_edges_qs.exclude(last_rx_snr__isnull=True)
+            .exclude(last_rx_snr=0)
+            .aggregate(avg=Avg("last_rx_snr"))
+        )
 
         avg_battery = _to_float(avg_battery_result.get("avg"))
         avg_rssi = _to_float(avg_rssi_result.get("avg"))

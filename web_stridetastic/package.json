@@ -7,7 +7,11 @@
     "dev:docker": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "vitest",
+    "test:watch": "vitest",
+    "test:ci": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@types/js-cookie": "^3.0.6",
@@ -22,9 +26,9 @@
     "react-dom": "19.1.0",
     "react-force-graph": "^1.29.3",
     "react-force-graph-2d": "^1.25.4",
+    "recharts": "^2.5.0",
     "tailwind-merge": "^2.5.3",
-    "three": "^0.170.0",
-    "recharts": "^2.5.0"
+    "three": "^0.170.0"
   },
   "dependenciesMeta": {
     "recharts": {
@@ -33,14 +37,21 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.1",
+    "@testing-library/user-event": "^14.6.1",
     "@types/leaflet": "^1.9.20",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitest/coverage-v8": "^4.0.17",
     "eslint": "^9.11.1",
     "eslint-config-next": "15.4.10",
+    "jsdom": "^27.4.0",
     "react-leaflet": "^5.0.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vite-tsconfig-paths": "^6.0.4",
+    "vitest": "^4.0.17"
   }
 }

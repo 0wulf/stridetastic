@@ -2,7 +2,6 @@ import pytest
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import override_settings
-
 from stridetastic_api.models import Node
 from stridetastic_api.services.virtual_node_service import VirtualNodeService
 

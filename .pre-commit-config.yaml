@@ -3,20 +3,25 @@ repos:
     rev: v4.6.0
     hooks:
       - id: trailing-whitespace
+        files: ^api_stridetastic/
       - id: end-of-file-fixer
+        files: ^api_stridetastic/
       - id: check-merge-conflict
+        files: ^api_stridetastic/
       - id: detect-private-key
+        files: ^api_stridetastic/
       - id: check-yaml
+        files: ^api_stridetastic/
       - id: check-added-large-files
+        files: ^api_stridetastic/
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.6.1
     hooks:
       - id: ruff
-      - id: ruff-format
 
   - repo: https://github.com/psf/black
-    rev: 23.12.1
+    rev: 25.12.0
     hooks:
       - id: black
 

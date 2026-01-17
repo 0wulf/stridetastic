@@ -1,5 +1,6 @@
 from .base import BaseInterface
 
+
 class WebSocketInterface(BaseInterface):
     def __init__(self, group_name=None):
         self.group_name = group_name or "packets"

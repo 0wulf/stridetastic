@@ -1,7 +1,6 @@
 from datetime import timezone as dt_timezone
 
 from django.test import TestCase  # type: ignore[import]
-
 from meshtastic.protobuf import mesh_pb2  # type: ignore[attr-defined]
 
 from ..mesh.packet.handler import handle_neighborinfo
@@ -64,7 +63,9 @@ class NeighborInfoHandlerTests(TestCase):
         self.assertIsNotNone(neighbor.last_rx_time)
         self.assertEqual(neighbor.last_rx_time.tzinfo, dt_timezone.utc)
 
-        edge = Edge.objects.filter(source_node=self.reporting_node, target_node=self.destination_node).first()
+        edge = Edge.objects.filter(
+            source_node=self.reporting_node, target_node=self.destination_node
+        ).first()
         self.assertIsNotNone(edge)
         if edge:
             self.assertEqual(edge.last_packet, self.packet)
@@ -98,7 +99,9 @@ class NeighborInfoHandlerTests(TestCase):
 
         # original neighbor edge remains but should reflect most recent update for reported neighbor
         new_neighbor_node = Node.objects.get(node_id="!00000003")
-        edge = Edge.objects.filter(source_node=self.reporting_node, target_node=new_neighbor_node).first()
+        edge = Edge.objects.filter(
+            source_node=self.reporting_node, target_node=new_neighbor_node
+        ).first()
         self.assertIsNotNone(edge)
         if edge:
             self.assertAlmostEqual(float(edge.last_rx_snr or 0), 8.25, places=2)

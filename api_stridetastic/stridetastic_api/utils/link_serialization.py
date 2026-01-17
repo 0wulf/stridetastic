@@ -48,7 +48,9 @@ def serialize_node_link(link: NodeLink) -> NodeLinkSchema:
     if last_packet is not None:
         packet_data = getattr(last_packet, "data", None)
         if packet_data:
-            last_port, last_port_display = resolve_port_identity(packet_data.port, packet_data.portnum)
+            last_port, last_port_display = resolve_port_identity(
+                packet_data.port, packet_data.portnum
+            )
         channel_instance = _first_or_none(last_packet.channels.all())
         if channel_instance is not None:
             last_channel_schema = _serialize_channel(channel_instance)
@@ -80,7 +82,9 @@ def serialize_link_packet(packet: Packet, link: NodeLink) -> NodeLinkPacketSchem
     payload = None
 
     if packet_data:
-        port, port_display = resolve_port_identity(packet_data.port, packet_data.portnum)
+        port, port_display = resolve_port_identity(
+            packet_data.port, packet_data.portnum
+        )
         payload = build_packet_payload_schema(packet_data)
 
     channel_instance = _first_or_none(packet.channels.all())

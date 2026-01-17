@@ -9,30 +9,27 @@ from collections import defaultdict
 from typing import List, Optional
 
 from django.db.models import Count, Max, Q  # type: ignore[import]
-from ninja_extra import api_controller, route, permissions  # type: ignore[import]
-from ninja_jwt.authentication import JWTAuth  # type: ignore[import]
 from meshtastic.protobuf import portnums_pb2  # type: ignore[attr-defined]
+from ninja_extra import permissions  # type: ignore[import]
+from ninja_extra import api_controller, route
+from ninja_jwt.authentication import JWTAuth  # type: ignore[import]
 
+from ..models import Node, NodeLatencyHistory  # type: ignore[import]
+from ..models.packet_models import PacketData, PositionPayload, TelemetryPayload
 from ..schemas import (
     MessageSchema,
-    NodeSchema,
     NodeKeyHealthSchema,
-    NodeStatisticsSchema,
-    NodePositionHistorySchema,
-    NodeTelemetryHistorySchema,
     NodeLatencyHistorySchema,
     NodePortActivitySchema,
     NodePortPacketSchema,
-    PacketPayloadSchema,
+    NodePositionHistorySchema,
+    NodeSchema,
+    NodeStatisticsSchema,
+    NodeTelemetryHistorySchema,
     VirtualNodeCreateSchema,
-    VirtualNodeUpdateSchema,
     VirtualNodeSecretsSchema,
-    VirtualNodeKeyPairSchema,
-    VirtualNodeOptionsSchema,
-    VirtualNodePrefillSchema,
+    VirtualNodeUpdateSchema,
 )
-from ..models import Node, NodeLatencyHistory  # type: ignore[import]
-from ..models.packet_models import PacketData, PositionPayload, TelemetryPayload
 from ..services.virtual_node_service import VirtualNodeError, VirtualNodeService
 from ..utils.node_serialization import serialize_node
 from ..utils.packet_payloads import build_packet_payload_schema
@@ -42,12 +39,16 @@ from ..utils.time_filters import parse_time_window
 auth = JWTAuth()
 
 
-@api_controller('/nodes', tags=['Nodes'], permissions=[permissions.IsAuthenticated])
+@api_controller("/nodes", tags=["Nodes"], permissions=[permissions.IsAuthenticated])
 class NodeController:
     def _serialize_node(self, node: Node) -> NodeSchema:
         return serialize_node(node)
 
-    @route.get("/", response={200: List[NodeSchema], 404: MessageSchema, 400: MessageSchema}, auth=auth)
+    @route.get(
+        "/",
+        response={200: List[NodeSchema], 404: MessageSchema, 400: MessageSchema},
+        auth=auth,
+    )
     def get_all_nodes(
         self,
         request,
@@ -63,11 +64,13 @@ class NodeController:
         until = query_params.get("until")
 
         try:
-            since_utc, until_utc = parse_time_window(last=last, since=since, until=until)
+            since_utc, until_utc = parse_time_window(
+                last=last, since=since, until=until
+            )
         except ValueError as e:
             return 400, MessageSchema(message=str(e))
 
-        nodes_qs = Node.objects.all().prefetch_related('interfaces')
+        nodes_qs = Node.objects.all().prefetch_related("interfaces")
         if since_utc is not None:
             nodes_qs = nodes_qs.filter(last_seen__gte=since_utc)
         if until_utc is not None:
@@ -109,10 +112,12 @@ class NodeController:
         for node in nodes:
             key_value = (node.public_key or "").strip()
             duplicates = key_to_nodes.get(key_value, []) if key_value else []
-            duplicate_count = len(duplicates) if key_value else 0
-            duplicate_node_ids = [peer.node_id for peer in duplicates if peer.node_id != node.node_id]
+            duplicate_node_ids = [
+                peer.node_id for peer in duplicates if peer.node_id != node.node_id
+            ]
+            duplicate_count = len(duplicates) if len(duplicates) > 1 else 0
 
-            if not node.is_low_entropy_public_key and duplicate_count <= 1:
+            if not node.is_low_entropy_public_key and duplicate_count <= 0:
                 continue
 
             results.append(
@@ -150,20 +155,11 @@ class NodeController:
         )
         return [self._serialize_node(node) for node in nodes]
 
-    @route.get("/virtual/options", response=VirtualNodeOptionsSchema, auth=auth)
-    def get_virtual_node_options(self):
-        return VirtualNodeService.get_virtual_node_options()
-
-    @route.get("/virtual/prefill", response=VirtualNodePrefillSchema, auth=auth)
-    def get_virtual_node_prefill(self):
-        return VirtualNodeService.generate_virtual_node_prefill()
-
-    @route.post("/virtual/keypair", response=VirtualNodeKeyPairSchema, auth=auth)
-    def generate_virtual_node_keypair(self):
-        secrets = VirtualNodeService.generate_key_pair()
-        return VirtualNodeKeyPairSchema(public_key=secrets.public_key, private_key=secrets.private_key)
-
-    @route.post("/virtual", response={201: VirtualNodeSecretsSchema, 400: MessageSchema}, auth=auth)
+    @route.post(
+        "/virtual",
+        response={201: VirtualNodeSecretsSchema, 400: MessageSchema},
+        auth=auth,
+    )
     def create_virtual_node(self, payload: VirtualNodeCreateSchema):
         payload_data = payload.dict(exclude_unset=True)
         try:
@@ -179,7 +175,11 @@ class NodeController:
 
     @route.put(
         "/virtual/{node_id}",
-        response={200: VirtualNodeSecretsSchema, 400: MessageSchema, 404: MessageSchema},
+        response={
+            200: VirtualNodeSecretsSchema,
+            400: MessageSchema,
+            404: MessageSchema,
+        },
         auth=auth,
     )
     def update_virtual_node(self, node_id: str, payload: VirtualNodeUpdateSchema):
@@ -231,8 +231,12 @@ class NodeController:
         if not node:
             return 404, MessageSchema(message="Node not found")
         return 200, self._serialize_node(node)
-    
-    @route.get("/{node_id}/statistics", response={200: NodeStatisticsSchema, 404: MessageSchema}, auth=auth)
+
+    @route.get(
+        "/{node_id}/statistics",
+        response={200: NodeStatisticsSchema, 404: MessageSchema},
+        auth=auth,
+    )
     def get_node_statistics(self, node_id: str):
         """
         Get statistics for a specific node.
@@ -241,7 +245,11 @@ class NodeController:
 
     @route.get(
         "/{node_id}/positions",
-        response={200: List[NodePositionHistorySchema], 400: MessageSchema, 404: MessageSchema},
+        response={
+            200: List[NodePositionHistorySchema],
+            400: MessageSchema,
+            404: MessageSchema,
+        },
         auth=auth,
     )
     def get_node_positions(self, request, node_id: str):
@@ -257,7 +265,9 @@ class NodeController:
         limit_param = query_params.get("limit")
 
         try:
-            since_utc, until_utc = parse_time_window(last=last, since=since, until=until)
+            since_utc, until_utc = parse_time_window(
+                last=last, since=since, until=until
+            )
         except ValueError as exc:
             return 400, MessageSchema(message=str(exc))
 
@@ -291,7 +301,9 @@ class NodeController:
         history = []
         for payload in reversed(positions):
             latitude = float(payload.latitude) if payload.latitude is not None else None
-            longitude = float(payload.longitude) if payload.longitude is not None else None
+            longitude = (
+                float(payload.longitude) if payload.longitude is not None else None
+            )
             if latitude is None or longitude is None:
                 continue
             altitude = float(payload.altitude) if payload.altitude is not None else None
@@ -315,7 +327,11 @@ class NodeController:
 
     @route.get(
         "/{node_id}/telemetry",
-        response={200: List[NodeTelemetryHistorySchema], 400: MessageSchema, 404: MessageSchema},
+        response={
+            200: List[NodeTelemetryHistorySchema],
+            400: MessageSchema,
+            404: MessageSchema,
+        },
         auth=auth,
     )
     def get_node_telemetry(self, request, node_id: str):
@@ -331,7 +347,9 @@ class NodeController:
         limit_param = query_params.get("limit")
 
         try:
-            since_utc, until_utc = parse_time_window(last=last, since=since, until=until)
+            since_utc, until_utc = parse_time_window(
+                last=last, since=since, until=until
+            )
         except ValueError as exc:
             return 400, MessageSchema(message=str(exc))
 
@@ -366,14 +384,40 @@ class NodeController:
                 NodeTelemetryHistorySchema(
                     timestamp=payload.time,
                     battery_level=payload.battery_level,
-                    voltage=float(payload.voltage) if payload.voltage is not None else None,
-                    channel_utilization=float(payload.channel_utilization) if payload.channel_utilization is not None else None,
-                    air_util_tx=float(payload.air_util_tx) if payload.air_util_tx is not None else None,
+                    voltage=(
+                        float(payload.voltage) if payload.voltage is not None else None
+                    ),
+                    channel_utilization=(
+                        float(payload.channel_utilization)
+                        if payload.channel_utilization is not None
+                        else None
+                    ),
+                    air_util_tx=(
+                        float(payload.air_util_tx)
+                        if payload.air_util_tx is not None
+                        else None
+                    ),
                     uptime_seconds=payload.uptime_seconds,
-                    temperature=float(payload.temperature) if payload.temperature is not None else None,
-                    relative_humidity=float(payload.relative_humidity) if payload.relative_humidity is not None else None,
-                    barometric_pressure=float(payload.barometric_pressure) if payload.barometric_pressure is not None else None,
-                    gas_resistance=float(payload.gas_resistance) if payload.gas_resistance is not None else None,
+                    temperature=(
+                        float(payload.temperature)
+                        if payload.temperature is not None
+                        else None
+                    ),
+                    relative_humidity=(
+                        float(payload.relative_humidity)
+                        if payload.relative_humidity is not None
+                        else None
+                    ),
+                    barometric_pressure=(
+                        float(payload.barometric_pressure)
+                        if payload.barometric_pressure is not None
+                        else None
+                    ),
+                    gas_resistance=(
+                        float(payload.gas_resistance)
+                        if payload.gas_resistance is not None
+                        else None
+                    ),
                     iaq=float(payload.iaq) if payload.iaq is not None else None,
                 )
             )
@@ -382,7 +426,11 @@ class NodeController:
 
     @route.get(
         "/{node_id}/latency",
-        response={200: List[NodeLatencyHistorySchema], 400: MessageSchema, 404: MessageSchema},
+        response={
+            200: List[NodeLatencyHistorySchema],
+            400: MessageSchema,
+            404: MessageSchema,
+        },
         auth=auth,
     )
     def get_node_latency_history(self, request, node_id: str):
@@ -398,7 +446,9 @@ class NodeController:
         limit_param = query_params.get("limit")
 
         try:
-            since_utc, until_utc = parse_time_window(last=last, since=since, until=until)
+            since_utc, until_utc = parse_time_window(
+                last=last, since=since, until=until
+            )
         except ValueError as exc:
             return 400, MessageSchema(message=str(exc))
 
@@ -461,7 +511,9 @@ class NodeController:
         def build_port_map(queryset):
             port_map = {}
             for entry in queryset:
-                port_key, display_name = resolve_port_identity(entry["port"], entry["portnum"])
+                port_key, display_name = resolve_port_identity(
+                    entry["port"], entry["portnum"]
+                )
                 port_map[port_key] = {
                     "count": entry["count"],
                     "last_seen": entry["last_seen"],
@@ -487,17 +539,25 @@ class NodeController:
                     sent_count=sent_entry["count"] if sent_entry else 0,
                     received_count=received_entry["count"] if received_entry else 0,
                     last_sent=sent_entry["last_seen"] if sent_entry else None,
-                    last_received=received_entry["last_seen"] if received_entry else None,
+                    last_received=(
+                        received_entry["last_seen"] if received_entry else None
+                    ),
                 )
             )
 
         # Sort by combined activity descending for convenience
-        results.sort(key=lambda item: item.sent_count + item.received_count, reverse=True)
+        results.sort(
+            key=lambda item: item.sent_count + item.received_count, reverse=True
+        )
         return 200, results
 
     @route.get(
         "/{node_id}/ports/{port}/packets",
-        response={200: List[NodePortPacketSchema], 400: MessageSchema, 404: MessageSchema},
+        response={
+            200: List[NodePortPacketSchema],
+            400: MessageSchema,
+            404: MessageSchema,
+        },
         auth=auth,
     )
     def get_node_port_packets(self, request, node_id: str, port: str):
@@ -544,13 +604,17 @@ class NodeController:
         query_params = request.GET
         direction_param = (query_params.get("direction") or "all").lower()
         if direction_param not in {"all", "sent", "received"}:
-            return 400, MessageSchema(message="direction must be 'all', 'sent', or 'received'")
+            return 400, MessageSchema(
+                message="direction must be 'all', 'sent', or 'received'"
+            )
 
         last = query_params.get("last")
         since = query_params.get("since")
         until = query_params.get("until")
         try:
-            since_utc, until_utc = parse_time_window(last=last, since=since, until=until)
+            since_utc, until_utc = parse_time_window(
+                last=last, since=since, until=until
+            )
         except ValueError as exc:
             return 400, MessageSchema(message=str(exc))
 
@@ -608,7 +672,9 @@ class NodeController:
             if packet is None:
                 continue
 
-            port_key, port_display = resolve_port_identity(packet_data.port, packet_data.portnum)
+            port_key, port_display = resolve_port_identity(
+                packet_data.port, packet_data.portnum
+            )
 
             direction = "sent" if packet.from_node_id == node.pk else "received"
             payload_schema = build_packet_payload_schema(packet_data)

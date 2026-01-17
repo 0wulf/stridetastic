@@ -17,16 +17,25 @@ class PublicKeyEntropyTests(TestCase):
         self.encoded_material = base64.b64encode(self.material).decode("ascii")
 
     def test_is_low_entropy_public_key_detects_known_hash(self) -> None:
-        with mock.patch("stridetastic_api.utils.public_key_entropy.LOW_ENTROPY_HASH_SET", self.patched_hashes):
+        with mock.patch(
+            "stridetastic_api.utils.public_key_entropy.LOW_ENTROPY_HASH_SET",
+            self.patched_hashes,
+        ):
             self.assertTrue(is_low_entropy_public_key(self.encoded_material))
 
     def test_is_low_entropy_public_key_rejects_unknown_hash(self) -> None:
         unknown_material = base64.b64encode(b"legit-key").decode("ascii")
-        with mock.patch("stridetastic_api.utils.public_key_entropy.LOW_ENTROPY_HASH_SET", self.patched_hashes):
+        with mock.patch(
+            "stridetastic_api.utils.public_key_entropy.LOW_ENTROPY_HASH_SET",
+            self.patched_hashes,
+        ):
             self.assertFalse(is_low_entropy_public_key(unknown_material))
 
     def test_node_save_updates_flag_and_serialization(self) -> None:
-        with mock.patch("stridetastic_api.utils.public_key_entropy.LOW_ENTROPY_HASH_SET", self.patched_hashes):
+        with mock.patch(
+            "stridetastic_api.utils.public_key_entropy.LOW_ENTROPY_HASH_SET",
+            self.patched_hashes,
+        ):
             node = Node.objects.create(
                 node_num=123,
                 node_id="!abcdef01",

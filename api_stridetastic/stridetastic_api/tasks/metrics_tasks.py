@@ -1,25 +1,22 @@
 from __future__ import annotations
 
+import logging
 from datetime import timedelta
 from decimal import Decimal
 from typing import Optional
 
 from celery import shared_task
 from django.db.models import Avg
-
-import logging
-
 from django.utils import timezone
 
 from ..models import (
-    Node,
-    Edge,
     Channel,
-    NodeLink,
+    Edge,
     NetworkOverviewSnapshot,
+    Node,
     NodeLatencyHistory,
+    NodeLink,
 )
-
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +31,9 @@ def _to_float(value: Optional[Decimal | float | int]) -> Optional[float]:
     return float(value)
 
 
-@shared_task(name="stridetastic_api.tasks.metrics_tasks.record_network_overview_snapshot")
+@shared_task(
+    name="stridetastic_api.tasks.metrics_tasks.record_network_overview_snapshot"
+)
 def record_network_overview_snapshot() -> bool:
     """Compute aggregate overview metrics and persist a NetworkOverviewSnapshot.
 
@@ -61,9 +60,19 @@ def record_network_overview_snapshot() -> bool:
         channels_qs = Channel.objects.all()
         channels_count = channels_qs.count()
 
-        avg_battery_result = nodes_qs.exclude(battery_level__isnull=True).aggregate(avg=Avg("battery_level"))
-        avg_rssi_result = active_edges_qs.exclude(last_rx_rssi__isnull=True).exclude(last_rx_rssi=0).aggregate(avg=Avg("last_rx_rssi"))
-        avg_snr_result = active_edges_qs.exclude(last_rx_snr__isnull=True).exclude(last_rx_snr=0).aggregate(avg=Avg("last_rx_snr"))
+        avg_battery_result = nodes_qs.exclude(battery_level__isnull=True).aggregate(
+            avg=Avg("battery_level")
+        )
+        avg_rssi_result = (
+            active_edges_qs.exclude(last_rx_rssi__isnull=True)
+            .exclude(last_rx_rssi=0)
+            .aggregate(avg=Avg("last_rx_rssi"))
+        )
+        avg_snr_result = (
+            active_edges_qs.exclude(last_rx_snr__isnull=True)
+            .exclude(last_rx_snr=0)
+            .aggregate(avg=Avg("last_rx_snr"))
+        )
 
         avg_battery = _to_float(avg_battery_result.get("avg"))
         avg_rssi = _to_float(avg_rssi_result.get("avg"))
@@ -111,7 +120,9 @@ def mark_unreachable_nodes() -> int:
         # Record history entries for audit / downstream consumers
         for nid in node_ids:
             try:
-                NodeLatencyHistory.objects.create(node_id=nid, reachable=False, responded_at=None)
+                NodeLatencyHistory.objects.create(
+                    node_id=nid, reachable=False, responded_at=None
+                )
             except Exception:
                 logger.exception("Failed to write NodeLatencyHistory for node %s", nid)
 

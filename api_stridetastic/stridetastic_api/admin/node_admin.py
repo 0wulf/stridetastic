@@ -1,9 +1,10 @@
 import hashlib
 
-from unfold.admin import ModelAdmin
 from django import forms
 from django.contrib import admin
 from django.db.models import Q
+from unfold.admin import ModelAdmin
+
 from ..models.node_models import Node, NodeLatencyHistory
 
 
@@ -20,9 +21,13 @@ class HasPrivateKeyFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         value = self.value()
         if value == "yes":
-            return queryset.exclude(private_key__isnull=True).exclude(private_key__exact="")
+            return queryset.exclude(private_key__isnull=True).exclude(
+                private_key__exact=""
+            )
         if value == "no":
-            return queryset.filter(Q(private_key__isnull=True) | Q(private_key__exact=""))
+            return queryset.filter(
+                Q(private_key__isnull=True) | Q(private_key__exact="")
+            )
         return queryset
 
 
@@ -136,46 +141,49 @@ class NodeAdmin(ModelAdmin):
     )
 
     fieldsets = (
-        (None, {
-            "fields": (
-                "node_num",
-                "node_id",
-                "mac_address",
-                "is_virtual",
-                "is_licensed",
-                "is_unmessagable",
-                "public_key",
-                "private_key",
-                "private_key_fingerprint",
-                "private_key_updated_at",
-                "short_name",
-                "long_name",
-                "role",
-                "hw_model",
-                "latitude",
-                "longitude",
-                "altitude",
-                "position_accuracy",
-                "location_source",
-                "battery_level",
-                "voltage",
-                "channel_utilization",
-                "air_util_tx",
-                "uptime_seconds",
-                "temperature",
-                "relative_humidity",
-                "barometric_pressure",
-                "gas_resistance",
-                "iaq",
-                "latency_reachable",
-                "latency_ms",
-                "interfaces",
-                "has_private_key_flag",
-                "low_entropy_key_flag",
-                "first_seen",
-                "last_seen",
-            ),
-        }),
+        (
+            None,
+            {
+                "fields": (
+                    "node_num",
+                    "node_id",
+                    "mac_address",
+                    "is_virtual",
+                    "is_licensed",
+                    "is_unmessagable",
+                    "public_key",
+                    "private_key",
+                    "private_key_fingerprint",
+                    "private_key_updated_at",
+                    "short_name",
+                    "long_name",
+                    "role",
+                    "hw_model",
+                    "latitude",
+                    "longitude",
+                    "altitude",
+                    "position_accuracy",
+                    "location_source",
+                    "battery_level",
+                    "voltage",
+                    "channel_utilization",
+                    "air_util_tx",
+                    "uptime_seconds",
+                    "temperature",
+                    "relative_humidity",
+                    "barometric_pressure",
+                    "gas_resistance",
+                    "iaq",
+                    "latency_reachable",
+                    "latency_ms",
+                    "interfaces",
+                    "has_private_key_flag",
+                    "low_entropy_key_flag",
+                    "first_seen",
+                    "last_seen",
+                ),
+            },
+        ),
     )
 
     ordering = ("-last_seen",)

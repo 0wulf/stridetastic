@@ -7,8 +7,6 @@ from dataclasses import dataclass
 from decimal import Decimal
 from typing import Dict, Optional, Tuple
 
-from google.protobuf.descriptor import EnumValueDescriptor
-
 from cryptography.hazmat.primitives.asymmetric import x25519
 from cryptography.hazmat.primitives.serialization import (
     Encoding,
@@ -18,10 +16,11 @@ from cryptography.hazmat.primitives.serialization import (
 )
 from django.db import IntegrityError, transaction
 from django.db.models import Max
+from google.protobuf.descriptor import EnumValueDescriptor
 from meshtastic.protobuf import config_pb2, mesh_pb2
 
-from ..models import Node
 from ..mesh.utils import id_to_num, num_to_mac
+from ..models import Node
 
 
 class VirtualNodeError(Exception):
@@ -72,7 +71,9 @@ class VirtualNodeService:
     _MAX_KEY_GENERATION_ATTEMPTS = 32
 
     @classmethod
-    def create_virtual_node(cls, data: Dict[str, object]) -> Tuple[Node, VirtualNodeSecrets]:
+    def create_virtual_node(
+        cls, data: Dict[str, object]
+    ) -> Tuple[Node, VirtualNodeSecrets]:
         payload = dict(data)
         identity = cls._resolve_identity(
             node_num=payload.pop("node_num", None),
@@ -128,7 +129,11 @@ class VirtualNodeService:
                 identity_fields.pop("node_num", None)
                 identity_fields.pop("mac_address", None)
 
-        identity_update_requested = node_id_change or "node_num" in identity_fields or "mac_address" in identity_fields
+        identity_update_requested = (
+            node_id_change
+            or "node_num" in identity_fields
+            or "mac_address" in identity_fields
+        )
         fields = cls._sanitize_fields(payload)
 
         secrets: Optional[VirtualNodeSecrets] = None
@@ -137,9 +142,16 @@ class VirtualNodeService:
             with transaction.atomic():
                 if identity_update_requested:
                     identity = cls._resolve_identity(
-                        node_num=identity_fields.get("node_num", node.node_num if not node_id_change else None),
-                        node_id=identity_fields.get("node_id", node.node_id if not node_id_change else None),
-                        mac_address=identity_fields.get("mac_address", node.mac_address if not node_id_change else None),
+                        node_num=identity_fields.get(
+                            "node_num", node.node_num if not node_id_change else None
+                        ),
+                        node_id=identity_fields.get(
+                            "node_id", node.node_id if not node_id_change else None
+                        ),
+                        mac_address=identity_fields.get(
+                            "mac_address",
+                            node.mac_address if not node_id_change else None,
+                        ),
                         exclude_pk=node.pk,
                     )
                     node.node_num = identity.node_num
@@ -202,13 +214,21 @@ class VirtualNodeService:
     ) -> VirtualNodeSecrets:
         for _ in range(cls._MAX_KEY_GENERATION_ATTEMPTS):
             private_key = x25519.X25519PrivateKey.generate()
-            private_bytes = private_key.private_bytes(Encoding.Raw, PrivateFormat.Raw, NoEncryption())
-            public_bytes = private_key.public_key().public_bytes(Encoding.Raw, PublicFormat.Raw)
+            private_bytes = private_key.private_bytes(
+                Encoding.Raw, PrivateFormat.Raw, NoEncryption()
+            )
+            public_bytes = private_key.public_key().public_bytes(
+                Encoding.Raw, PublicFormat.Raw
+            )
             private_b64 = base64.b64encode(private_bytes).decode("ascii")
             public_b64 = base64.b64encode(public_bytes).decode("ascii")
 
-            if not cls._key_material_in_use(public_b64, private_b64, exclude_pk=exclude_pk):
-                return VirtualNodeSecrets(public_key=public_b64, private_key=private_b64)
+            if not cls._key_material_in_use(
+                public_b64, private_b64, exclude_pk=exclude_pk
+            ):
+                return VirtualNodeSecrets(
+                    public_key=public_b64, private_key=private_b64
+                )
 
         raise VirtualNodeError("Failed to generate a unique virtual node key pair")
 
@@ -245,7 +265,9 @@ class VirtualNodeService:
         role_values = config_pb2.Config.DeviceConfig.Role.DESCRIPTOR.values  # type: ignore[attr-defined]
         hardware_values = mesh_pb2.HardwareModel.DESCRIPTOR.values  # type: ignore[attr-defined]
 
-        def serialize_options(values: Tuple[EnumValueDescriptor, ...]) -> list[dict[str, str]]:
+        def serialize_options(
+            values: Tuple[EnumValueDescriptor, ...],
+        ) -> list[dict[str, str]]:
             return [
                 {
                     "value": descriptor.name,
@@ -264,7 +286,9 @@ class VirtualNodeService:
     @classmethod
     def _store_private_key(cls, node: Node, key_material: str) -> None:
         if not node.public_key:
-            raise VirtualNodeError("Virtual node must have a public key before storing private material")
+            raise VirtualNodeError(
+                "Virtual node must have a public key before storing private material"
+            )
 
         public_key = node.public_key
         cls.ensure_key_pair_available(public_key, key_material, exclude_pk=node.pk)
@@ -303,26 +327,37 @@ class VirtualNodeService:
         mac_address: Optional[object],
         exclude_pk: Optional[int] = None,
     ) -> VirtualNodeIdentity:
-        provided_node_id = cls._normalize_node_id(node_id) if node_id is not None else None
-        provided_mac = cls._normalize_mac(mac_address) if mac_address is not None else None
-        provided_node_num = cls._normalize_node_num(node_num) if node_num is not None else None
-
+        provided_node_id = (
+            cls._normalize_node_id(node_id) if node_id is not None else None
+        )
+        provided_mac = (
+            cls._normalize_mac(mac_address) if mac_address is not None else None
+        )
+        provided_node_num = (
+            cls._normalize_node_num(node_num) if node_num is not None else None
+        )
 
         seed_node_num: Optional[int] = None
         if provided_node_id is not None:
             seed_node_num = cls._node_num_seed_from_node_id(provided_node_id)
 
-        if provided_mac is not None and cls._mac_exists(provided_mac, exclude_pk=exclude_pk):
+        if provided_mac is not None and cls._mac_exists(
+            provided_mac, exclude_pk=exclude_pk
+        ):
             raise VirtualNodeError("MAC address is already in use")
-        if provided_node_num is not None and cls._node_num_exists(provided_node_num, exclude_pk=exclude_pk):
+        if provided_node_num is not None and cls._node_num_exists(
+            provided_node_num, exclude_pk=exclude_pk
+        ):
             raise VirtualNodeError("Node number is already in use")
 
         candidate = (
             provided_node_num
             if provided_node_num is not None
-            else seed_node_num
-            if seed_node_num is not None
-            else cls._next_available_node_num()
+            else (
+                seed_node_num
+                if seed_node_num is not None
+                else cls._next_available_node_num()
+            )
         )
 
         if candidate < cls.VIRTUAL_NODE_NUM_START:
@@ -379,7 +414,9 @@ class VirtualNodeService:
     @classmethod
     def _next_available_node_num(cls, start: Optional[int] = None) -> int:
         if start is None:
-            max_value = Node.objects.aggregate(Max("node_num")).get("node_num__max") or 0
+            max_value = (
+                Node.objects.aggregate(Max("node_num")).get("node_num__max") or 0
+            )
             start = max(cls.VIRTUAL_NODE_NUM_START, int(max_value) + 1)
         candidate = int(start)
         while cls._node_num_exists(candidate):
@@ -433,7 +470,9 @@ class VirtualNodeService:
         if not body:
             raise VirtualNodeError("Node ID cannot be empty")
         if any(ch not in "0123456789abcdef" for ch in body):
-            raise VirtualNodeError("Node ID must contain only lowercase hexadecimal characters")
+            raise VirtualNodeError(
+                "Node ID must contain only lowercase hexadecimal characters"
+            )
         return f"!{body}"
 
     @classmethod
@@ -444,8 +483,10 @@ class VirtualNodeService:
         if len(cleaned) != 12:
             raise VirtualNodeError("MAC address must contain 12 hexadecimal characters")
         if any(ch not in "0123456789ABCDEF" for ch in cleaned):
-            raise VirtualNodeError("MAC address must contain only hexadecimal characters")
-        return ":".join(cleaned[i:i + 2] for i in range(0, 12, 2))
+            raise VirtualNodeError(
+                "MAC address must contain only hexadecimal characters"
+            )
+        return ":".join(cleaned[i : i + 2] for i in range(0, 12, 2))
 
     @classmethod
     def _node_num_exists(cls, value: int, exclude_pk: Optional[int] = None) -> bool:

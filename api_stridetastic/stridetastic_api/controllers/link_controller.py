@@ -1,7 +1,8 @@
 from typing import List
 
 from django.db.models import Exists, OuterRef, Q  # type: ignore[import]
-from ninja_extra import api_controller, permissions, route  # type: ignore[import]
+from ninja_extra import permissions  # type: ignore[import]
+from ninja_extra import api_controller, route
 from ninja_jwt.authentication import JWTAuth  # type: ignore[import]
 
 from ..models import NodeLink
@@ -27,7 +28,9 @@ class LinkController:
         port_filter = query_params.get("port")
 
         try:
-            since_utc, until_utc = parse_time_window(last=last, since=since, until=until)
+            since_utc, until_utc = parse_time_window(
+                last=last, since=since, until=until
+            )
         except ValueError as exc:
             return 400, MessageSchema(message=str(exc))
 
@@ -147,7 +150,11 @@ class LinkController:
 
     @route.get(
         "/{link_id}/packets",
-        response={200: List[NodeLinkPacketSchema], 400: MessageSchema, 404: MessageSchema},
+        response={
+            200: List[NodeLinkPacketSchema],
+            400: MessageSchema,
+            404: MessageSchema,
+        },
         auth=auth,
     )
     def get_link_packets(self, request, link_id: int):
@@ -167,7 +174,9 @@ class LinkController:
         port_filter = query_params.get("port")
 
         try:
-            since_utc, until_utc = parse_time_window(last=last, since=since, until=until)
+            since_utc, until_utc = parse_time_window(
+                last=last, since=since, until=until
+            )
         except ValueError as exc:
             return 400, MessageSchema(message=str(exc))
 

@@ -5,23 +5,22 @@ import zlib
 from dataclasses import dataclass
 from pathlib import Path
 from threading import Lock
-from typing import Dict, Iterable, List, Optional, Tuple, TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, Iterable, List, Optional, Tuple
 from uuid import UUID
 
 from celery.exceptions import TimeoutError as CeleryTimeoutError
-
 from django.conf import settings
 from django.db import transaction
 from django.db.models import F, Q
 from django.utils import timezone
 from django.utils.text import slugify
-
-from meshtastic.protobuf import (  # type: ignore[attr-defined]
-    admin_pb2,
+from meshtastic.protobuf import admin_pb2  # type: ignore[attr-defined]
+from meshtastic.protobuf import (
     atak_pb2,
     device_ui_pb2,
     interdevice_pb2,
     mesh_pb2,
+    module_config_pb2,
     mqtt_pb2,
     paxcount_pb2,
     portnums_pb2,
@@ -29,13 +28,12 @@ from meshtastic.protobuf import (  # type: ignore[attr-defined]
     remote_hardware_pb2,
     storeforward_pb2,
     telemetry_pb2,
-    module_config_pb2,
 )
 
+from ..mesh.encryption.aes import decrypt_packet
 from ..models.capture_models import CaptureSession
 from ..models.channel_models import Channel
 from ..models.interface_models import Interface
-from ..mesh.encryption.aes import decrypt_packet
 from ..utils.pcap_writer import PcapNgWriter
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
@@ -66,7 +64,10 @@ _PORT_PROTO_HINTS: Dict[int, Tuple[type, ...]] = {
     ),
     portnums_pb2.DETECTION_SENSOR_APP: (interdevice_pb2.SensorData,),
     portnums_pb2.ALERT_APP: (mesh_pb2.ClientNotification,),
-    portnums_pb2.POWERSTRESS_APP: (powermon_pb2.PowerStressMessage, powermon_pb2.PowerMon),
+    portnums_pb2.POWERSTRESS_APP: (
+        powermon_pb2.PowerStressMessage,
+        powermon_pb2.PowerMon,
+    ),
     portnums_pb2.ATAK_PLUGIN: (atak_pb2.TAKPacket,),
     portnums_pb2.ATAK_FORWARDER: (atak_pb2.TAKPacket,),
     portnums_pb2.MAP_REPORT_APP: (device_ui_pb2.Map,),
@@ -93,7 +94,9 @@ class CaptureService:
         pki_service: Optional["PKIService"] = None,
         max_bytes: Optional[int] = None,
     ):
-        configured_root = getattr(settings, "CAPTURE_ROOT", settings.BASE_DIR / "captures")
+        configured_root = getattr(
+            settings, "CAPTURE_ROOT", settings.BASE_DIR / "captures"
+        )
         if base_dir is None:
             resolved_base_dir = Path(configured_root)
         else:
@@ -106,23 +109,37 @@ class CaptureService:
         self._task_timeout_seconds = getattr(settings, "CAPTURE_TASK_TIMEOUT", 15)
         self._pki_service = pki_service
 
-        configured_limit = max_bytes if max_bytes is not None else getattr(
-            settings,
-            "CAPTURE_MAX_FILESIZE",
-            DEFAULT_CAPTURE_MAX_BYTES,
+        configured_limit = (
+            max_bytes
+            if max_bytes is not None
+            else getattr(
+                settings,
+                "CAPTURE_MAX_FILESIZE",
+                DEFAULT_CAPTURE_MAX_BYTES,
+            )
         )
         try:
-            limit_value = int(configured_limit) if configured_limit is not None else DEFAULT_CAPTURE_MAX_BYTES
+            limit_value = (
+                int(configured_limit)
+                if configured_limit is not None
+                else DEFAULT_CAPTURE_MAX_BYTES
+            )
         except (TypeError, ValueError):
             limit_value = DEFAULT_CAPTURE_MAX_BYTES
-        self._max_bytes: Optional[int] = limit_value if limit_value and limit_value > 0 else None
+        self._max_bytes: Optional[int] = (
+            limit_value if limit_value and limit_value > 0 else None
+        )
 
     # ------------------------------------------------------------------
     # Cross-process coordination helpers
     # ------------------------------------------------------------------
-    def _dispatch_worker_task(self, task_name: str, *args, timeout: Optional[int] = None):
+    def _dispatch_worker_task(
+        self, task_name: str, *args, timeout: Optional[int] = None
+    ):
         if self._enable_writer:
-            raise RuntimeError("CaptureService with writer enabled should not dispatch worker tasks")
+            raise RuntimeError(
+                "CaptureService with writer enabled should not dispatch worker tasks"
+            )
 
         timeout_seconds = timeout or self._task_timeout_seconds
         task_path = f"stridetastic_api.tasks.capture_tasks.{task_name}"
@@ -132,7 +149,9 @@ class CaptureService:
         try:
             return async_result.get(timeout=timeout_seconds)
         except CeleryTimeoutError as exc:  # pragma: no cover - defensive
-            raise TimeoutError(f"Timed out waiting for capture task {task_name}") from exc
+            raise TimeoutError(
+                f"Timed out waiting for capture task {task_name}"
+            ) from exc
         except Exception as exc:  # pragma: no cover - defensive
             raise RuntimeError(f"Capture task {task_name} failed: {exc}") from exc
 
@@ -175,9 +194,18 @@ class CaptureService:
             if session_id in self._active:
                 return True
 
-        session = CaptureSession.objects.filter(id=session_id, status=CaptureSession.Status.RUNNING).select_related("interface").first()
+        session = (
+            CaptureSession.objects.filter(
+                id=session_id, status=CaptureSession.Status.RUNNING
+            )
+            .select_related("interface")
+            .first()
+        )
         if session is None:
-            logging.warning("Capture session %s not found or not running during activation", session_id)
+            logging.warning(
+                "Capture session %s not found or not running during activation",
+                session_id,
+            )
             return False
 
         target_path = self.get_full_path(session)
@@ -185,7 +213,9 @@ class CaptureService:
         self._ensure_writer_for_session(session)
         return True
 
-    def _activate_sessions_for_ingest(self, source_type: str, interface_id: Optional[int]) -> bool:
+    def _activate_sessions_for_ingest(
+        self, source_type: str, interface_id: Optional[int]
+    ) -> bool:
         if not self._enable_writer:
             return False
 
@@ -193,7 +223,7 @@ class CaptureService:
         if interface_id is None:
             filters &= Q(interface__isnull=True)
         else:
-            filters &= (Q(interface__isnull=True) | Q(interface_id=interface_id))
+            filters &= Q(interface__isnull=True) | Q(interface_id=interface_id)
 
         sessions = CaptureSession.objects.filter(filters)
         activated_any = False
@@ -202,7 +232,9 @@ class CaptureService:
                 if self.activate_existing_session(session.id):
                     activated_any = True
             except Exception as exc:  # pragma: no cover - defensive
-                logging.exception("Failed to activate session %s during ingest: %s", session.id, exc)
+                logging.exception(
+                    "Failed to activate session %s during ingest: %s", session.id, exc
+                )
         return activated_any
 
     # ------------------------------------------------------------------
@@ -244,7 +276,11 @@ class CaptureService:
                 filename=filename,
                 file_path=relative_path_str,
                 interface=interface,
-                started_by=started_by if getattr(started_by, "is_authenticated", False) else None,
+                started_by=(
+                    started_by
+                    if getattr(started_by, "is_authenticated", False)
+                    else None
+                ),
                 source_type=source_type,
             )
 
@@ -306,9 +342,13 @@ class CaptureService:
         logging.info("Stopped capture %s", session.id)
         return session
 
-    def cancel_capture(self, session_id: UUID, reason: Optional[str] = None) -> CaptureSession:
+    def cancel_capture(
+        self, session_id: UUID, reason: Optional[str] = None
+    ) -> CaptureSession:
         if not self._enable_writer:
-            self._dispatch_worker_task("cancel_capture_session", str(session_id), reason)
+            self._dispatch_worker_task(
+                "cancel_capture_session", str(session_id), reason
+            )
             session = CaptureSession.objects.filter(id=session_id).first()
             if session is None:
                 raise ValueError("Capture session not found")
@@ -329,7 +369,7 @@ class CaptureService:
         session.ended_at = timezone.now()
         if reason:
             notes = session.notes or {}
-            notes['cancel_reason'] = reason
+            notes["cancel_reason"] = reason
             session.notes = notes  # type: ignore[assignment]
             session.save(update_fields=["status", "ended_at", "notes"])
         else:
@@ -350,17 +390,23 @@ class CaptureService:
         for active in active_sessions:
             try:
                 active.writer.close()
-                CaptureSession.objects.filter(id=active.session_id, status=CaptureSession.Status.RUNNING).update(
+                CaptureSession.objects.filter(
+                    id=active.session_id, status=CaptureSession.Status.RUNNING
+                ).update(
                     status=CaptureSession.Status.CANCELLED,
                     ended_at=timezone.now(),
                 )
             except Exception as exc:  # pragma: no cover - defensive
-                logging.exception("Failed to stop capture %s cleanly: %s", active.session_id, exc)
+                logging.exception(
+                    "Failed to stop capture %s cleanly: %s", active.session_id, exc
+                )
 
     def delete_capture(self, session_id: UUID) -> bool:
         """Delete a capture session and remove its file from disk."""
         if not self._enable_writer:
-            deleted = self._dispatch_worker_task("delete_capture_session", str(session_id))
+            deleted = self._dispatch_worker_task(
+                "delete_capture_session", str(session_id)
+            )
             if deleted:
                 logging.info("Deleted capture %s (delegated)", session_id)
             return bool(deleted)
@@ -401,7 +447,7 @@ class CaptureService:
         return CaptureSession.objects.filter(id=session_id).first()
 
     def list_sessions(self) -> Iterable[CaptureSession]:
-        return CaptureSession.objects.all().order_by('-started_at')
+        return CaptureSession.objects.all().order_by("-started_at")
 
     def is_active(self, session_id: UUID) -> bool:
         with self._lock:
@@ -451,7 +497,9 @@ class CaptureService:
         with self._lock:
             targets = _select_targets()
 
-        if not targets and self._activate_sessions_for_ingest(source_type, interface_id):
+        if not targets and self._activate_sessions_for_ingest(
+            source_type, interface_id
+        ):
             with self._lock:
                 targets = _select_targets()
 
@@ -470,9 +518,13 @@ class CaptureService:
 
         mesh_packet = envelope.packet
         channel_id = getattr(envelope, "channel_id", None)
-        mesh_size = mesh_packet.ByteSize() if getattr(mesh_packet, "ByteSize", None) else 0
+        mesh_size = (
+            mesh_packet.ByteSize() if getattr(mesh_packet, "ByteSize", None) else 0
+        )
         if mesh_size == 0:
-            logging.debug("ServiceEnvelope contained empty MeshPacket; skipping capture write")
+            logging.debug(
+                "ServiceEnvelope contained empty MeshPacket; skipping capture write"
+            )
             return
 
         mesh_payload = mesh_packet.SerializeToString()
@@ -489,10 +541,14 @@ class CaptureService:
         if has_decoded:
             data_message = mesh_packet.decoded
         else:
-            data_message = self._decrypt_encrypted_payload(mesh_packet, channel_id=channel_id)
+            data_message = self._decrypt_encrypted_payload(
+                mesh_packet, channel_id=channel_id
+            )
 
         if data_message is not None:
-            serialized_data, nested_payloads = self._extract_payloads_from_data(data_message)
+            serialized_data, nested_payloads = self._extract_payloads_from_data(
+                data_message
+            )
             if serialized_data:
                 data_payload = serialized_data
             if nested_payloads:
@@ -512,7 +568,9 @@ class CaptureService:
                 if data_payload:
                     active.writer.write_data_packet(data_payload, ts)
                 for message_type, payload in extra_payloads:
-                    active.writer.write_packet(message_type=message_type, payload=payload, timestamp=ts)
+                    active.writer.write_packet(
+                        message_type=message_type, payload=payload, timestamp=ts
+                    )
             except Exception as exc:  # pragma: no cover - defensive
                 logging.exception("Capture %s write failed: %s", active.session_id, exc)
                 self._handle_capture_error(active.session_id, str(exc))
@@ -520,8 +578,8 @@ class CaptureService:
 
             bytes_written = active.writer.bytes_written
             CaptureSession.objects.filter(id=active.session_id).update(
-                packet_count=F('packet_count') + 1,
-                byte_count=F('byte_count') + total_bytes,
+                packet_count=F("packet_count") + 1,
+                byte_count=F("byte_count") + total_bytes,
                 last_packet_at=ts,
                 file_size=bytes_written,
             )
@@ -557,7 +615,9 @@ class CaptureService:
                 to_node_num = getattr(mesh_packet, "to", None)
                 target_node = None
                 if to_node_num is not None:
-                    from ..models.node_models import Node  # Local import to avoid circular at module load
+                    from ..models.node_models import (  # Local import to avoid circular at module load
+                        Node,
+                    )
 
                     target_node = Node.objects.filter(node_num=int(to_node_num)).first()
 
@@ -566,13 +626,20 @@ class CaptureService:
                     if result.success and result.plaintext:
                         data_message = mesh_pb2.Data()
                         data_message.ParseFromString(result.plaintext)
-                        if getattr(data_message, "ByteSize", None) and data_message.ByteSize() == 0:
+                        if (
+                            getattr(data_message, "ByteSize", None)
+                            and data_message.ByteSize() == 0
+                        ):
                             return None
                         return data_message
                     if result.reason:
-                        logger.debug("PKI decrypt skipped for capture: %s", result.reason)
+                        logger.debug(
+                            "PKI decrypt skipped for capture: %s", result.reason
+                        )
                 else:
-                    logger.debug("PKI decrypt skipped: target node %s not found", to_node_num)
+                    logger.debug(
+                        "PKI decrypt skipped: target node %s not found", to_node_num
+                    )
             except Exception as exc:  # pragma: no cover - defensive
                 logger.exception("PKI decrypt failed during capture ingest: %s", exc)
 
@@ -586,7 +653,11 @@ class CaptureService:
             key = "AQ=="
 
         payload = decrypt_packet(mesh_packet, key)
-        if payload is not None and getattr(payload, "ByteSize", None) and payload.ByteSize() == 0:
+        if (
+            payload is not None
+            and getattr(payload, "ByteSize", None)
+            and payload.ByteSize() == 0
+        ):
             return None
         return payload
 
@@ -604,7 +675,9 @@ class CaptureService:
                 if serialized_candidate:
                     serialized_data = serialized_candidate
             except Exception as exc:  # pragma: no cover - defensive
-                logging.exception("Failed to serialize Data payload for capture: %s", exc)
+                logging.exception(
+                    "Failed to serialize Data payload for capture: %s", exc
+                )
 
         payload_bytes = getattr(data_message, "payload", None)
         portnum = getattr(data_message, "portnum", None)
@@ -616,7 +689,9 @@ class CaptureService:
 
         return serialized_data, nested_payloads
 
-    def _decode_port_payloads(self, portnum: int, payload: bytes) -> List[Tuple[str, bytes]]:
+    def _decode_port_payloads(
+        self, portnum: int, payload: bytes
+    ) -> List[Tuple[str, bytes]]:
         outputs: List[Tuple[str, bytes]] = []
         if not payload:
             return outputs
@@ -629,7 +704,12 @@ class CaptureService:
             try:
                 compressed = mesh_pb2.Compressed()
                 compressed.ParseFromString(payload)
-                outputs.append((mesh_pb2.Compressed.DESCRIPTOR.full_name, compressed.SerializeToString()))
+                outputs.append(
+                    (
+                        mesh_pb2.Compressed.DESCRIPTOR.full_name,
+                        compressed.SerializeToString(),
+                    )
+                )
                 inner_payload = bytes(compressed.data)
                 try:
                     inner_payload = zlib.decompress(inner_payload)
@@ -637,9 +717,15 @@ class CaptureService:
                     pass
                 inner_port = int(getattr(compressed, "portnum", 0) or 0)
                 if inner_port:
-                    outputs.extend(self._decode_port_payloads(inner_port, inner_payload))
+                    outputs.extend(
+                        self._decode_port_payloads(inner_port, inner_payload)
+                    )
             except Exception as exc:  # pragma: no cover - defensive
-                logging.debug("Failed to parse compressed payload for portnum %s: %s", portnum, exc)
+                logging.debug(
+                    "Failed to parse compressed payload for portnum %s: %s",
+                    portnum,
+                    exc,
+                )
                 outputs.append((self._port_label(portnum), payload))
             return outputs
 
@@ -648,10 +734,19 @@ class CaptureService:
             try:
                 nested_proto = proto_cls()
                 nested_proto.ParseFromString(payload)
-                byte_size = nested_proto.ByteSize() if hasattr(nested_proto, "ByteSize") else len(payload)
+                byte_size = (
+                    nested_proto.ByteSize()
+                    if hasattr(nested_proto, "ByteSize")
+                    else len(payload)
+                )
                 if byte_size == 0:
                     continue
-                outputs.append((nested_proto.DESCRIPTOR.full_name, nested_proto.SerializeToString()))
+                outputs.append(
+                    (
+                        nested_proto.DESCRIPTOR.full_name,
+                        nested_proto.SerializeToString(),
+                    )
+                )
                 break
             except Exception as exc:  # pragma: no cover - defensive
                 logging.debug(
@@ -694,7 +789,11 @@ class CaptureService:
         try:
             current.writer.close()
         except Exception as exc:  # pragma: no cover - defensive
-            logging.exception("Failed to close writer when enforcing size limit for %s: %s", current.session_id, exc)
+            logging.exception(
+                "Failed to close writer when enforcing size limit for %s: %s",
+                current.session_id,
+                exc,
+            )
 
         bytes_written = current.writer.bytes_written
 
@@ -733,7 +832,7 @@ class CaptureService:
         session = CaptureSession.objects.filter(id=session_id).first()
         if session:
             notes = session.notes or {}
-            notes['error'] = message
+            notes["error"] = message
             session.notes = notes  # type: ignore[assignment]
             session.save(update_fields=["notes"])
         logging.error("Capture %s moved to ERROR: %s", session_id, message)
@@ -753,9 +852,13 @@ class CaptureService:
         try:
             active.writer.close()
         except Exception as exc:  # pragma: no cover - defensive
-            logging.exception("Failed to close capture writer %s: %s", active.session_id, exc)
+            logging.exception(
+                "Failed to close capture writer %s: %s", active.session_id, exc
+            )
 
-    def _delete_session(self, session: CaptureSession, active: Optional[_ActiveCapture]) -> None:
+    def _delete_session(
+        self, session: CaptureSession, active: Optional[_ActiveCapture]
+    ) -> None:
         self._close_active_writer(active)
 
         path = self.get_full_path(session)

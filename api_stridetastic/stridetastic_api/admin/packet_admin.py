@@ -1,14 +1,15 @@
-from unfold.admin import ModelAdmin
 from django.contrib import admin
+from unfold.admin import ModelAdmin
+
 from ..models.packet_models import (
+    NodeInfoPayload,
     Packet,
     PacketData,
-    RoutingPayload,
+    PositionPayload,
     RouteDiscoveryPayload,
     RouteDiscoveryRoute,
+    RoutingPayload,
     TelemetryPayload,
-    NodeInfoPayload,
-    PositionPayload,
 )
 
 
@@ -58,12 +59,7 @@ class PacketAdmin(ModelAdmin):
         "raw_data",
         "time",
     )
-    fieldsets = (
-        (None, {
-            "fields": readonly_fields
-            
-        }),
-    )
+    fieldsets = ((None, {"fields": readonly_fields}),)
 
     ordering = ("-time",)
 
@@ -79,19 +75,18 @@ class PacketAdmin(ModelAdmin):
         "to_node__long_name",
     )
 
-
     def channel_ids(self, obj):
         return ", ".join(str(channel.channel_id) for channel in obj.channels.all())
-    
+
     def gateway_nodes_node_id(self, obj):
         return ", ".join(str(node.node_id) for node in obj.gateway_nodes.all())
-    
+
     def gateway_nodes_long_name(self, obj):
         return ", ".join(str(node.long_name) for node in obj.gateway_nodes.all())
-    
+
     def gateway_nodes_short_name(self, obj):
         return ", ".join(str(node.short_name) for node in obj.gateway_nodes.all())
-    
+
     channel_ids.short_description = "Channel IDs"
     gateway_nodes_node_id.short_description = "Gateways Node IDs"
     gateway_nodes_long_name.short_description = "Gateways Long Name"
@@ -141,27 +136,29 @@ class PacketDataAdmin(ModelAdmin):
         "time",
     )
     fieldsets = (
-        (None, {
-            "fields": (
-                "packet",
-                "port",
-                "raw_payload",
-                "source",
-                "dest",
-                "request_id",
-                "reply_id",
-                "want_response",
-                "got_response",
-                "time",
-            ),
-        }),
+        (
+            None,
+            {
+                "fields": (
+                    "packet",
+                    "port",
+                    "raw_payload",
+                    "source",
+                    "dest",
+                    "request_id",
+                    "reply_id",
+                    "want_response",
+                    "got_response",
+                    "time",
+                ),
+            },
+        ),
     )
 
-    list_select_related = (
-        "packet",
-    )
+    list_select_related = ("packet",)
 
     ordering = ("-time",)
+
 
 @admin.register(RoutingPayload)
 class RoutingPayloadAdmin(ModelAdmin):
@@ -190,16 +187,18 @@ class RoutingPayloadAdmin(ModelAdmin):
     )
 
     fieldsets = (
-        (None, {
-            "fields": readonly_fields,
-        }),
+        (
+            None,
+            {
+                "fields": readonly_fields,
+            },
+        ),
     )
 
-    list_select_related = (
-        "packet_data",
-    )
+    list_select_related = ("packet_data",)
 
     ordering = ("-time",)
+
 
 @admin.register(RouteDiscoveryPayload)
 class RouteDiscoveryPayloadAdmin(ModelAdmin):
@@ -241,9 +240,12 @@ class RouteDiscoveryPayloadAdmin(ModelAdmin):
     )
 
     fieldsets = (
-        (None, {
-            "fields": readonly_fields,
-        }),
+        (
+            None,
+            {
+                "fields": readonly_fields,
+            },
+        ),
     )
 
     list_select_related = (
@@ -253,6 +255,7 @@ class RouteDiscoveryPayloadAdmin(ModelAdmin):
     )
 
     ordering = ("-time",)
+
 
 @admin.register(RouteDiscoveryRoute)
 class RouteDiscoveryRouteAdmin(ModelAdmin):
@@ -266,12 +269,16 @@ class RouteDiscoveryRouteAdmin(ModelAdmin):
         "time",
     )
     fieldsets = (
-        (None, {
-            "fields": readonly_fields,
-        }),
+        (
+            None,
+            {
+                "fields": readonly_fields,
+            },
+        ),
     )
 
     ordering = ("-time",)
+
 
 @admin.register(TelemetryPayload)
 class TelemetryPayloadAdmin(ModelAdmin):
@@ -312,25 +319,27 @@ class TelemetryPayloadAdmin(ModelAdmin):
     )
 
     fieldsets = (
-        (None, {
-            "fields": readonly_fields,
-        }),
+        (
+            None,
+            {
+                "fields": readonly_fields,
+            },
+        ),
     )
 
-    list_select_related = (
-        "packet_data",
-    )
+    list_select_related = ("packet_data",)
 
     ordering = ("-time",)
+
 
 @admin.register(NodeInfoPayload)
 class NodeInfoPayloadAdmin(ModelAdmin):
     list_display = (
-        "packet_data__packet__from_node__node_id",       
+        "packet_data__packet__from_node__node_id",
         "short_name",
         "long_name",
         "hw_model",
-        "role", 
+        "role",
         "time",
     )
 
@@ -351,20 +360,22 @@ class NodeInfoPayloadAdmin(ModelAdmin):
         "role",
         "public_key",
         "is_unmessagable",
-        "time"
+        "time",
     )
 
     fieldsets = (
-        (None, {
-            "fields": readonly_fields,
-        }),
+        (
+            None,
+            {
+                "fields": readonly_fields,
+            },
+        ),
     )
 
-    list_select_related = (
-        "packet_data",
-    )
+    list_select_related = ("packet_data",)
 
     ordering = ("-time",)
+
 
 @admin.register(PositionPayload)
 class PositionPayloadAdmin(ModelAdmin):
@@ -400,13 +411,14 @@ class PositionPayloadAdmin(ModelAdmin):
     )
 
     fieldsets = (
-        (None, {
-            "fields": readonly_fields,
-        }),
+        (
+            None,
+            {
+                "fields": readonly_fields,
+            },
+        ),
     )
 
-    list_select_related = (
-        "packet_data",
-    )
+    list_select_related = ("packet_data",)
 
     ordering = ("-time",)

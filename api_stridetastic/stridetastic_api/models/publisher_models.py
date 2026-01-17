@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
 from typing import Optional
 
-from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
+from django.db import models
 from django.utils import timezone
 
 from .interface_models import Interface
@@ -103,11 +103,15 @@ class PublisherPeriodicJob(models.Model):
     )
 
     payload_options = models.JSONField(default=dict, blank=True)
-    period_seconds = models.PositiveIntegerField(default=300, help_text="Execution period in seconds.")
+    period_seconds = models.PositiveIntegerField(
+        default=300, help_text="Execution period in seconds."
+    )
 
     next_run_at = models.DateTimeField(default=timezone.now)
     last_run_at = models.DateTimeField(null=True, blank=True)
-    last_status = models.CharField(max_length=16, choices=RunStatus.choices, default=RunStatus.IDLE)
+    last_status = models.CharField(
+        max_length=16, choices=RunStatus.choices, default=RunStatus.IDLE
+    )
     last_error_message = models.TextField(blank=True, default="")
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -116,7 +120,9 @@ class PublisherPeriodicJob(models.Model):
     class Meta:
         ordering = ("-updated_at",)
         indexes = [
-            models.Index(fields=("enabled", "next_run_at"), name="periodic_publish_due_idx"),
+            models.Index(
+                fields=("enabled", "next_run_at"), name="periodic_publish_due_idx"
+            ),
         ]
         verbose_name = "Periodic Publisher Job"
         verbose_name_plural = "Periodic Publisher Jobs"
@@ -137,7 +143,9 @@ class PublisherPeriodicJob(models.Model):
             errors["channel_name"] = "Channel name is required."
 
         if self.period_seconds < self.MIN_PERIOD_SECONDS:
-            errors["period_seconds"] = f"Period must be at least {self.MIN_PERIOD_SECONDS} seconds."
+            errors["period_seconds"] = (
+                f"Period must be at least {self.MIN_PERIOD_SECONDS} seconds."
+            )
 
         # Allow PKI encryption for text, position and telemetry periodic payloads
         if self.pki_encrypted and self.payload_type not in (
@@ -145,10 +153,14 @@ class PublisherPeriodicJob(models.Model):
             self.PayloadTypes.POSITION,
             self.PayloadTypes.TELEMETRY,
         ):
-            errors["pki_encrypted"] = "PKI encryption is only supported for text, position, and telemetry payloads."
+            errors["pki_encrypted"] = (
+                "PKI encryption is only supported for text, position, and telemetry payloads."
+            )
 
         if self.interface and self.interface.name != Interface.Names.MQTT:
-            errors["interface"] = "Periodic publishing is only supported on MQTT interfaces."
+            errors["interface"] = (
+                "Periodic publishing is only supported on MQTT interfaces."
+            )
 
         payload_errors = self._validate_payload_options()
         if payload_errors:
@@ -172,8 +184,12 @@ class PublisherPeriodicJob(models.Model):
                     errors[field] = "This field is required for position payloads."
             # Optional: allow requesting a response in periodic position payloads
             # (handled by PublisherService.publish_position)
-            if "want_response" in options and not isinstance(options.get("want_response"), (bool, int)):
-                errors["want_response"] = "want_response must be a boolean for position payloads."
+            if "want_response" in options and not isinstance(
+                options.get("want_response"), (bool, int)
+            ):
+                errors["want_response"] = (
+                    "want_response must be a boolean for position payloads."
+                )
         elif self.payload_type == self.PayloadTypes.NODEINFO:
             for field in ("short_name", "long_name", "hw_model", "public_key"):
                 value = options.get(field)
@@ -184,9 +200,13 @@ class PublisherPeriodicJob(models.Model):
             telemetry_type = options.get("telemetry_type")
             telemetry_opts = options.get("telemetry_options")
             if telemetry_type not in ("device", "environment"):
-                errors["telemetry_type"] = "telemetry_type must be 'device' or 'environment'"
+                errors["telemetry_type"] = (
+                    "telemetry_type must be 'device' or 'environment'"
+                )
             if telemetry_opts is None:
-                errors["telemetry_options"] = "telemetry_options is required for telemetry payloads"
+                errors["telemetry_options"] = (
+                    "telemetry_options is required for telemetry payloads"
+                )
             elif not isinstance(telemetry_opts, dict):
                 errors["telemetry_options"] = "telemetry_options must be an object/map"
             else:
@@ -194,10 +214,19 @@ class PublisherPeriodicJob(models.Model):
                 for k, v in telemetry_opts.items():
                     if v is None:
                         continue
-                    if not (isinstance(v, (int, float)) or (isinstance(v, str) and v.strip() != "")):
-                        errors[f"telemetry_options.{k}"] = "Telemetry option must be numeric"
-            if "want_response" in options and not isinstance(options.get("want_response"), (bool, int)):
-                errors["want_response"] = "want_response must be a boolean for telemetry payloads."
+                    if not (
+                        isinstance(v, (int, float))
+                        or (isinstance(v, str) and v.strip() != "")
+                    ):
+                        errors[f"telemetry_options.{k}"] = (
+                            "Telemetry option must be numeric"
+                        )
+            if "want_response" in options and not isinstance(
+                options.get("want_response"), (bool, int)
+            ):
+                errors["want_response"] = (
+                    "want_response must be a boolean for telemetry payloads."
+                )
         elif self.payload_type == self.PayloadTypes.TRACEROUTE:
             # No additional payload validation needed
             pass
