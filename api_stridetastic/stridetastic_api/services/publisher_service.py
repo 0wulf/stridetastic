@@ -1,7 +1,7 @@
 import logging
 import random
-from datetime import timedelta
-from threading import Lock
+from datetime import datetime, timedelta
+from threading import RLock
 from typing import TYPE_CHECKING, Any, Dict, Optional, Protocol, Sequence, Tuple, Union
 
 from django.conf import settings  # type: ignore[import]
@@ -43,6 +43,9 @@ class PublisherService:
     _ATTEMPT_WINDOW_SECONDS = getattr(
         settings, "PUBLISHER_REACTIVE_ATTEMPT_WINDOW", 900
     )
+    _REACTIVE_REFRESH_SECONDS = getattr(
+        settings, "PUBLISHER_REACTIVE_CONFIG_REFRESH_SECS", 2
+    )
 
     def __init__(
         self,
@@ -51,13 +54,17 @@ class PublisherService:
     ):
         self.__global_message_id = random.getrandbits(32)
         self._publisher = publisher
-        self._reactive_lock = Lock()
+        self._reactive_lock = RLock()
         self._reactive_enabled = False
         self._reactive_config: Optional[PublisherReactiveConfig] = None
         self._reactive_publisher: Optional[PublishableInterface] = None
         self._reactive_base_topic: Optional[str] = None
         self._reactive_attempts: Dict[str, Dict[str, Any]] = {}
         self._attempt_window = timedelta(seconds=self._ATTEMPT_WINDOW_SECONDS)
+        self._reactive_refresh_interval = timedelta(
+            seconds=self._REACTIVE_REFRESH_SECONDS
+        )
+        self._reactive_last_refresh: Optional[datetime] = None
         self._pki_service = pki_service
 
     def set_publisher(self, publisher: PublishableInterface):
@@ -218,6 +225,40 @@ class PublisherService:
         with self._reactive_lock:
             self._reactive_config = PublisherReactiveConfig.get_solo()
             return self._reactive_config
+
+    def _refresh_reactive_state(self, *, force: bool = False) -> None:
+        now = timezone.now()
+        if (
+            not force
+            and self._reactive_last_refresh is not None
+            and self._reactive_refresh_interval.total_seconds() > 0
+            and now - self._reactive_last_refresh < self._reactive_refresh_interval
+        ):
+            return
+
+        self._reactive_last_refresh = now
+
+        latest = (
+            PublisherReactiveConfig.objects.filter(pk=1)
+            .values("updated_at", "enabled")
+            .first()
+        )
+
+        if latest is None:
+            self._reactive_config = PublisherReactiveConfig.get_solo()
+            desired_enabled = bool(self._reactive_config.enabled)
+        else:
+            desired_enabled = bool(latest.get("enabled"))
+            if (
+                self._reactive_config is None
+                or self._reactive_config.updated_at != latest.get("updated_at")
+            ):
+                self._reactive_config = PublisherReactiveConfig.get_solo()
+                desired_enabled = bool(self._reactive_config.enabled)
+
+        if self._reactive_enabled != desired_enabled:
+            self._reactive_enabled = desired_enabled
+            self._reactive_attempts.clear()
 
     def update_reactive_config(
         self,
@@ -942,6 +983,7 @@ class PublisherService:
             f"[Publisher] Packet received from {from_node} to {to_node} on port {portnum}"
         )
         with self._reactive_lock:
+            self._refresh_reactive_state()
             if not self._reactive_enabled:
                 return
 

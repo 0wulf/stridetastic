@@ -1,3 +1,4 @@
+from datetime import timedelta
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
@@ -120,6 +121,57 @@ class PublisherServiceReactiveTests(TestCase):
         status = self.service.get_reactive_status()
         self.assertEqual(status["config"]["trigger_ports"], ports)
 
+    def test_on_packet_received_refreshes_enabled_state(self):
+        self.service._reactive_refresh_interval = timedelta(seconds=0)
+
+        config = PublisherReactiveConfig.get_solo()
+        config.enabled = False
+        config.from_node = "!aaaa0001"
+        config.channel_key = "AQ=="
+        config.max_tries = 5
+        config.trigger_ports = []
+        config.save()
+
+        config.enabled = True
+        config.save()
+
+        interface_stub = SimpleNamespace(
+            pk=1, name="MQTT", status="RUNNING", display_name="iface"
+        )
+        channel_stub = SimpleNamespace(
+            channel_id="LongFast", psk="AQ==", interfaces=[interface_stub]
+        )
+        gateway_stub = SimpleNamespace(node_id="!gateway0001")
+        packet_obj = SimpleNamespace(
+            interfaces=DummyInterfaceRelation([interface_stub]),
+            channels=DummyChannelRelation([channel_stub]),
+            gateway_nodes=DummyNodeRelation([gateway_stub]),
+        )
+
+        with patch.object(
+            self.service, "_should_inject_for_node", return_value=True
+        ), patch.object(
+            self.service,
+            "_resolve_publish_context",
+            return_value=(MagicMock(), "msh/base"),
+        ), patch.object(
+            self.service, "publish_traceroute"
+        ) as mock_publish:
+            mock_publish.return_value = (True, 4242)
+            from_node = SimpleNamespace(node_id="!bbbb0002")
+            to_node = SimpleNamespace(node_id="!cccc0003")
+
+            self.service.on_packet_received(
+                packet=MagicMock(),
+                decoded_data=MagicMock(),
+                portnum=portnums_pb2.TEXT_MESSAGE_APP,
+                from_node=from_node,
+                to_node=to_node,
+                packet_obj=packet_obj,
+            )
+
+            mock_publish.assert_called_once()
+
     def test_on_packet_received_respects_trigger_ports(self):
         self.service.update_reactive_config(
             enabled=True,
@@ -199,6 +251,62 @@ class PublisherServiceReactiveTests(TestCase):
                 self.assertIsNone(entry.latency_ms)
                 self.assertEqual(entry.probe_message_id, 4242)
                 self.assertIsNone(entry.responded_at)
+
+    def test_on_packet_received_injects_traceroute_with_expected_args(self):
+        self.service.update_reactive_config(
+            enabled=True,
+            from_node="!aaaa0001",
+            channel_key="",
+            max_tries=5,
+            trigger_ports=[],
+        )
+        self.service.configure_reactive_runtime(publisher=None, base_topic=None)
+        self.service.start_reactive_service()
+
+        interface_stub = SimpleNamespace(
+            pk=1, name="MQTT", status="RUNNING", display_name="iface"
+        )
+        channel_stub = SimpleNamespace(
+            channel_id="LongFast", psk="AQ==", interfaces=[interface_stub]
+        )
+        gateway_stub = SimpleNamespace(node_id="!gateway0001")
+        packet_obj = SimpleNamespace(
+            interfaces=DummyInterfaceRelation([interface_stub]),
+            channels=DummyChannelRelation([channel_stub]),
+            gateway_nodes=DummyNodeRelation([gateway_stub]),
+        )
+
+        with patch.object(
+            self.service, "_should_inject_for_node", return_value=True
+        ), patch.object(
+            self.service,
+            "_resolve_publish_context",
+            return_value=(MagicMock(), "msh/base"),
+        ), patch.object(
+            self.service, "publish_traceroute"
+        ) as mock_publish:
+            mock_publish.return_value = (True, 4242)
+            from_node = SimpleNamespace(node_id="!bbbb0002")
+            to_node = SimpleNamespace(node_id="!cccc0003")
+
+            self.service.on_packet_received(
+                packet=MagicMock(),
+                decoded_data=MagicMock(),
+                portnum=portnums_pb2.TEXT_MESSAGE_APP,
+                from_node=from_node,
+                to_node=to_node,
+                packet_obj=packet_obj,
+            )
+
+            mock_publish.assert_called_once()
+            _, kwargs = mock_publish.call_args
+            self.assertEqual(kwargs["from_node"], "!aaaa0001")
+            self.assertEqual(kwargs["to_node"], "!bbbb0002")
+            self.assertEqual(kwargs["channel_name"], "LongFast")
+            self.assertEqual(kwargs["channel_aes_key"], "AQ==")
+            self.assertEqual(kwargs["hop_limit"], 3)
+            self.assertEqual(kwargs["hop_start"], 3)
+            self.assertFalse(kwargs["want_ack"])
 
     def test_on_packet_received_defaults_channel_key_when_missing(self):
         self.service.update_reactive_config(
