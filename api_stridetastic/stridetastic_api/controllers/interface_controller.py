@@ -6,6 +6,11 @@ from ninja_jwt.authentication import JWTAuth
 
 from ..models.interface_models import Interface
 from ..schemas.common_schemas import MessageSchema
+from ..tasks.interface_tasks import (
+    restart_interface_task,
+    start_interface_task,
+    stop_interface_task,
+)
 
 auth = JWTAuth()
 
@@ -33,17 +38,18 @@ class InterfaceController:
         auth=auth,
     )
     def restart_interface(self, request, interface_id: int):
-        from ..services.service_manager import ServiceManager
-
         iface = Interface.objects.filter(id=interface_id).first()
         if not iface:
             return 404, MessageSchema(message="Interface not found")
-        manager = ServiceManager.get_instance()
         try:
-            manager.reload_interface(interface_id)
+            task = restart_interface_task.delay(interface_id=interface_id)
+            result = task.get(timeout=10)
         except Exception as e:
             return 400, MessageSchema(message=f"Failed to restart interface: {str(e)}")
-        return 200, MessageSchema(message="Interface restarted")
+        status = int(result.get("status", 200 if result.get("success") else 400))
+        return status, MessageSchema(
+            message=result.get("message", "Interface restarted")
+        )
 
     @route.post(
         "/{interface_id}/start",
@@ -51,25 +57,16 @@ class InterfaceController:
         auth=auth,
     )
     def start_interface(self, request, interface_id: int):
-        from ..services.service_manager import ServiceManager
-
         iface = Interface.objects.filter(id=interface_id).first()
         if not iface:
             return 404, MessageSchema(message="Interface not found")
-        if not iface.is_enabled:
-            return 400, MessageSchema(message="Interface is not enabled")
-        manager = ServiceManager.get_instance()
-        wrapper = manager.get_runtime_interface(interface_id)
-        if not wrapper:
-            # Try to reload in case it was not loaded
-            manager.reload_interface(interface_id)
-            wrapper = manager.get_runtime_interface(interface_id)
-        if not wrapper:
-            return 400, MessageSchema(message="Failed to load interface runtime")
-        if wrapper.db.status == Interface.Status.RUNNING:
-            return 400, MessageSchema(message="Interface is already running")
-        wrapper.start()
-        return 200, MessageSchema(message="Interface started")
+        try:
+            task = start_interface_task.delay(interface_id=interface_id)
+            result = task.get(timeout=10)
+        except Exception as e:
+            return 400, MessageSchema(message=f"Failed to start interface: {str(e)}")
+        status = int(result.get("status", 200 if result.get("success") else 400))
+        return status, MessageSchema(message=result.get("message", "Interface started"))
 
     @route.post(
         "/{interface_id}/stop",
@@ -77,25 +74,16 @@ class InterfaceController:
         auth=auth,
     )
     def stop_interface(self, request, interface_id: int):
-        from ..services.service_manager import ServiceManager
-
         iface = Interface.objects.filter(id=interface_id).first()
         if not iface:
             return 404, MessageSchema(message="Interface not found")
-        if not iface.is_enabled:
-            return 400, MessageSchema(message="Interface is not enabled")
-        manager = ServiceManager.get_instance()
-        wrapper = manager.get_runtime_interface(interface_id)
-        if not wrapper:
-            # Try to reload in case it was not loaded
-            manager.reload_interface(interface_id)
-            wrapper = manager.get_runtime_interface(interface_id)
-        if not wrapper:
-            return 400, MessageSchema(message="Failed to load interface runtime")
-        if wrapper.db.status == Interface.Status.STOPPED:
-            return 400, MessageSchema(message="Interface is already stopped")
-        wrapper.stop()
-        return 200, MessageSchema(message="Interface stopped")
+        try:
+            task = stop_interface_task.delay(interface_id=interface_id)
+            result = task.get(timeout=10)
+        except Exception as e:
+            return 400, MessageSchema(message=f"Failed to stop interface: {str(e)}")
+        status = int(result.get("status", 200 if result.get("success") else 400))
+        return status, MessageSchema(message=result.get("message", "Interface stopped"))
 
     def __init__(self):
         pass
