@@ -13,6 +13,14 @@ from .channel_schemas import (
 )
 from .common_schemas import MessageSchema
 from .graph_schemas import EdgeSchema
+from .keepalive_schemas import (
+    KeepaliveConfigSchema,
+    KeepaliveConfigUpdateSchema,
+    KeepaliveInterfaceSchema,
+    KeepaliveNodeSummarySchema,
+    KeepaliveStatusSchema,
+    KeepaliveTransitionSchema,
+)
 from .link_schemas import (
     LinkChannelSchema,
     LinkNodeSchema,

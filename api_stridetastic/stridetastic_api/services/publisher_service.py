@@ -701,6 +701,7 @@ class PublisherService:
         publisher: Optional[PublishableInterface] = None,
         base_topic: Optional[str] = None,
         record_pending: bool = True,
+        priority: Optional[object] = None,
     ) -> Tuple[bool, Optional[int]]:
         """Publish a traceroute packet from `from_node` to `to_node` and optionally record a pending probe."""
         logging.info(f"[Publisher] Publishing traceroute from {from_node} to {to_node}")
@@ -716,6 +717,7 @@ class PublisherService:
             hop_limit=hop_limit,
             hop_start=hop_start,
             want_ack=want_ack,
+            priority=priority,
         )
         payload = craft_service_envelope(
             mesh_packet=mesh_protobuf,
@@ -756,6 +758,7 @@ class PublisherService:
         gateway_node: Optional[str] = None,
         publisher: Optional[PublishableInterface] = None,
         base_topic: Optional[str] = None,
+        priority: Optional[object] = None,
     ) -> bool:
         """Inject a routing packet that requests an ACK to measure reachability and latency."""
         logging.info(f"[Publisher] Reachability probe from {from_node} to {to_node}")
@@ -771,6 +774,7 @@ class PublisherService:
             hop_limit=hop_limit,
             hop_start=hop_start,
             want_ack=True,
+            priority=priority,
         )
         payload = craft_service_envelope(
             mesh_packet=mesh_protobuf,

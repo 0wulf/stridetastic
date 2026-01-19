@@ -31,6 +31,10 @@ import type {
   PublisherPeriodicJobCreatePayload,
   PublisherPeriodicJobUpdatePayload,
   PeriodicPayloadType,
+  KeepaliveStatus,
+  KeepaliveConfigUpdatePayload,
+  KeepaliveTransition,
+  KeepaliveScope,
 } from '@/types';
 import type { Interface } from '@/types/interface';
 
@@ -197,6 +201,22 @@ type ReactiveFormState = {
   trigger_ports: string[];
 };
 
+type KeepaliveFormState = {
+  enabled: boolean;
+  payload_type: 'reachability' | 'traceroute';
+  from_node: string;
+  gateway_node: string;
+  channel_name: string;
+  channel_key: string;
+  hop_limit: number;
+  hop_start: number;
+  interface_id: number | null;
+  offline_after_minutes: number;
+  check_interval_seconds: number;
+  scope: KeepaliveScope;
+  selected_node_ids: number[];
+};
+
 const INITIAL_REACTIVE_FORM: ReactiveFormState = {
   enabled: false,
   from_node: '',
@@ -208,6 +228,22 @@ const INITIAL_REACTIVE_FORM: ReactiveFormState = {
   listen_interface_ids: [],
   max_tries: 0,
   trigger_ports: ['NODEINFO_APP', 'POSITION_APP'],
+};
+
+const INITIAL_KEEPALIVE_FORM: KeepaliveFormState = {
+  enabled: false,
+  payload_type: 'reachability',
+  from_node: '',
+  gateway_node: '',
+  channel_name: '',
+  channel_key: '',
+  hop_limit: 3,
+  hop_start: 3,
+  interface_id: null,
+  offline_after_minutes: 60,
+  check_interval_seconds: 60,
+  scope: 'all',
+  selected_node_ids: [],
 };
 
 type PeriodicPayloadOptionsForm = {
@@ -520,6 +556,16 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
   const [showReactiveGatewaySuggestions, setShowReactiveGatewaySuggestions] = useState(false);
   const [reactiveInterfaceQuery, setReactiveInterfaceQuery] = useState('');
 
+  // Keepalive service state
+  const [keepaliveStatus, setKeepaliveStatus] = useState<KeepaliveStatus | null>(null);
+  const [keepaliveForm, setKeepaliveForm] = useState<KeepaliveFormState>(INITIAL_KEEPALIVE_FORM);
+  const [keepaliveTransitions, setKeepaliveTransitions] = useState<KeepaliveTransition[]>([]);
+  const [keepaliveLoading, setKeepaliveLoading] = useState(false);
+  const [keepaliveSaving, setKeepaliveSaving] = useState(false);
+  const [keepaliveNodeQuery, setKeepaliveNodeQuery] = useState('');
+  const [showKeepaliveSourceSuggestions, setShowKeepaliveSourceSuggestions] = useState(false);
+  const [showKeepaliveGatewaySuggestions, setShowKeepaliveGatewaySuggestions] = useState(false);
+
   // Periodic publication state
   const [periodicJobs, setPeriodicJobs] = useState<PublisherPeriodicJob[]>([]);
   const [periodicForm, setPeriodicForm] = useState<PeriodicFormState>(() => ({
@@ -826,6 +872,13 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
       category: 'Service'
     },
     {
+      id: 'keepalive-service',
+      title: 'Keepalive Monitoring',
+      description: 'Detect nodes that just transitioned to offline status',
+      icon: RotateCcw,
+      category: 'Service'
+    },
+    {
       id: 'periodic-publish',
       title: 'Periodic Publication Jobs',
       description: 'Continuously publish packets and payloads at regular intervals',
@@ -913,6 +966,45 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
         showToast(error?.response?.data?.message || 'Failed to load reactive status', 'error');
       } finally {
         setReactiveLoading(false);
+      }
+    })();
+  }, [selectedAction, isConfiguring, showToast]);
+
+  useEffect(() => {
+    if (!(selectedAction === 'keepalive-service' && isConfiguring)) {
+      return;
+    }
+
+    setKeepaliveLoading(true);
+    (async () => {
+      try {
+        const [statusResp, transitionsResp] = await Promise.all([
+          apiClient.getKeepaliveStatus(),
+          apiClient.getKeepaliveTransitions({ last: '1hour', limit: 50 }),
+        ]);
+        const status = statusResp.data;
+        setKeepaliveStatus(status);
+        setKeepaliveTransitions(transitionsResp.data || []);
+        const cfg = status.config;
+        setKeepaliveForm({
+          enabled: Boolean(status.enabled),
+          payload_type: (cfg.payload_type || 'reachability') as KeepaliveFormState['payload_type'],
+          from_node: cfg.from_node ?? '',
+          gateway_node: cfg.gateway_node ?? '',
+          channel_name: cfg.channel_name ?? '',
+          channel_key: cfg.channel_key ?? '',
+          hop_limit: cfg.hop_limit ?? 3,
+          hop_start: cfg.hop_start ?? 3,
+          interface_id: cfg.interface_id ?? null,
+          offline_after_minutes: Math.max(1, Math.round((cfg.offline_after_seconds || 3600) / 60)),
+          check_interval_seconds: Number.isFinite(cfg.check_interval_seconds) ? cfg.check_interval_seconds : 60,
+          scope: (cfg.scope || 'all') as KeepaliveScope,
+          selected_node_ids: Array.isArray(cfg.selected_node_ids) ? cfg.selected_node_ids : [],
+        });
+      } catch (error: any) {
+        showToast(error?.response?.data?.message || 'Failed to load keepalive settings', 'error');
+      } finally {
+        setKeepaliveLoading(false);
       }
     })();
   }, [selectedAction, isConfiguring, showToast]);
@@ -1355,6 +1447,10 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
     });
   }, [applyChannelSelection]);
 
+  const updateKeepaliveForm = useCallback(<K extends keyof KeepaliveFormState>(key: K, value: KeepaliveFormState[K]) => {
+    setKeepaliveForm((prev) => ({ ...prev, [key]: value }));
+  }, []);
+
   const handlePeriodicNodeSelect = useCallback((field: 'from_node' | 'to_node' | 'gateway_node', node: Node) => {
     updatePeriodicForm(field, node.node_id);
   }, [updatePeriodicForm]);
@@ -1365,6 +1461,13 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
       setKey: (next) => updatePeriodicForm('channel_key', next),
     });
   }, [applyChannelSelection, updatePeriodicForm]);
+
+  const handleKeepaliveChannelSelect = useCallback(async (channel: Channel) => {
+    await applyChannelSelection(channel, {
+      setName: (next) => updateKeepaliveForm('channel_name', next),
+      setKey: (next) => updateKeepaliveForm('channel_key', next),
+    });
+  }, [applyChannelSelection, updateKeepaliveForm]);
 
   const oneShotActionIds = useMemo(() => publicationActions.map((action) => action.id), [publicationActions]);
 
@@ -1475,6 +1578,62 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
       showToast(error?.response?.data?.message || 'Failed to update reactive publication settings', 'error');
     } finally {
       setReactiveSaving(false);
+    }
+  };
+
+  const toggleKeepaliveNode = (nodeId: number) => {
+    setKeepaliveForm((prev) => {
+      const exists = prev.selected_node_ids.includes(nodeId);
+      const selected_node_ids = exists
+        ? prev.selected_node_ids.filter((id) => id !== nodeId)
+        : [...prev.selected_node_ids, nodeId];
+      return { ...prev, selected_node_ids };
+    });
+  };
+
+  const handleSaveKeepaliveConfig = async () => {
+    setKeepaliveSaving(true);
+    try {
+      const payload: KeepaliveConfigUpdatePayload = {
+        enabled: keepaliveForm.enabled,
+        payload_type: keepaliveForm.payload_type,
+        from_node: keepaliveForm.from_node || null,
+        gateway_node: keepaliveForm.gateway_node || null,
+        channel_name: keepaliveForm.channel_name || null,
+        channel_key: keepaliveForm.channel_key || null,
+        hop_limit: keepaliveForm.hop_limit,
+        hop_start: keepaliveForm.hop_start,
+        interface_id: keepaliveForm.interface_id ?? null,
+        offline_after_seconds: Math.max(60, Math.round(keepaliveForm.offline_after_minutes * 60)),
+        check_interval_seconds: Math.max(30, Math.round(keepaliveForm.check_interval_seconds)),
+        scope: keepaliveForm.scope,
+        selected_node_ids: keepaliveForm.selected_node_ids,
+      };
+
+      const response = await apiClient.updateKeepaliveConfig(payload);
+      const status = response.data;
+      setKeepaliveStatus(status);
+      const cfg = status.config;
+      setKeepaliveForm({
+        enabled: Boolean(status.enabled),
+        payload_type: (cfg.payload_type || 'reachability') as KeepaliveFormState['payload_type'],
+        from_node: cfg.from_node ?? '',
+        gateway_node: cfg.gateway_node ?? '',
+        channel_name: cfg.channel_name ?? '',
+        channel_key: cfg.channel_key ?? '',
+        hop_limit: cfg.hop_limit ?? 3,
+        hop_start: cfg.hop_start ?? 3,
+        interface_id: cfg.interface_id ?? null,
+        offline_after_minutes: Math.max(1, Math.round((cfg.offline_after_seconds || 3600) / 60)),
+        check_interval_seconds: Number.isFinite(cfg.check_interval_seconds) ? cfg.check_interval_seconds : 60,
+        scope: (cfg.scope || 'all') as KeepaliveScope,
+        selected_node_ids: Array.isArray(cfg.selected_node_ids) ? cfg.selected_node_ids : [],
+      });
+      showToast('Keepalive settings updated', 'success');
+    } catch (error: any) {
+      showToast(error?.response?.data?.message || 'Failed to update keepalive settings', 'error');
+    } finally {
+      setKeepaliveSaving(false);
     }
   };
 
@@ -2193,6 +2352,385 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (selectedAction === 'keepalive-service') {
+      const lastRunText = keepaliveStatus ? formatDateTime(keepaliveStatus.last_run_at) : '—';
+      const lastErrorMessage = keepaliveStatus?.last_error_message || null;
+      const query = keepaliveNodeQuery.trim().toLowerCase();
+      const filteredNodes = nodes
+        .filter((node) => {
+          if (!query) return true;
+          const fields = [
+            node.short_name || '',
+            node.long_name || '',
+            node.node_id || '',
+            String(node.node_num || ''),
+            node.mac_address || '',
+          ].map((value) => value.toLowerCase());
+          return fields.some((value) => value.includes(query));
+        })
+        .slice(0, 200);
+
+      return (
+        <div className={`space-y-6 ${className}`}>
+          {/* Toast */}
+          {toast && (
+            <div className="fixed bottom-4 right-4 z-50" role="status" aria-live="polite">
+              <div className={`flex items-start gap-3 rounded-lg border px-4 py-3 shadow-lg ${toast.type === 'success' ? 'bg-green-50 border-green-200 text-green-900' : 'bg-red-50 border-red-200 text-red-900'}`}>
+                {toast.type === 'success' ? (
+                  <CheckCircle className="h-5 w-5 text-green-600" />
+                ) : (
+                  <AlertCircle className="h-5 w-5 text-red-600" />
+                )}
+                <div className="text-sm font-medium">{toast.message}</div>
+                <button aria-label="Close" onClick={() => setToast(null)} className="ml-2 text-current/60 hover:text-current">×</button>
+              </div>
+            </div>
+          )}
+
+          <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-3">
+                <ActionIcon className="h-6 w-6 text-blue-600" />
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900">Keepalive Monitoring</h2>
+                  <p className="text-sm text-gray-600">Detect nodes that just transitioned to offline status.</p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setIsConfiguring(false);
+                  setSelectedAction(null);
+                  clearActionParams();
+                }}
+                className="text-gray-700 hover:text-gray-900"
+              >
+                ×
+              </button>
+            </div>
+
+            {keepaliveLoading ? (
+              <div className="flex items-center justify-center py-16 text-gray-600">
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                <span>Loading keepalive settings…</span>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <div className="flex flex-col gap-4 rounded-lg border border-blue-100 bg-blue-50/60 p-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                      <h3 className="text-base font-semibold text-blue-900">Service state</h3>
+                      <p className="text-sm text-blue-800">
+                        {keepaliveForm.enabled ? 'Keepalive checks are running.' : 'Keepalive checks are disabled.'}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-medium text-blue-900">
+                        {keepaliveForm.enabled ? 'Enabled' : 'Disabled'}
+                      </span>
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={keepaliveForm.enabled}
+                        onClick={() => updateKeepaliveForm('enabled', !keepaliveForm.enabled)}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${keepaliveForm.enabled ? 'bg-blue-600' : 'bg-blue-200'}`}
+                      >
+                        <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition ${keepaliveForm.enabled ? 'translate-x-5' : 'translate-x-1'}`} />
+                        <span className="sr-only">Toggle keepalive monitoring</span>
+                      </button>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <div className="text-xs text-blue-700 uppercase tracking-wide">Last Run</div>
+                      <div className="text-sm text-blue-900 font-medium">{lastRunText}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-blue-700 uppercase tracking-wide">Last Error</div>
+                      <div className="text-sm text-blue-900 font-medium">{lastErrorMessage || '—'}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-blue-700 uppercase tracking-wide">Recent Transitions</div>
+                      <div className="text-sm text-blue-900 font-medium">{keepaliveTransitions.length}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 mb-2">Packet type</label>
+                    <select
+                      value={keepaliveForm.payload_type}
+                      onChange={(e) => updateKeepaliveForm('payload_type', (e.target as HTMLSelectElement).value as KeepaliveFormState['payload_type'])}
+                      className={FORM_SELECT_CLASS}
+                    >
+                      <option value="reachability">Reachability probe</option>
+                      <option value="traceroute">Traceroute solicitation</option>
+                    </select>
+                  </div>
+                  <div className="relative">
+                    <label className="block text-sm font-medium text-gray-900 mb-2">Publish from node</label>
+                    <input
+                      value={keepaliveForm.from_node}
+                      onChange={(e) => updateKeepaliveForm('from_node', (e.target as HTMLInputElement).value)}
+                      onFocus={() => setShowKeepaliveSourceSuggestions(true)}
+                      onBlur={() => setTimeout(() => setShowKeepaliveSourceSuggestions(false), 150)}
+                      type="text"
+                      placeholder="!abcdef01"
+                      className={FORM_INPUT_CLASS}
+                    />
+                    {showKeepaliveSourceSuggestions && filterNodes(keepaliveForm.from_node, selectableNodes).length > 0 && (
+                      <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
+                        {filterNodes(keepaliveForm.from_node, selectableNodes).map((nodeItem) => (
+                          <div
+                            key={nodeItem.id}
+                            role="button"
+                            tabIndex={-1}
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              updateKeepaliveForm('from_node', nodeItem.node_id);
+                              setShowKeepaliveSourceSuggestions(false);
+                            }}
+                            className="w-full text-left px-3 py-2 hover:bg-blue-50 cursor-pointer"
+                          >
+                            <div className="text-sm text-gray-900 font-medium">{nodeItem.short_name || nodeItem.long_name || nodeItem.node_id}</div>
+                            <div className="text-xs text-gray-600">{nodeItem.long_name || nodeItem.short_name} • {nodeItem.node_id} • #{nodeItem.node_num}</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <label className="block text-sm font-medium text-gray-900 mb-2">Gateway node (optional)</label>
+                    <input
+                      value={keepaliveForm.gateway_node}
+                      onChange={(e) => updateKeepaliveForm('gateway_node', (e.target as HTMLInputElement).value)}
+                      onFocus={() => setShowKeepaliveGatewaySuggestions(true)}
+                      onBlur={() => setTimeout(() => setShowKeepaliveGatewaySuggestions(false), 150)}
+                      type="text"
+                      placeholder="!deadbeef"
+                      className={FORM_INPUT_CLASS}
+                    />
+                    {showKeepaliveGatewaySuggestions && filterNodes(keepaliveForm.gateway_node, selectableNodes).length > 0 && (
+                      <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
+                        {filterNodes(keepaliveForm.gateway_node, selectableNodes).map((nodeItem) => (
+                          <div
+                            key={nodeItem.id}
+                            role="button"
+                            tabIndex={-1}
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              updateKeepaliveForm('gateway_node', nodeItem.node_id);
+                              setShowKeepaliveGatewaySuggestions(false);
+                            }}
+                            className="w-full text-left px-3 py-2 hover:bg-blue-50 cursor-pointer"
+                          >
+                            <div className="text-sm text-gray-900 font-medium">{nodeItem.short_name || nodeItem.long_name || nodeItem.node_id}</div>
+                            <div className="text-xs text-gray-600">{nodeItem.long_name || nodeItem.short_name} • {nodeItem.node_id} • #{nodeItem.node_num}</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <ChannelAutocompleteInput
+                    id="keepalive-channel"
+                    label="Channel"
+                    value={keepaliveForm.channel_name}
+                    onChange={(value) => updateKeepaliveForm('channel_name', value)}
+                    channels={channels}
+                    sortedChannels={sortedChannels}
+                    onSelectChannel={handleKeepaliveChannelSelect}
+                    helperText="Choose a channel and optionally auto-fill the key."
+                  />
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 mb-2">Channel key</label>
+                    <input
+                      type="text"
+                      value={keepaliveForm.channel_key}
+                      onChange={(e) => updateKeepaliveForm('channel_key', (e.target as HTMLInputElement).value)}
+                      className={FORM_INPUT_CLASS}
+                      placeholder="Optional AES key"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 mb-2">Interface</label>
+                    <select
+                      value={keepaliveForm.interface_id ?? ''}
+                      onChange={(e) => updateKeepaliveForm('interface_id', (e.target as HTMLSelectElement).value ? Number((e.target as HTMLSelectElement).value) : null)}
+                      className={FORM_SELECT_CLASS}
+                    >
+                      <option value="">Default MQTT interface</option>
+                      {interfaces.filter((iface) => iface.name === 'MQTT').map((iface) => (
+                        <option key={iface.id} value={iface.id}>
+                          {iface.display_name || iface.name} ({iface.status || 'unknown'})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 mb-2">Hop limit</label>
+                    <input
+                      type="number"
+                      min={1}
+                      value={keepaliveForm.hop_limit}
+                      onChange={(e) => updateKeepaliveForm('hop_limit', Number((e.target as HTMLInputElement).value) || 1)}
+                      className={FORM_INPUT_CLASS}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 mb-2">Hop start</label>
+                    <input
+                      type="number"
+                      min={1}
+                      value={keepaliveForm.hop_start}
+                      onChange={(e) => updateKeepaliveForm('hop_start', Number((e.target as HTMLInputElement).value) || 1)}
+                      className={FORM_INPUT_CLASS}
+                    />
+                  </div>
+                  <div className="flex flex-col justify-end text-xs text-gray-600">
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 mb-2">Offline threshold (minutes)</label>
+                    <input
+                      type="number"
+                      min={1}
+                      value={keepaliveForm.offline_after_minutes}
+                      onChange={(e) => updateKeepaliveForm('offline_after_minutes', Number((e.target as HTMLInputElement).value) || 1)}
+                      className={FORM_INPUT_CLASS}
+                    />
+                    <p className="mt-1 text-xs text-gray-600">Nodes are considered offline after this much inactivity.</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 mb-2">Check interval (seconds)</label>
+                    <input
+                      type="number"
+                      min={30}
+                      value={keepaliveForm.check_interval_seconds}
+                      onChange={(e) => updateKeepaliveForm('check_interval_seconds', Number((e.target as HTMLInputElement).value) || 60)}
+                      className={FORM_INPUT_CLASS}
+                    />
+                    <p className="mt-1 text-xs text-gray-600">How often to scan for newly offline nodes.</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 mb-2">Scope</label>
+                    <select
+                      value={keepaliveForm.scope}
+                      onChange={(e) => updateKeepaliveForm('scope', (e.target as HTMLSelectElement).value as KeepaliveScope)}
+                      className={FORM_SELECT_CLASS}
+                    >
+                      <option value="all">All nodes</option>
+                      <option value="selected">Selected nodes</option>
+                      <option value="virtual_only">Virtual nodes only</option>
+                    </select>
+                    <p className="mt-1 text-xs text-gray-600">Limit keepalive monitoring to a subset of nodes.</p>
+                  </div>
+                </div>
+
+                {keepaliveForm.scope === 'selected' && (
+                  <div className="rounded-lg border border-gray-200 bg-white/70 p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-sm font-semibold text-gray-900">Selected nodes</h3>
+                        <p className="text-xs text-gray-600">Choose which nodes are monitored.</p>
+                      </div>
+                      <div className="text-xs text-gray-600">Selected: {keepaliveForm.selected_node_ids.length}</div>
+                    </div>
+                    <input
+                      type="text"
+                      value={keepaliveNodeQuery}
+                      onChange={(e) => setKeepaliveNodeQuery((e.target as HTMLInputElement).value)}
+                      placeholder="Search nodes…"
+                      className={FORM_INPUT_CLASS}
+                    />
+                    <div className="max-h-64 overflow-auto border border-gray-200 rounded-md divide-y">
+                      {filteredNodes.length === 0 && (
+                        <div className="px-3 py-4 text-sm text-gray-500">No matching nodes.</div>
+                      )}
+                      {filteredNodes.map((node) => {
+                        const checked = keepaliveForm.selected_node_ids.includes(node.id);
+                        return (
+                          <label key={node.id} className="flex items-center gap-3 px-3 py-2 text-sm text-gray-800 hover:bg-blue-50 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() => toggleKeepaliveNode(node.id)}
+                              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            />
+                            <span className="font-medium">{node.short_name || node.long_name || node.node_id}</span>
+                            <span className="text-xs text-gray-500">{node.node_id} • #{node.node_num}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                <div className="rounded-lg border border-gray-200 bg-white/70 p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-900">Recent offline transitions</h3>
+                      <p className="text-xs text-gray-600">Nodes that just crossed the offline threshold.</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          const resp = await apiClient.getKeepaliveTransitions({ last: '1hour', limit: 50 });
+                          setKeepaliveTransitions(resp.data || []);
+                        } catch (error: any) {
+                          showToast(error?.response?.data?.message || 'Failed to refresh transitions', 'error');
+                        }
+                      }}
+                      className="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs text-gray-700 hover:border-blue-400"
+                    >
+                      <RefreshCw className="h-3.5 w-3.5" />
+                      Refresh
+                    </button>
+                  </div>
+                  <div className="divide-y">
+                    {keepaliveTransitions.length === 0 && (
+                      <div className="py-4 text-sm text-gray-500">No recent transitions.</div>
+                    )}
+                    {keepaliveTransitions.map((entry) => (
+                      <div key={entry.id} className="py-2 text-sm text-gray-700 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                        <div>
+                          <div className="font-medium text-gray-900">{entry.short_name || entry.long_name || entry.node_id}</div>
+                          <div className="text-xs text-gray-500">{entry.node_id} • #{entry.node_num}</div>
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          Last seen: {formatDateTime(entry.last_seen)} · Offline at: {formatDateTime(entry.offline_at)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end">
+                  <button
+                    type="button"
+                    onClick={handleSaveKeepaliveConfig}
+                    disabled={keepaliveSaving}
+                    className={`inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm text-white ${keepaliveSaving ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
+                  >
+                    {keepaliveSaving && <Loader2 className="h-4 w-4 animate-spin" />}
+                    Save Settings
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       );

@@ -24,6 +24,7 @@ def craft_mesh_packet(
     pki_encrypted=False,
     public_key=None,
     encrypted_payload: Optional[bytes] = None,
+    priority: Optional[object] = None,
 ):
     from_num = id_to_num(from_id)
     to_num = id_to_num(to_id)
@@ -38,6 +39,14 @@ def craft_mesh_packet(
     mesh_packet.hop_start = hop_start
     mesh_packet.want_ack = want_ack
     mesh_packet.pki_encrypted = pki_encrypted
+    if priority is not None:
+        try:
+            if isinstance(priority, str):
+                mesh_packet.priority = mesh_pb2.MeshPacket.Priority.Value(priority)
+            else:
+                mesh_packet.priority = int(priority)
+        except Exception:
+            pass
     if public_key:
         try:
             mesh_packet.public_key = load_public_key_bytes(public_key)

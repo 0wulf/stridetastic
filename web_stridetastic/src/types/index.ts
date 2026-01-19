@@ -440,6 +440,74 @@ export interface PublisherReactiveStatus {
   attempt_window_seconds: number;
 }
 
+export type KeepaliveScope = 'all' | 'selected' | 'virtual_only';
+
+export interface KeepaliveNodeSummary {
+  id: number;
+  node_id: string;
+  node_num: number;
+  short_name?: string | null;
+  long_name?: string | null;
+}
+
+export interface KeepaliveConfig {
+  enabled: boolean;
+  payload_type: 'reachability' | 'traceroute';
+  from_node?: string | null;
+  gateway_node?: string | null;
+  channel_name?: string | null;
+  channel_key?: string | null;
+  hop_limit: number;
+  hop_start: number;
+  interface_id?: number | null;
+  interface?: {
+    id: number;
+    name?: string | null;
+    display_name?: string | null;
+    status?: string | null;
+  } | null;
+  offline_after_seconds: number;
+  check_interval_seconds: number;
+  scope: KeepaliveScope;
+  selected_node_ids: number[];
+  selected_nodes: KeepaliveNodeSummary[];
+}
+
+export interface KeepaliveStatus {
+  enabled: boolean;
+  config: KeepaliveConfig;
+  last_run_at?: string | null;
+  last_error_message?: string | null;
+}
+
+export interface KeepaliveConfigUpdatePayload {
+  enabled?: boolean;
+  payload_type?: 'reachability' | 'traceroute';
+  from_node?: string | null;
+  gateway_node?: string | null;
+  channel_name?: string | null;
+  channel_key?: string | null;
+  hop_limit?: number;
+  hop_start?: number;
+  interface_id?: number | null;
+  offline_after_seconds?: number;
+  check_interval_seconds?: number;
+  scope?: KeepaliveScope;
+  selected_node_ids?: number[];
+}
+
+export interface KeepaliveTransition {
+  id: number;
+  node_id: string;
+  node_num: number;
+  short_name?: string | null;
+  long_name?: string | null;
+  last_seen: string;
+  offline_at: string;
+  reason: string;
+  recorded_at: string;
+}
+
 export interface PublisherReactiveConfigUpdatePayload {
   enabled?: boolean;
   from_node?: string | null;

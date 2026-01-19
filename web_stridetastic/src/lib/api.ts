@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import Cookies from 'js-cookie';
-import { LoginCredentials, TokenResponse, Node, NodeKeyHealthEntry, Edge, ChannelStatistics, ChannelDetail, MessageResponse, PublishTextMessagePayload, PublishNodeInfoPayload, PublishPositionPayload, PublishTraceroutePayload, PublishReachabilityPayload, PublishTelemetryPayload, CaptureSession, PublisherReactiveStatus, PublisherReactiveConfigUpdatePayload, PublisherPeriodicJob, PublisherPeriodicJobCreatePayload, PublisherPeriodicJobUpdatePayload, NodePositionHistoryEntry, NodeTelemetryHistoryEntry, NodeLatencyHistoryEntry, PortActivityEntry, NodePortActivityEntry, NodePortPacketEntry, PortNodeActivityEntry, OverviewMetricsResponse, VirtualNodePayload, VirtualNodeSecretResponse, VirtualNodeUpdatePayload, VirtualNodeOptionsResponse, VirtualNodePrefillResponse, NodeLink, NodeLinkPacket } from '@/types';
+import { LoginCredentials, TokenResponse, Node, NodeKeyHealthEntry, Edge, ChannelStatistics, ChannelDetail, MessageResponse, PublishTextMessagePayload, PublishNodeInfoPayload, PublishPositionPayload, PublishTraceroutePayload, PublishReachabilityPayload, PublishTelemetryPayload, CaptureSession, PublisherReactiveStatus, PublisherReactiveConfigUpdatePayload, PublisherPeriodicJob, PublisherPeriodicJobCreatePayload, PublisherPeriodicJobUpdatePayload, NodePositionHistoryEntry, NodeTelemetryHistoryEntry, NodeLatencyHistoryEntry, PortActivityEntry, NodePortActivityEntry, NodePortPacketEntry, PortNodeActivityEntry, OverviewMetricsResponse, VirtualNodePayload, VirtualNodeSecretResponse, VirtualNodeUpdatePayload, VirtualNodeOptionsResponse, VirtualNodePrefillResponse, NodeLink, NodeLinkPacket, KeepaliveStatus, KeepaliveConfigUpdatePayload, KeepaliveTransition } from '@/types';
 import type { ActivityTimeRange } from '@/lib/activityFilters';
 import type { Interface } from '@/types/interface';
 
@@ -343,6 +343,18 @@ class ApiClient {
 
   async deletePublisherPeriodicJob(jobId: number): Promise<AxiosResponse<MessageResponse>> {
     return this.client.delete(`/publisher/periodic/jobs/${jobId}`);
+  }
+
+  async getKeepaliveStatus(): Promise<AxiosResponse<KeepaliveStatus>> {
+    return this.client.get('/keepalive/status');
+  }
+
+  async updateKeepaliveConfig(payload: KeepaliveConfigUpdatePayload): Promise<AxiosResponse<KeepaliveStatus>> {
+    return this.client.post('/keepalive/config', payload);
+  }
+
+  async getKeepaliveTransitions(params?: { last?: string; since?: string; until?: string; limit?: number }): Promise<AxiosResponse<KeepaliveTransition[]>> {
+    return this.client.get('/keepalive/transitions', { params });
   }
 }
 

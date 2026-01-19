@@ -5,6 +5,7 @@ from .controllers import (
     CaptureController,
     ChannelController,
     GraphController,
+    KeepaliveController,
     LinkController,
     MetricsController,
     NodeController,
@@ -39,5 +40,6 @@ api.register_controllers(
     PortController,
     InterfaceController,
     MetricsController,
+    KeepaliveController,
     LinkController,
 )

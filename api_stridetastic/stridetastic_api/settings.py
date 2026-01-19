@@ -238,6 +238,13 @@ CELERY_BEAT_SCHEDULE["mark_unreachable_nodes"] = {
     "schedule": REACTIVE_REACHABILITY_CHECK_INTERVAL_SECS,
 }
 
+# Keepalive configuration: periodic offline transition detection
+KEEPALIVE_CHECK_INTERVAL_SECS = _env_int("KEEPALIVE_CHECK_INTERVAL_SECS", 60)
+CELERY_BEAT_SCHEDULE["run_keepalive_check"] = {
+    "task": "stridetastic_api.tasks.keepalive_tasks.run_keepalive_check",
+    "schedule": KEEPALIVE_CHECK_INTERVAL_SECS,
+}
+
 
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
 SESSION_COOKIE_SECURE = False  # if ENVIRONMENT == "development" else True

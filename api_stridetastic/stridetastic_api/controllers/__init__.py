@@ -9,6 +9,7 @@ from .auth_controller import AuthController
 from .capture_controller import CaptureController
 from .channel_controller import ChannelController
 from .graph_controller import GraphController
+from .keepalive_controller import KeepaliveController
 from .link_controller import LinkController
 from .metrics_controller import MetricsController
 from .node_controller import NodeController
