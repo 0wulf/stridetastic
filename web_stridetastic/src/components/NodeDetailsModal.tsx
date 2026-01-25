@@ -471,8 +471,8 @@ export default function NodeDetailsModal({
                 {interfaces.map((iface: any) => (
                   <div key={iface.id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 cursor-pointer"
                     onClick={() => onInterfaceClick?.(iface)}>
-                    <span className="text-sm font-medium text-gray-900 truncate" title={iface.display_name}>{iface.display_name || 'Unnamed'}</span>
-                    <span className="text-xs text-gray-500 px-2 py-1 bg-gray-100 rounded">{iface.name || 'Unknown'}</span>
+                    <span className="text-sm font-medium text-gray-900 truncate" title={iface.name}>{iface.name || 'Unnamed'}</span>
+                    <span className="text-xs text-gray-500 px-2 py-1 bg-gray-100 rounded">{iface.interface_type || 'Unknown'}</span>
                     <span className={`text-xs font-semibold px-2 py-1 rounded ${iface.status === 'RUNNING' ? 'bg-green-100 text-green-700' : iface.status === 'ERROR' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'}`}>{iface.status}</span>
                   </div>
                 ))}

@@ -87,9 +87,9 @@ class PublishReachabilitySchema(PublishGenericSchema):
 
 class ReactiveInterfaceSchema(Schema):
     id: int = Field(..., description="Interface primary key")
-    name: Optional[str] = Field(None, description="Interface type name")
-    display_name: Optional[str] = Field(
-        None, description="Human-readable interface name"
+    name: Optional[str] = Field(None, description="Human-readable interface name")
+    interface_type: Optional[str] = Field(
+        None, description="Interface type (MQTT/SERIAL/TCP)"
     )
     status: Optional[str] = Field(None, description="Runtime status of the interface")
 

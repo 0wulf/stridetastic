@@ -829,8 +829,8 @@ function Overview() {
                       className={`h-3 w-3 rounded-full inline-block ${isRunning ? 'bg-green-500' : 'bg-gray-300'}`}
                       title={isRunning ? 'Running' : 'Stopped'}
                     />
-                    <span className="text-sm font-medium text-gray-900 truncate" title={iface.display_name}>{iface.display_name || 'Unnamed'}</span>
-                    <span className="text-xs text-gray-500 px-2 py-1 bg-gray-100 rounded">{iface.name || 'Unknown'}</span>
+                    <span className="text-sm font-medium text-gray-900 truncate" title={iface.name}>{iface.name || 'Unnamed'}</span>
+                    <span className="text-xs text-gray-500 px-2 py-1 bg-gray-100 rounded">{iface.interface_type || 'Unknown'}</span>
                   </div>
                   <div className="flex items-center gap-4">
                     <span className={`text-xs font-semibold px-2 py-1 rounded ${isEnabled ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}
@@ -927,7 +927,7 @@ function Overview() {
           onClose={handleCloseModal}
           interfaces={selectedNode.interfaces
             ? interfaces.filter((iface) =>
-                selectedNode.interfaces?.includes?.(iface.display_name ?? '')
+                selectedNode.interfaces?.includes?.(iface.name ?? '')
               )
             : interfaces}
           onInterfaceClick={handleInterfaceClick}

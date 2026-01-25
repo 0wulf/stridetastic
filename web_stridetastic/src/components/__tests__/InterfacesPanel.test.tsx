@@ -21,8 +21,8 @@ describe('InterfacesPanel', () => {
       data: [
         {
           id: 1,
-          name: 'MQTT',
-          display_name: 'MQTT Interface',
+          interface_type: 'MQTT',
+          name: 'MQTT Interface',
           status: 'RUNNING',
           mqtt_topic: 'test',
           last_connected: '2026-01-13T11:00:00.000Z',

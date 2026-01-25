@@ -11,8 +11,8 @@ class InterfaceControllerActionTests(TestCase):
     def setUp(self) -> None:
         self.controller = InterfaceController()
         self.interface = Interface.objects.create(
-            name=Interface.Names.MQTT,
-            display_name="iface-1",
+            interface_type=Interface.Types.MQTT,
+            name="iface-1",
             is_enabled=True,
             status=Interface.Status.STOPPED,
         )

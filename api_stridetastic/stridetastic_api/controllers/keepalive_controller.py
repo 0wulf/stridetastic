@@ -40,7 +40,7 @@ class KeepaliveController:
             interface_payload = KeepaliveInterfaceSchema(
                 id=iface.id,
                 name=iface.name,
-                display_name=iface.display_name,
+                interface_type=iface.interface_type,
                 status=iface.status,
             )
         return KeepaliveConfigSchema(
@@ -134,7 +134,7 @@ class KeepaliveController:
                 iface = Interface.objects.filter(id=interface_id).first()
                 if not iface:
                     return 400, MessageSchema(message="Interface not found")
-                if iface.name != Interface.Names.MQTT:
+                if iface.interface_type != Interface.Types.MQTT:
                     return 400, MessageSchema(
                         message="Interface type not supported for keepalive"
                     )

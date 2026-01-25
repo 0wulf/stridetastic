@@ -77,7 +77,7 @@ class ChannelController:
             return 404, MessageSchema(message="Channel not found")
         members = [serialize_node(member) for member in channel.members.all()]
         interfaces = (
-            [iface.display_name for iface in channel.interfaces.all()]
+            [iface.name for iface in channel.interfaces.all()]
             if hasattr(channel, "interfaces")
             else []
         )

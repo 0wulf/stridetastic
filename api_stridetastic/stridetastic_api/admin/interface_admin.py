@@ -7,8 +7,8 @@ from ..models.interface_models import Interface
 @admin.register(Interface)
 class InterfaceAdmin(ModelAdmin):
     list_display = (
-        "display_name",
         "name",
+        "interface_type",
         "is_enabled",
         "status",
         "last_connected",
@@ -16,13 +16,12 @@ class InterfaceAdmin(ModelAdmin):
     )
 
     list_filter = (
-        "name",
+        "interface_type",
         "is_enabled",
         "status",
     )
 
     readonly_fields = (
-        "name",
         "status",
         "last_connected",
         "last_error",
@@ -33,8 +32,8 @@ class InterfaceAdmin(ModelAdmin):
             None,
             {
                 "fields": (
-                    "display_name",
                     "name",
+                    "interface_type",
                     "is_enabled",
                     "status",
                     "last_connected",

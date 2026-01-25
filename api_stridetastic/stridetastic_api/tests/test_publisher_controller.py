@@ -34,7 +34,7 @@ class PublisherControllerReactiveConfigTests(TestCase):
 
     def test_update_reactive_config_saves_and_refreshes(self) -> None:
         interface = Interface.objects.create(
-            name=Interface.Names.MQTT, display_name="iface"
+            interface_type=Interface.Types.MQTT, name="iface"
         )
         source_node = Node.objects.create(
             node_num=1,

@@ -157,7 +157,7 @@ class PublisherPeriodicJob(models.Model):
                 "PKI encryption is only supported for text, position, and telemetry payloads."
             )
 
-        if self.interface and self.interface.name != Interface.Names.MQTT:
+        if self.interface and self.interface.interface_type != Interface.Types.MQTT:
             errors["interface"] = (
                 "Periodic publishing is only supported on MQTT interfaces."
             )

@@ -149,7 +149,7 @@ export default function NetworkGraph({ className = '', onNavigateToMap }: Networ
           .filter(iface => typeof iface.id === 'number' && !isNaN(iface.id))
           .map((iface) => ({
             id: `iface_${iface.id}`,
-            name: iface.display_name || iface.name,
+            name: iface.name,
             node_num: -1000 - iface.id,
             node_id: `iface_${iface.id}`,
             color: BRAND_ACCENT,
@@ -186,7 +186,7 @@ export default function NetworkGraph({ className = '', onNavigateToMap }: Networ
             const activityColor = getLinkActivityColor(selfLinkLastSeen);
             for (const ifaceName of node.interfaces) {
                 const ifaceObj = filtered.find(
-                  iface => iface.display_name === String(ifaceName) && iface.name === 'MQTT'
+                  iface => iface.name === String(ifaceName) && iface.interface_type === 'MQTT'
                 );
 
                 
@@ -223,7 +223,7 @@ export default function NetworkGraph({ className = '', onNavigateToMap }: Networ
         // Add links for serial interfaces to their bound node
         for (const iface of filtered) {
           if (
-            iface.name === 'SERIAL' &&
+            iface.interface_type === 'SERIAL' &&
             typeof iface.id === 'number' &&
             iface.serial_node_id &&
             !isNaN(iface.serial_node_id)

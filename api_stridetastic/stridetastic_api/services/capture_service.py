@@ -463,7 +463,7 @@ class CaptureService:
             "status": session.status,
             "source_type": session.source_type,
             "interface_id": interface.id if interface else None,
-            "interface_name": interface.display_name if interface else None,
+            "interface_name": interface.name if interface else None,
             "started_at": session.started_at,
             "ended_at": session.ended_at,
             "last_packet_at": session.last_packet_at,

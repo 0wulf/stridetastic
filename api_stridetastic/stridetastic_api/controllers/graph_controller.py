@@ -67,9 +67,7 @@ class GraphController:
                 last_rx_rssi=edge.last_rx_rssi,
                 last_rx_snr=edge.last_rx_snr,
                 last_hops=edge.last_hops,
-                interfaces_names=[
-                    iface.display_name for iface in edge.interfaces.all()
-                ],
+                interfaces_names=[iface.name for iface in edge.interfaces.all()],
             )
             for edge in edges
         ]

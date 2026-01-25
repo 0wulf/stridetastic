@@ -369,7 +369,7 @@ class PublisherService:
                 {
                     "id": iface.id,
                     "name": iface.name,
-                    "display_name": iface.display_name,
+                    "interface_type": iface.interface_type,
                     "status": iface.status,
                 }
                 for iface in listen_interfaces
@@ -489,7 +489,7 @@ class PublisherService:
 
         base_topic = None
         try:
-            if wrapper.db.name == Interface.Names.MQTT:
+            if wrapper.db.interface_type == Interface.Types.MQTT:
                 base_topic = wrapper.db.mqtt_base_topic
         except Exception:  # pragma: no cover - defensive
             base_topic = None

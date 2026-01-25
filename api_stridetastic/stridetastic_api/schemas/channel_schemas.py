@@ -23,7 +23,7 @@ class ChannelSchema(Schema):
     )
     interfaces: Optional[List[str]] = Field(
         ...,
-        description="Interfaces where this channel has been listened to. Should be a list of objects with id, name, display_name.",
+        description="Interfaces where this channel has been listened to. Should be a list of interface names.",
     )
 
 

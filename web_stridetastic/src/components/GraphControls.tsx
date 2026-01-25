@@ -248,7 +248,7 @@ export function GraphControls({
                     ? 'No Interfaces Selected'
                     : interfaces
                         .filter((iface) => selectedInterfaceIds.includes(iface.id))
-                        .map((iface) => iface.display_name || iface.name)
+                        .map((iface) => iface.name)
                         .join(', ')}
                 </span>
                 <ChevronDown className={`ml-2 h-4 w-4 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
@@ -285,7 +285,7 @@ export function GraphControls({
                           className="mr-2 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                         />
                         <label htmlFor={`iface-${iface.id}`} className="text-sm text-gray-700 truncate cursor-pointer">
-                          {iface.display_name || iface.name}
+                          {iface.name}
                         </label>
                       </li>
                     ))}
