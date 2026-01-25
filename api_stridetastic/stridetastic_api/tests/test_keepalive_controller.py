@@ -25,7 +25,7 @@ class KeepaliveControllerTests(TestCase):
 
     def test_update_config_saves_publish_settings(self):
         iface = Interface.objects.create(
-            name=Interface.Names.MQTT, display_name="mqtt-1"
+            interface_type=Interface.Types.MQTT, name="mqtt-1"
         )
         node = Node.objects.create(
             node_num=1,
@@ -80,7 +80,7 @@ class KeepaliveControllerTests(TestCase):
 
     def test_status_includes_interface_metadata(self):
         iface = Interface.objects.create(
-            name=Interface.Names.MQTT, display_name="mqtt-1"
+            interface_type=Interface.Types.MQTT, name="mqtt-1"
         )
         config = KeepaliveConfig.get_solo()
         config.interface = iface
@@ -89,4 +89,4 @@ class KeepaliveControllerTests(TestCase):
         status, response = self.controller.get_status(SimpleNamespace())
         self.assertEqual(status, 200)
         self.assertEqual(response.config.interface.id, iface.id)
-        self.assertEqual(response.config.interface.display_name, "mqtt-1")
+        self.assertEqual(response.config.interface.name, "mqtt-1")

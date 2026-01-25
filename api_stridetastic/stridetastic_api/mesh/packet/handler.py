@@ -1156,19 +1156,20 @@ def on_message(client, userdata, normalized, iface="MQTT"):
         interface = Interface.objects.filter(id=interface_id).first()
         if not interface:
             interface, _ = Interface.objects.get_or_create(
-                name=iface, defaults={"display_name": f"{iface.lower()}-{interface_id}"}
+                interface_type=iface,
+                defaults={"name": f"{iface.lower()}-{interface_id}"},
             )
     else:
         # Legacy path: create/reuse by type name
         interface, _ = Interface.objects.get_or_create(
-            name=iface, defaults={"display_name": f"{iface.lower()}-default"}
+            interface_type=iface, defaults={"name": f"{iface.lower()}-default"}
         )
     gateway_node_id = normalized["gateway_node_id"]
     channel_id = normalized["channel_id"]
     packet = normalized["packet"]
 
     gateway_node = None  # ensure defined even if no gateway info
-    if interface.name == "SERIAL":
+    if interface.interface_type == "SERIAL":
         serial_node = interface.serial_node
         if serial_node:
             gateway_node_id = serial_node.node_id

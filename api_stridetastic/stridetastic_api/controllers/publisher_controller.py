@@ -165,7 +165,7 @@ class PublisherController:
             interface_payload = {
                 "id": interface.id,
                 "name": interface.name,
-                "display_name": interface.display_name,
+                "interface_type": interface.interface_type,
                 "status": interface.status,
             }
 

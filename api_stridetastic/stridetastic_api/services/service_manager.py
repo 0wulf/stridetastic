@@ -26,7 +26,7 @@ class RuntimeInterfaceWrapper:
     def start(self):
         try:
             logging.info(
-                f"[Interface] Starting '{self.db.display_name}' type={self.db.name} broker={getattr(self.db, 'mqtt_broker_address', None)} topic={getattr(self.db, 'mqtt_topic', None)}"
+                f"[Interface] Starting '{self.db.name}' type={self.db.interface_type} broker={getattr(self.db, 'mqtt_broker_address', None)} topic={getattr(self.db, 'mqtt_topic', None)}"
             )
             self.impl.connect()
             self.impl.start()
@@ -34,12 +34,12 @@ class RuntimeInterfaceWrapper:
             self.db.last_connected = timezone.now()
             self.db.last_error = None
             self.db.save(update_fields=["status", "last_connected", "last_error"])
-            logging.info(f"Started interface {self.db.display_name}")
+            logging.info(f"Started interface {self.db.name}")
         except Exception as e:
             self.db.status = Interface.Status.ERROR
             self.db.last_error = str(e)
             self.db.save(update_fields=["status", "last_error"])
-            logging.error(f"Failed to start interface {self.db.display_name}: {e}")
+            logging.error(f"Failed to start interface {self.db.name}: {e}")
 
     def stop(self):
         try:
@@ -48,7 +48,7 @@ class RuntimeInterfaceWrapper:
             pass
         self.db.status = Interface.Status.STOPPED
         self.db.save(update_fields=["status"])
-        logging.info(f"Stopped interface {self.db.display_name}")
+        logging.info(f"Stopped interface {self.db.name}")
 
     def is_connected(self) -> bool:
         try:
@@ -108,8 +108,8 @@ class ServiceManager:
                 "No enabled interfaces found. Creating a default MQTT interface (auto)."
             )
             default_iface = Interface.objects.create(
-                name=Interface.Names.MQTT,
-                display_name="mqtt-default",
+                interface_type=Interface.Types.MQTT,
+                name="mqtt-default",
                 is_enabled=True,
                 mqtt_broker_address=getattr(
                     settings, "MQTT_BROKER_ADDRESS", "mqtt.meshtastic.org"
@@ -129,7 +129,7 @@ class ServiceManager:
         logging.info(
             f"Loaded {len(self._runtime_interfaces)} interface instances: "
             + ", ".join(
-                f"{w.db.id}:{w.db.display_name}({w.db.name}) topic={getattr(w.db,'mqtt_topic', None)} status={w.db.status}"
+                f"{w.db.id}:{w.db.name}({w.db.interface_type}) topic={getattr(w.db,'mqtt_topic', None)} status={w.db.status}"
                 for w in self._runtime_interfaces.values()
             )
         )
@@ -189,7 +189,7 @@ class ServiceManager:
         )
 
     def _build_interface_impl(self, iface: Interface):
-        if iface.name == Interface.Names.MQTT:
+        if iface.interface_type == Interface.Types.MQTT:
             return MqttInterface(
                 broker_address=iface.mqtt_broker_address
                 or settings.MQTT_BROKER_ADDRESS,
@@ -206,14 +206,14 @@ class ServiceManager:
                 or getattr(settings, "MQTT_CA_CERTS", None),
                 interface_id=iface.id,
             )
-        elif iface.name == Interface.Names.SERIAL:
+        elif iface.interface_type == Interface.Types.SERIAL:
             return SerialInterface(
                 port=iface.serial_port or getattr(settings, "SERIAL_PORT", None),
                 baudrate=iface.serial_baudrate
                 or getattr(settings, "SERIAL_BAUDRATE", 9600),
                 interface_id=iface.id,
             )
-        elif iface.name == Interface.Names.TCP:
+        elif iface.interface_type == Interface.Types.TCP:
             return TcpInterface(
                 hostname=iface.tcp_hostname
                 or getattr(settings, "TCP_HOSTNAME", "localhost"),
@@ -221,13 +221,13 @@ class ServiceManager:
                 interface_id=iface.id,
             )
         else:
-            raise ValueError(f"Unsupported interface type: {iface.name}")
+            raise ValueError(f"Unsupported interface type: {iface.interface_type}")
 
     def get_publishable_mqtt(self) -> Optional[PublishableInterface]:
         # Return first running MQTT interface
         for w in self._runtime_interfaces.values():
             if (
-                w.db.name == Interface.Names.MQTT
+                w.db.interface_type == Interface.Types.MQTT
                 and w.db.status == Interface.Status.RUNNING
             ):
                 return w.impl
@@ -349,8 +349,8 @@ class ServiceManager:
                 logging.info(
                     "[InterfaceStatus] id=%s name=%s type=%s status=%s connected=%s topic=%s",
                     getattr(w.db, "id", None),
-                    getattr(w.db, "display_name", None),
                     getattr(w.db, "name", None),
+                    getattr(w.db, "interface_type", None),
                     getattr(w.db, "status", None),
                     w.is_connected(),
                     getattr(w.db, "mqtt_topic", None),
@@ -382,7 +382,7 @@ class ServiceManager:
         wrapper = self.get_runtime_interface(interface_id)
         if not wrapper:
             return None
-        if wrapper.db.name != Interface.Names.MQTT:
+        if wrapper.db.interface_type != Interface.Types.MQTT:
             return None
         if wrapper.db.status != Interface.Status.RUNNING:
             return None
@@ -405,7 +405,7 @@ class ServiceManager:
                 db_interface=db_iface, impl=self._build_interface_impl(db_iface)
             )
             self._runtime_interfaces[interface_id] = wrapper
-        if wrapper.db.name != Interface.Names.MQTT:
+        if wrapper.db.interface_type != Interface.Types.MQTT:
             return None, None, "Interface type not supported for publishing"
         need_restart = wrapper.db.status != Interface.Status.RUNNING
         if not need_restart and hasattr(wrapper.impl, "is_connected"):

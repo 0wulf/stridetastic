@@ -17,8 +17,8 @@ auth = JWTAuth()
 
 class InterfaceSchema(Schema):
     id: int
-    display_name: str
     name: str
+    interface_type: str
     status: str
     is_enabled: bool
     mqtt_topic: Optional[str] = None
@@ -93,12 +93,12 @@ class InterfaceController:
         qs = Interface.objects.all()
         type_filter = request.GET.get("type")
         if type_filter:
-            qs = qs.filter(name=type_filter.upper())
+            qs = qs.filter(interface_type=type_filter.upper())
         return [
             InterfaceSchema(
                 id=i.id,
-                display_name=i.display_name,
                 name=i.name,
+                interface_type=i.interface_type,
                 status=i.status,
                 is_enabled=i.is_enabled,
                 mqtt_topic=i.mqtt_topic,
@@ -121,8 +121,8 @@ class InterfaceController:
             return 404, MessageSchema(message="Interface not found")
         return InterfaceSchema(
             id=iface.id,
-            display_name=iface.display_name,
             name=iface.name,
+            interface_type=iface.interface_type,
             status=iface.status,
             is_enabled=iface.is_enabled,
             mqtt_topic=iface.mqtt_topic,

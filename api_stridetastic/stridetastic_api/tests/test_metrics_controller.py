@@ -14,8 +14,8 @@ class MetricsControllerTests(TestCase):
         self.controller = MetricsController()
 
         self.interface = Interface.objects.create(
-            name=Interface.Names.MQTT,
-            display_name="iface",
+            interface_type=Interface.Types.MQTT,
+            name="iface",
         )
 
         self.node_a = Node.objects.create(

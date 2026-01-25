@@ -912,7 +912,7 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
         setChannels(channelsResp.data?.channels || []);
         const fetchedInterfaces = interfacesResp.data || [];
         setInterfaces(fetchedInterfaces);
-        const firstMqtt = fetchedInterfaces.find((i: Interface) => i.status === 'RUNNING' && i.name === 'MQTT');
+        const firstMqtt = fetchedInterfaces.find((i: Interface) => i.status === 'RUNNING' && i.interface_type === 'MQTT');
         if (firstMqtt) {
           setSelectedInterfaceId((prev) => {
             if (prev != null && fetchedInterfaces.some((iface) => iface.id === prev)) {
@@ -1773,7 +1773,7 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
     apiClient.getInterfaces().then(res => {
       const fetched = res.data || [];
       setInterfaces(fetched);
-      const first = fetched.find(i => i.status === 'RUNNING' && i.name === 'MQTT');
+      const first = fetched.find(i => i.status === 'RUNNING' && i.interface_type === 'MQTT');
       if (first) {
         setSelectedInterfaceId((prev) => {
           if (prev != null && fetched.some((iface) => iface.id === prev)) {
@@ -1837,7 +1837,7 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
 
     if (selectedAction === 'periodic-publish') {
       const availableNodes = isVirtualRestrictionActive ? selectableNodes : nodes;
-      const mqttInterfaces = interfaces.filter((iface) => iface.name === 'MQTT');
+      const mqttInterfaces = interfaces.filter((iface) => iface.interface_type === 'MQTT');
       const currentJob = periodicForm.id ? periodicJobs.find((job) => job.id === periodicForm.id) : null;
       const nextRunText = currentJob ? formatDateTime(currentJob.next_run_at) : '—';
       const lastRunText = currentJob ? formatDateTime(currentJob.last_run_at) : '—';
@@ -2233,7 +2233,7 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
                           <option value="">Auto select</option>
                           {mqttInterfaces.map((iface) => (
                             <option key={iface.id} value={iface.id}>
-                              {iface.display_name || `Interface ${iface.id}`} ({iface.status})
+                              {iface.name || `Interface ${iface.id}`} ({iface.status})
                             </option>
                           ))}
                         </select>
@@ -2567,9 +2567,9 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
                       className={FORM_SELECT_CLASS}
                     >
                       <option value="">Default MQTT interface</option>
-                      {interfaces.filter((iface) => iface.name === 'MQTT').map((iface) => (
+                      {interfaces.filter((iface) => iface.interface_type === 'MQTT').map((iface) => (
                         <option key={iface.id} value={iface.id}>
-                          {iface.display_name || iface.name} ({iface.status || 'unknown'})
+                          {iface.name || iface.interface_type} ({iface.status || 'unknown'})
                         </option>
                       ))}
                     </select>
@@ -2753,13 +2753,13 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
       const filteredInterfaces = interfaces
         .filter((iface) => {
           if (!interfaceQuery) return true;
-          const label = `${iface.display_name || iface.name} ${iface.mqtt_topic || ''}`.toLowerCase();
+          const label = `${iface.name || iface.interface_type} ${iface.mqtt_topic || ''}`.toLowerCase();
           return label.includes(interfaceQuery);
         })
         .sort((a, b) => {
           const rankDiff = statusRank(a.status) - statusRank(b.status);
           if (rankDiff !== 0) return rankDiff;
-          return (a.display_name || a.name).localeCompare(b.display_name || b.name);
+          return (a.name || a.interface_type).localeCompare(b.name || b.interface_type);
         });
 
       return (
@@ -2947,12 +2947,12 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
                               className="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                             />
                             <div className="flex-1">
-                              <div className="text-sm font-medium text-gray-900">{iface.display_name || iface.name}</div>
+                              <div className="text-sm font-medium text-gray-900">{iface.name || iface.interface_type}</div>
                               <div className="flex flex-wrap items-center gap-2 text-xs text-gray-600 mt-1">
                                 <span className={`inline-flex items-center rounded-full px-2 py-0.5 font-medium ${isRunning ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
                                   {iface.status || 'UNKNOWN'}
                                 </span>
-                                <span>{iface.name}</span>
+                                <span>{iface.interface_type}</span>
                                 {iface.mqtt_topic && <span className="truncate max-w-[12rem]">{iface.mqtt_topic}</span>}
                               </div>
                             </div>
@@ -2974,7 +2974,7 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
                     <p className="mt-2 text-xs text-gray-500">
                       <span className="font-medium text-gray-700">Backend selection preview:</span>{' '}
                       {listenerDetails
-                        .map((item) => `${item.display_name || item.name || `#${item.id}`}${item.status ? ` (${item.status})` : ''}`)
+                        .map((item) => `${item.name || `#${item.id}`}${item.status ? ` (${item.status})` : ''}`)
                         .join(', ')}
                     </p>
                   )}
@@ -3145,10 +3145,10 @@ export default function PublishingActions({ className = '' }: PublishingActionsP
               >
                 <option value="">Select interface…</option>
                 {interfaces
-                  .filter(i => i.status === 'RUNNING' && i.name === 'MQTT')
+                  .filter(i => i.status === 'RUNNING' && i.interface_type === 'MQTT')
                   .map(i => (
                     <option key={i.id} value={i.id}>
-                      {i.display_name} ({i.mqtt_topic})
+                      {i.name} ({i.mqtt_topic})
                     </option>
                   ))}
               </select>

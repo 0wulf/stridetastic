@@ -1,7 +1,7 @@
 export interface Interface {
   id: number;
-  name: string; // 'MQTT' | 'SERIAL'
-  display_name: string;
+  name: string;
+  interface_type: string; // 'MQTT' | 'SERIAL' | 'TCP'
   status?: string; // 'INIT' | 'RUNNING' | 'ERROR' | 'STOPPED' | 'CONNECTING'
   is_enabled?: boolean;
   mqtt_topic?: string;

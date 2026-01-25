@@ -7,7 +7,7 @@ class Interface(models.Model):
     Multiple instances per type can exist with their own configuration.
     """
 
-    class Names(models.TextChoices):  # Backwards compatibility (used as type)
+    class Types(models.TextChoices):
         MQTT = "MQTT", "MQTT"
         SERIAL = "SERIAL", "Serial"
         TCP = "TCP", "TCP (Network)"
@@ -19,19 +19,19 @@ class Interface(models.Model):
         ERROR = "ERROR", "Error"
         STOPPED = "STOPPED", "Stopped"
 
-    # Type of interface (original field retained for minimal code changes)
-    name = models.CharField(
+    # Type of interface (MQTT, SERIAL, TCP)
+    interface_type = models.CharField(
         max_length=20,
-        choices=Names.choices,
-        default=Names.MQTT,
-        help_text="Type of the interface (MQTT / SERIAL).",
+        choices=Types.choices,
+        default=Types.MQTT,
+        help_text="Type of the interface (MQTT / SERIAL / TCP).",
     )
 
     # Human readable unique name for this specific instance
-    display_name = models.CharField(
+    name = models.CharField(
         max_length=50,
         unique=True,
-        help_text="Unique display name for this interface instance.",
+        help_text="Unique name for this interface instance.",
     )
 
     # Lifecycle
@@ -104,15 +104,15 @@ class Interface(models.Model):
     class Meta:
         verbose_name = "Interface"
         verbose_name_plural = "Interfaces"
-        ordering = ["display_name"]
+        ordering = ["name"]
 
     def __str__(self):
-        return f"{self.display_name} ({self.name})"
+        return f"{self.name} ({self.interface_type})"
 
     def save(self, *args, **kwargs):
-        # Auto-populate display_name if empty (first save only)
-        if not self.display_name:
-            base = self.name.lower()
-            similar = Interface.objects.filter(display_name__startswith=base).count()
-            self.display_name = f"{base}-{similar+1}" if similar else base
+        # Auto-populate name if empty (first save only)
+        if not self.name:
+            base = self.interface_type.lower()
+            similar = Interface.objects.filter(name__startswith=base).count()
+            self.name = f"{base}-{similar+1}" if similar else base
         super().save(*args, **kwargs)

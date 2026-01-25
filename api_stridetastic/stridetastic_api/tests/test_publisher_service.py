@@ -97,7 +97,7 @@ class PublisherServiceReactiveTests(TestCase):
 
     def test_listen_interfaces_configured(self):
         interface = Interface.objects.create(
-            name=Interface.Names.MQTT, display_name="iface-db"
+            interface_type=Interface.Types.MQTT, name="iface-db"
         )
         config = self.service.update_reactive_config(
             listen_interface_ids=[interface.id]
@@ -136,7 +136,7 @@ class PublisherServiceReactiveTests(TestCase):
         config.save()
 
         interface_stub = SimpleNamespace(
-            pk=1, name="MQTT", status="RUNNING", display_name="iface"
+            pk=1, interface_type="MQTT", status="RUNNING", name="iface"
         )
         channel_stub = SimpleNamespace(
             channel_id="LongFast", psk="AQ==", interfaces=[interface_stub]
@@ -190,7 +190,7 @@ class PublisherServiceReactiveTests(TestCase):
         )
 
         interface_stub = SimpleNamespace(
-            pk=1, name="MQTT", status="RUNNING", display_name="iface"
+            pk=1, interface_type="MQTT", status="RUNNING", name="iface"
         )
         channel_stub = SimpleNamespace(
             channel_id="LongFast", psk="", interfaces=[interface_stub]
@@ -264,7 +264,7 @@ class PublisherServiceReactiveTests(TestCase):
         self.service.start_reactive_service()
 
         interface_stub = SimpleNamespace(
-            pk=1, name="MQTT", status="RUNNING", display_name="iface"
+            pk=1, interface_type="MQTT", status="RUNNING", name="iface"
         )
         channel_stub = SimpleNamespace(
             channel_id="LongFast", psk="AQ==", interfaces=[interface_stub]
@@ -325,7 +325,7 @@ class PublisherServiceReactiveTests(TestCase):
         )
 
         interface_stub = SimpleNamespace(
-            pk=1, name="MQTT", status="RUNNING", display_name="iface"
+            pk=1, interface_type="MQTT", status="RUNNING", name="iface"
         )
         channel_stub = SimpleNamespace(
             channel_id="LongFast", psk="", interfaces=[interface_stub]
@@ -457,8 +457,8 @@ class PublisherServiceReactiveTests(TestCase):
         self.service.start_reactive_service()
 
         interface = Interface.objects.create(
-            name=Interface.Names.MQTT,
-            display_name="mqtt-test",
+            interface_type=Interface.Types.MQTT,
+            name="mqtt-test",
         )
         channel = Channel.objects.create(
             channel_id="LongFast",

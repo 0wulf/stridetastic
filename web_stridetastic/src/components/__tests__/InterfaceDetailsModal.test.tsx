@@ -27,7 +27,7 @@ describe('InterfaceDetailsModal', () => {
 
     render(
       <InterfaceDetailsModal
-        iface={{ id: 1, name: 'MQTT', display_name: 'MQTT', status: 'STOPPED', is_enabled: true }}
+        iface={{ id: 1, interface_type: 'MQTT', name: 'MQTT', status: 'STOPPED', is_enabled: true }}
         isOpen
         onClose={() => {}}
       />
@@ -45,7 +45,7 @@ describe('InterfaceDetailsModal', () => {
 
     render(
       <InterfaceDetailsModal
-        iface={{ id: 2, name: 'MQTT', display_name: 'MQTT', status: 'RUNNING', is_enabled: true }}
+        iface={{ id: 2, interface_type: 'MQTT', name: 'MQTT', status: 'RUNNING', is_enabled: true }}
         isOpen
         onClose={() => {}}
       />
@@ -63,7 +63,7 @@ describe('InterfaceDetailsModal', () => {
 
     render(
       <InterfaceDetailsModal
-        iface={{ id: 3, name: 'MQTT', display_name: 'MQTT', status: 'RUNNING', is_enabled: true }}
+        iface={{ id: 3, interface_type: 'MQTT', name: 'MQTT', status: 'RUNNING', is_enabled: true }}
         isOpen
         onClose={() => {}}
       />

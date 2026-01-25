@@ -68,7 +68,7 @@ export default function InterfaceDetailsModal({ iface, isOpen, onClose, onStatus
         <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
           <div className="min-w-0 flex-1">
             <h2 className="text-lg sm:text-xl font-bold text-gray-900 truncate">
-              {iface.display_name || iface.name || `Interface ${iface.id}`}
+              {iface.name || `Interface ${iface.id}`}
             </h2>
             <p className="text-xs sm:text-sm text-gray-500 truncate">ID: {iface.id}</p>
           </div>
@@ -85,11 +85,11 @@ export default function InterfaceDetailsModal({ iface, isOpen, onClose, onStatus
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">Name:</span>
-              <span className="text-sm font-medium text-gray-900">{iface.display_name}</span>
+              <span className="text-sm font-medium text-gray-900">{iface.name}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">Type:</span>
-              <span className="text-sm font-medium text-gray-900">{iface.name}</span>
+              <span className="text-sm font-medium text-gray-900">{iface.interface_type}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">Status:</span>

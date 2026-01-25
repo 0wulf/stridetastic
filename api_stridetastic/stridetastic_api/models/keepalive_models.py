@@ -98,7 +98,7 @@ class KeepaliveConfig(models.Model):
                 errors["channel_name"] = (
                     "Channel name is required when keepalive is enabled."
                 )
-            if self.interface and self.interface.name != Interface.Names.MQTT:
+            if self.interface and self.interface.interface_type != Interface.Types.MQTT:
                 errors["interface"] = (
                     "Only MQTT interfaces are supported for keepalive publishing."
                 )

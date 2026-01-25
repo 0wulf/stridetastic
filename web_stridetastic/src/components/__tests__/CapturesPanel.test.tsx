@@ -39,7 +39,7 @@ describe('CapturesPanel', () => {
 
   it('submits a new capture with trimmed name', async () => {
     apiMocks.getCaptureSessions.mockResolvedValue({ data: [] });
-    apiMocks.getInterfaces.mockResolvedValue({ data: [{ id: 1, name: 'MQTT', display_name: 'MQTT' }] });
+    apiMocks.getInterfaces.mockResolvedValue({ data: [{ id: 1, interface_type: 'MQTT', name: 'MQTT' }] });
     apiMocks.startCapture.mockResolvedValueOnce({ data: { session: { id: '1' } } });
 
     render(<CapturesPanel />);

@@ -23,16 +23,20 @@ class Command(BaseCommand):
         )
 
         _serial_interface = Interface.objects.filter(
-            name=Interface.Names.SERIAL
+            interface_type=Interface.Types.SERIAL
         ).first()
         if _serial_interface is None:
             _serial_interface = Interface.objects.create(
-                name=Interface.Names.SERIAL,
+                interface_type=Interface.Types.SERIAL,
             )
 
-        mqtt_interface = Interface.objects.filter(name=Interface.Names.MQTT).first()
+        mqtt_interface = Interface.objects.filter(
+            interface_type=Interface.Types.MQTT
+        ).first()
         if mqtt_interface is None:
-            mqtt_interface = Interface.objects.create(name=Interface.Names.MQTT)
+            mqtt_interface = Interface.objects.create(
+                interface_type=Interface.Types.MQTT
+            )
 
         default_channel, _ = Channel.objects.get_or_create(
             channel_id="LongFast",

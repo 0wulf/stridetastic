@@ -14,7 +14,7 @@ def _coerce(value: Any) -> Any:
 
 
 def serialize_node(node: Node) -> NodeSchema:
-    interface_names = list(node.interfaces.values_list("display_name", flat=True))  # type: ignore[attr-defined]
+    interface_names = list(node.interfaces.values_list("name", flat=True))  # type: ignore[attr-defined]
     return NodeSchema(
         id=node.pk,
         node_num=node.node_num,

@@ -422,7 +422,7 @@ export interface PublisherReactiveConfig {
   listen_interfaces: Array<{
     id: number;
     name?: string | null;
-    display_name?: string | null;
+    interface_type?: string | null;
     status?: string | null;
   }>;
 }
@@ -463,7 +463,7 @@ export interface KeepaliveConfig {
   interface?: {
     id: number;
     name?: string | null;
-    display_name?: string | null;
+    interface_type?: string | null;
     status?: string | null;
   } | null;
   offline_after_seconds: number;
@@ -543,7 +543,7 @@ export interface PublisherPeriodicJob {
   interface?: {
     id: number;
     name?: string | null;
-    display_name?: string | null;
+    interface_type?: string | null;
     status?: string | null;
   } | null;
   payload_options: Record<string, unknown>;

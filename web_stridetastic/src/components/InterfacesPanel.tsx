@@ -34,8 +34,8 @@ export default function InterfacesPanel() {
           <tbody>
             {interfaces.map(i => (
               <tr key={i.id} className="border-b last:border-b-0">
-                <td className="px-3 py-2 font-semibold whitespace-nowrap">{i.display_name}</td>
-                <td className="px-3 py-2 whitespace-nowrap">{i.name}</td>
+                <td className="px-3 py-2 font-semibold whitespace-nowrap">{i.name}</td>
+                <td className="px-3 py-2 whitespace-nowrap">{i.interface_type}</td>
                 <td className={`px-3 py-2 whitespace-nowrap font-bold ${i.status === 'RUNNING' ? 'text-green-600' : i.status === 'ERROR' ? 'text-red-600' : 'text-gray-700'}`}>{i.status}</td>
                 <td className="px-3 py-2 whitespace-nowrap">{i.mqtt_topic ?? '-'}</td>
                 <td className="px-3 py-2 whitespace-nowrap">{i.last_connected ? new Date(i.last_connected).toLocaleString() : '-'}</td>
