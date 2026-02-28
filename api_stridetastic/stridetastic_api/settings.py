@@ -44,10 +44,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-a3h32cwvqg!4ot3e8+776n8c1g06nmiz(xjis_0$=yi=#0b$wl"
+SECRET_KEY = os.getenv(
+    "SECRET_KEY",
+    "django-insecure-a3h32cwvqg!4ot3e8+776n8c1g06nmiz(xjis_0$=yi=#0b$wl",
+)
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True  # if os.getenv('ENVIRONMENT') == 'development' else False
+DEBUG = _env_flag("DEBUG", default=True)
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,").split(",")
 
@@ -258,8 +260,11 @@ CSRF_COOKIE_SECURE = False  # if ENVIRONMENT == "development" else True
 CSRF_COOKIE_HTTPONLY = False
 CSRF_COOKIE_SAMESITE = "Lax"
 CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:3000",
-    "http://localhost:8000",
+    origin.strip()
+    for origin in os.getenv(
+        "CSRF_TRUSTED_ORIGINS", "http://localhost:3000,http://localhost:8000"
+    ).split(",")
+    if origin.strip()
 ]
 
 

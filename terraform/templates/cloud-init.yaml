@@ -1,0 +1,70 @@
+#cloud-config
+
+package_update: true
+package_upgrade: true
+
+packages:
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - gnupg
+  - lsb-release
+  - git
+  - certbot
+  - ufw
+
+write_files:
+  - path: /opt/stridetastic/duckdns-update.sh
+    permissions: "0755"
+    content: |
+      #!/bin/bash
+      DOMAIN="${domain}"
+      TOKEN="${duckdns_token}"
+      SUBDOMAIN="$${DOMAIN%.duckdns.org}"
+      curl -s "https://www.duckdns.org/update?domains=$${SUBDOMAIN}&token=$${TOKEN}&ip=" > /var/log/duckdns.log 2>&1
+
+  - path: /etc/cron.d/duckdns
+    content: |
+      */5 * * * * root /opt/stridetastic/duckdns-update.sh
+
+  - path: /etc/cron.d/certbot-renew
+    content: |
+      0 3 * * * root certbot renew --quiet --deploy-hook "docker exec nginx_stridetastic nginx -s reload" >> /var/log/certbot-renew.log 2>&1
+
+runcmd:
+  # Install Docker
+  - install -m 0755 -d /etc/apt/keyrings
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+  - chmod a+r /etc/apt/keyrings/docker.asc
+  - echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable" > /etc/apt/sources.list.d/docker.list
+  - apt-get update
+  - apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+  # Create swap (critical for 1GB RAM)
+  - fallocate -l 2G /swapfile
+  - chmod 600 /swapfile
+  - mkswap /swapfile
+  - swapon /swapfile
+  - echo '/swapfile none swap sw 0 0' >> /etc/fstab
+  - sysctl vm.swappiness=10
+  - echo 'vm.swappiness=10' >> /etc/sysctl.conf
+
+  # Prepare app directory
+  - mkdir -p /opt/stridetastic/nginx
+  - mkdir -p /opt/stridetastic/certbot/www
+  - mkdir -p /opt/stridetastic/certbot/conf
+
+  # Clone repository
+  - git clone --branch ${app_branch} ${app_repo_url} /opt/stridetastic/repo || true
+  - ln -sf /opt/stridetastic/repo/api_stridetastic /opt/stridetastic/api_stridetastic
+  - ln -sf /opt/stridetastic/repo/web_stridetastic /opt/stridetastic/web_stridetastic
+  - ln -sf /opt/stridetastic/repo/grafana /opt/stridetastic/grafana
+  - ln -sf /opt/stridetastic/repo/compose.yaml /opt/stridetastic/compose.yaml
+
+  # Add deploy SSH key for authorized access
+  - mkdir -p /root/.ssh
+  - echo "${deploy_ssh_key}" >> /root/.ssh/authorized_keys
+
+  # Enable Docker on boot
+  - systemctl enable docker
+  - systemctl start docker

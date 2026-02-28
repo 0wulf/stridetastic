@@ -1,0 +1,52 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency:
+      group: production-deploy
+      cancel-in-progress: false
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DROPLET_IP }}
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script_stop: true
+          script: |
+            set -e
+
+            cd /opt/stridetastic/repo
+
+            # Pull latest changes
+            git fetch origin main
+            git reset --hard origin/main
+
+            # Copy production configs into repo
+            cp /opt/stridetastic/.env .env
+            cp /opt/stridetastic/compose.prod.yaml compose.prod.yaml
+            cp /opt/stridetastic/nginx/nginx.conf nginx/nginx.conf 2>/dev/null || true
+
+            # Rebuild and deploy
+            docker compose -f compose.yaml -f compose.prod.yaml build
+            docker compose -f compose.yaml -f compose.prod.yaml up -d
+
+            # Run migrations
+            docker compose -f compose.yaml -f compose.prod.yaml exec -T api_stridetastic python manage.py migrate --noinput
+
+            # Verify services are running
+            sleep 10
+            docker compose -f compose.yaml -f compose.prod.yaml ps
+
+            echo "Deployment complete!"

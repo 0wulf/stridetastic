@@ -1,0 +1,28 @@
+# DigitalOcean API token — get from https://cloud.digitalocean.com/account/api/tokens
+do_token = "dop_v1_your_token_here"
+
+# SSH key paths — generate with: ssh-keygen -t ed25519 -f ~/.ssh/stridetastic_ed25519
+ssh_public_key_path  = "~/.ssh/stridetastic_ed25519.pub"
+ssh_private_key_path = "~/.ssh/stridetastic_ed25519"
+
+# DuckDNS token — get from https://www.duckdns.org/
+duckdns_token = "your-duckdns-token-here"
+
+# Email for Let's Encrypt certificate notifications
+certbot_email = "your-email@example.com"
+
+# Domain
+domain = "stridetastic.duckdns.org"
+
+# Git repository
+app_repo_url = "https://github.com/your-username/stridetastic.git"
+app_branch   = "main"
+
+# MQTT Configuration (customize to your broker)
+# mqtt_broker_address = "mqtt.meshtastic.org"
+# mqtt_broker_port    = 1883
+# mqtt_topic          = "msh/US/2/e/#"
+# mqtt_username       = "meshdev"
+# mqtt_password       = "large4cats"
+# mqtt_tls            = "false"
+# mqtt_base_topic     = "msh/US/2/e"

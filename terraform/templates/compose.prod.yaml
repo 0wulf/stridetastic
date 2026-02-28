@@ -1,0 +1,77 @@
+# Production overrides for Stridetastic
+# Usage: docker compose -f compose.yaml -f compose.prod.yaml up -d
+#
+# Note: Service ports (5432, 8000, 3000, 6379, 3001) are NOT exposed to the
+# internet — the DigitalOcean firewall only allows ports 22, 80, and 443.
+# Nginx handles all public traffic routing.
+
+services:
+  timescale_stridetastic:
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-stridetastic}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-stridetastic}
+    mem_limit: 256m
+
+  web_stridetastic:
+    volumes: []
+    environment:
+      - API_HOST_IP=api_stridetastic
+      - NEXT_PUBLIC_API_HOST_IP=${NEXT_PUBLIC_API_HOST_IP:-localhost}
+      - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL:-}
+    mem_limit: 256m
+
+  api_stridetastic:
+    volumes:
+      - ./api_stridetastic:/app
+      - api_captures:/app/captures
+    environment:
+      - DEBUG=False
+    mem_limit: 256m
+
+  redis_stridetastic:
+    mem_limit: 64m
+
+  celery_stridetastic:
+    volumes:
+      - ./api_stridetastic:/app
+      - api_captures:/app/captures
+    devices: []
+    mem_limit: 256m
+
+  celery_beat_stridetastic:
+    mem_limit: 128m
+
+  grafana_stridetastic:
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_SERVER_ROOT_URL: "https://${NEXT_PUBLIC_API_HOST_IP:-localhost}/grafana/"
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+    mem_limit: 192m
+
+  # --- Nginx reverse proxy ---
+  nginx_stridetastic:
+    image: nginx:alpine
+    container_name: nginx_stridetastic
+    hostname: nginx_stridetastic
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      default:
+        aliases:
+          - nginx_stridetastic.local
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - /opt/stridetastic/certbot/conf:/etc/letsencrypt:ro
+      - /opt/stridetastic/certbot/www:/var/www/certbot:ro
+    depends_on:
+      - web_stridetastic
+      - api_stridetastic
+      - grafana_stridetastic
+
+volumes:
+  api_captures:

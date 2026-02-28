@@ -5,7 +5,7 @@ import type { ActivityTimeRange } from '@/lib/activityFilters';
 import type { Interface } from '@/types/interface';
 
 const API_HOST_IP = process.env.NEXT_PUBLIC_API_HOST_IP || 'localhost';
-const API_BASE_URL = `http://${API_HOST_IP}:8000/api`;
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || `http://${API_HOST_IP}:8000/api`;
 
 class ApiClient {
   async startInterface(interfaceId: number): Promise<AxiosResponse<{ message: string }>> {
