@@ -4,7 +4,7 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 export default defineConfig({
   plugins: [tsconfigPaths()],
   esbuild: {
-    jsx: 'automatic',
+    jsxInject: `import React from 'react'`,
   },
   test: {
     environment: 'jsdom',
